@@ -376,6 +376,6 @@ export interface IPOSubscription {
   issue_price: number;
   total_amount: number;
   lots_allotted: number;
-  status: 'BID_PLACED' | 'ALLOTTED' | 'REJECTED';
+  status: 'BID_PLACED' | 'ALLOTTED' | 'NOT_ALLOTTED' | 'REJECTED';
   created_at: string;
 }

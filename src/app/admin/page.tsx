@@ -746,14 +746,16 @@ export default function AdminPage() {
       const data = await res.json();
       if (!res.ok || !data.success) {
         showToast(data.error || data.message || 'Failed to allot IPO lots.');
-        return;
+        return null;
       }
       showToast(data.message || 'IPO Lots Successfully Allotted & Credited to Portfolios!');
       await fetchIPOData();
       await fetchAdminTeams();
       await fetchAdminData();
+      return data;
     } catch (err: any) {
       showToast(err.message || 'Allotment error');
+      return null;
     } finally {
       setAllottingIpoId(null);
     }
@@ -1612,6 +1614,7 @@ export default function AdminPage() {
             onRefreshIPO={fetchIPOData}
             showToast={showToast}
             currentRoundId={currentRound?.id}
+            teams={teams}
           />
         )}
 

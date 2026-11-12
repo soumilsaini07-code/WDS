@@ -4282,46 +4282,43 @@ export function subscribeToIPO(params: {
   const ipo = (db.ipo_listings || []).find((i) => i.id === params.ipo_id);
   if (!ipo) return { success: false, error: 'IPO Listing not found.' };
 
-  const currentRound = db.current_round_id || 'round-0';
-  if (currentRound !== ipo.round_id) {
+  if (ipo.status !== 'SUBSCRIPTION_OPEN') {
     return {
       success: false,
-      error: `IPO subscription for ${ipo.company_name} is only valid during ${ipo.round_id.toUpperCase()}. Currently in ${currentRound.toUpperCase()}.`,
+      error: `IPO subscription for ${ipo.company_name} is closed (${ipo.status}). Bids can only be accepted when status is SUBSCRIPTION_OPEN.`,
     };
   }
 
   let team = (db.teams || []).find(
     (t) =>
       t.id === params.team_id ||
-      t.name.toLowerCase() === (params.team_id || '').toLowerCase() ||
-      (t.code && t.code.toLowerCase() === (params.team_id || '').toLowerCase())
+      t.name.toLowerCase() === (params.team_id || '').trim().toLowerCase() ||
+      (t.code && t.code.toLowerCase() === (params.team_id || '').trim().toLowerCase())
   );
   if (!team) {
     team = (db.teams || []).find((t) => t.leader_id === params.user_id || t.members?.some((m: any) => m.id === params.user_id || m.email === params.user_id));
   }
-  // Fallback: If user is an individual trader or admin testing, auto-create/bind their syndicate team
-  if (!team) {
-    const usr = db.users.find((u) => u.id === params.user_id || (u.email && u.email === params.user_id));
-    if (usr) {
-      const teamName = usr.username || (usr.first_name ? `${usr.first_name}'s Team` : 'Syndicate Team');
-      const createdTeam: any = {
-        id: params.team_id || ('team-' + usr.id),
-        name: teamName,
-        code: 'TEAM-' + Math.random().toString(36).substring(2, 6).toUpperCase(),
-        leader_id: usr.id,
-        leader_name: usr.username || usr.first_name || usr.email,
-        leader_email: usr.email,
-        balance: usr.balance ?? 1000000,
-        members: [{ id: usr.id, name: usr.username || usr.first_name || 'Trader', email: usr.email, role: 'leader' }],
-        created_at: new Date().toISOString(),
-      };
-      if (!db.teams) db.teams = [];
-      db.teams.push(createdTeam);
-      usr.team_id = createdTeam.id;
-      team = createdTeam;
-    }
+  // Auto-create on-the-spot team (Floor Mode) if typed by admin
+  if (!team && params.team_id) {
+    const cleanName = params.team_id.trim();
+    const code = cleanName.replace(/[^a-zA-Z0-9]/g, '').slice(0, 8).toUpperCase() || 'TEAM';
+    const leaderId = 'usr-' + Math.random().toString(36).substring(2, 8);
+    const createdTeam: Team = {
+      id: 'team-' + Math.random().toString(36).substring(2, 8),
+      name: cleanName,
+      code,
+      leader_id: leaderId,
+      leader_name: cleanName + ' Lead',
+      leader_email: `${code.toLowerCase()}@thapar.edu`,
+      balance: 1000000,
+      members: [],
+      created_at: new Date().toISOString(),
+    };
+    if (!db.teams) db.teams = [];
+    db.teams.push(createdTeam);
+    team = createdTeam;
   }
-  if (!team) return { success: false, error: 'Team record not found. Please join or create a team.' };
+  if (!team) return { success: false, error: 'Team record not found. Please specify a valid team.' };
 
   const user =
     db.users.find((u) => u.id === params.user_id) ||
@@ -4389,7 +4386,23 @@ export function subscribeToIPO(params: {
   };
 
   db.ipo_subscriptions.push(subscription);
+
+  // Recalculate IPO demand metrics in real-time
+  const allBids = db.ipo_subscriptions.filter((s) => s.ipo_id === ipo.id && (s.status === 'BID_PLACED' || s.status === 'ALLOTTED'));
+  const totalDemanded = allBids.reduce((acc, s) => acc + s.lots_requested, 0);
+  const totalOffered = ipo.total_issue_lots || 100;
+  ipo.total_demanded_lots = totalDemanded;
+  ipo.subscription_ratio = Number((totalDemanded / totalOffered).toFixed(2));
+
   saveLocalDB(db);
+
+  // Realtime Broadcast to Floor Screens & Dashboards
+  broadcastRealtimeEvent('IPO_SUBSCRIPTION_UPDATED', {
+    ipo_id: ipo.id,
+    ticker: ipo.ticker,
+    total_demanded_lots: ipo.total_demanded_lots,
+    subscription_ratio: ipo.subscription_ratio,
+  });
 
   return { success: true, subscription };
 }
@@ -4397,7 +4410,26 @@ export function subscribeToIPO(params: {
 export function allotIPOLots(
   adminEmail: string,
   ipoId: string
-): { success: boolean; allottedCount: number; message: string; listingPrice?: number } {
+): {
+  success: boolean;
+  allottedCount: number;
+  message: string;
+  listingPrice?: number;
+  isOversubscribed?: boolean;
+  subscriptionRatio?: number;
+  totalLotsDemanded?: number;
+  totalLotsOffered?: number;
+  allotmentList?: Array<{
+    subId: string;
+    teamId: string;
+    teamName: string;
+    lotsRequested: number;
+    lotsAllotted: number;
+    sharesAllotted: number;
+    totalCost: number;
+    status: string;
+  }>;
+} {
   const db = getLocalDB();
   const ipo = (db.ipo_listings || []).find((i) => i.id === ipoId);
   if (!ipo) return { success: false, allottedCount: 0, message: 'IPO listing not found.' };
@@ -4456,44 +4488,43 @@ export function allotIPOLots(
     listedStock.upper_circuit = Number((calculatedListingPrice * 1.10).toFixed(2));
   }
 
-  // Fair Allotment Engine:
+  // Fair Randomized Lottery Allotment Engine:
   // If demand <= supply (undersubscribed): All teams receive 100% of requested lots
   // If demand > supply (oversubscribed):
-  // 1. Guaranteed 1-lot minimum allocation per applicant team (SEBI-style retail protection)
-  // 2. Pro-rata proportional distribution for the remaining available lot pool
-  // 3. Rounding remainder lots distributed via computerized randomized lottery draw
+  // Every requested lot is an entry ticket in the lottery pool.
+  // Tickets are randomized and drawn up to totalLotsOffered.
   const isOversubscribed = totalLotsDemanded > totalLotsOffered;
-  const guaranteedMin = subs.length <= totalLotsOffered ? 1 : 0;
-  const remainingPool = totalLotsOffered - (guaranteedMin * subs.length);
-  const excessDemanded = totalLotsDemanded - (guaranteedMin * subs.length);
-
   const allotmentMap = new Map<string, number>();
-  let preliminaryAllotted = 0;
 
-  subs.forEach((sub) => {
-    if (!isOversubscribed) {
+  if (!isOversubscribed) {
+    subs.forEach((sub) => {
       allotmentMap.set(sub.id, sub.lots_requested);
-      preliminaryAllotted += sub.lots_requested;
-    } else {
-      const extraLots = excessDemanded > 0 && remainingPool > 0
-        ? Math.floor(((sub.lots_requested - guaranteedMin) / excessDemanded) * remainingPool)
-        : 0;
-      const teamLots = Math.min(sub.lots_requested, guaranteedMin + extraLots);
-      allotmentMap.set(sub.id, teamLots);
-      preliminaryAllotted += teamLots;
-    }
-  });
+    });
+  } else {
+    // Generate pool of lottery tickets for random drawing
+    const ticketPool: string[] = [];
+    subs.forEach((sub) => {
+      allotmentMap.set(sub.id, 0);
+      for (let i = 0; i < sub.lots_requested; i++) {
+        ticketPool.push(sub.id);
+      }
+    });
 
-  // Distribute rounding remainder lots via fair randomized lottery draw up to totalLotsOffered
-  let remainderLots = Math.max(0, totalLotsOffered - preliminaryAllotted);
-  if (isOversubscribed && remainderLots > 0) {
-    const randomizedSubs = [...subs].sort(() => Math.random() - 0.5);
-    for (const sub of randomizedSubs) {
-      if (remainderLots <= 0) break;
-      const current = allotmentMap.get(sub.id) || 0;
-      if (current < sub.lots_requested) {
-        allotmentMap.set(sub.id, current + 1);
-        remainderLots--;
+    // Fisher-Yates fair computerized shuffle
+    for (let i = ticketPool.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [ticketPool[i], ticketPool[j]] = [ticketPool[j], ticketPool[i]];
+    }
+
+    // Draw winning lots up to totalLotsOffered
+    let drawnCount = 0;
+    for (const subId of ticketPool) {
+      if (drawnCount >= totalLotsOffered) break;
+      const cur = allotmentMap.get(subId) || 0;
+      const sub = subs.find((s) => s.id === subId);
+      if (sub && cur < sub.lots_requested) {
+        allotmentMap.set(subId, cur + 1);
+        drawnCount++;
       }
     }
   }
@@ -4512,13 +4543,19 @@ export function allotIPOLots(
       ) || db.users.find((u) => u.team_id === team.id);
     if (!leader) return;
 
-    const allottedLots = allotmentMap.get(sub.id) ?? sub.lots_requested;
+    const allottedLots = allotmentMap.get(sub.id) ?? 0;
     const finalShares = allottedLots * ipo.lot_size;
     const finalCost = Number((finalShares * baseP0).toFixed(2)); // Primary acquisition at reference price
 
-    if (leader.balance < finalCost) return;
+    if (allottedLots === 0) {
+      sub.lots_allotted = 0;
+      sub.share_quantity = 0;
+      sub.total_amount = 0;
+      sub.status = 'NOT_ALLOTTED';
+      return;
+    }
 
-    // Deduct cash
+    // Deduct cash for allotted lots
     leader.balance = Number((leader.balance - finalCost).toFixed(2));
     team.balance = leader.balance;
 
@@ -4570,6 +4607,23 @@ export function allotIPOLots(
   ipo.allotted_lots += totalLotsAllotted;
   ipo.status = 'ALLOTTED';
 
+  // Build Allotment Breakdown Roster for Offline Floor Announcement
+  const allotmentList = subs.map((sub) => {
+    const lotsWon = allotmentMap.get(sub.id) || 0;
+    const shares = lotsWon * ipo.lot_size;
+    const cost = Number((shares * baseP0).toFixed(2));
+    return {
+      subId: sub.id,
+      teamId: sub.team_id,
+      teamName: sub.team_name,
+      lotsRequested: sub.lots_requested,
+      lotsAllotted: lotsWon,
+      sharesAllotted: shares,
+      totalCost: cost,
+      status: lotsWon > 0 ? 'ALLOTTED' : 'NOT_ALLOTTED',
+    };
+  });
+
   // Broadcast IPO listing to all floor screens
   (db as any).latest_trade = {
     id: 'ipo-listing-' + Date.now(),
@@ -4604,7 +4658,14 @@ export function allotIPOLots(
     success: true,
     allottedCount: subs.length,
     listingPrice: calculatedListingPrice,
-    message: `Smooth IPO Allotment complete! Subscribed: ${subscriptionRatio}x (Demand: ${totalLotsDemanded}/${totalLotsOffered} lots). Listing Price: ₹${calculatedListingPrice.toFixed(2)} (Ref: ₹${baseP0}). Stock listed on Dalal Street!`,
+    isOversubscribed,
+    subscriptionRatio,
+    totalLotsDemanded,
+    totalLotsOffered,
+    allotmentList,
+    message: isOversubscribed
+      ? `🎲 Fair Randomized Lottery Allotment Completed! (Oversubscribed: ${subscriptionRatio}x). Lots randomly drawn among applicants.`
+      : `✅ Full 100% Allotment Completed! (${subscriptionRatio}x demand). All applicants received requested lots.`,
   };
 }
 

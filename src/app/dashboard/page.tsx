@@ -973,14 +973,14 @@ export default function ParticipantMarketTerminal() {
                 <span className="text-[11px]">Hide</span>
               </button>
 
-              {/* Right: Demand Ratio & Interactive Lot Application */}
+              {/* Right: Demand Ratio Gauge & Offline Floor Book-Building Notice */}
               <div
                 className={`border border-amber-500/40 p-3 sm:p-4 rounded-2xl flex flex-col sm:flex-row items-stretch sm:items-center gap-4 shrink-0 shadow-lg ${
                   isDark ? 'bg-black/60' : 'bg-white'
                 }`}
               >
                 {/* Demand Ratio Gauge */}
-                <div className="text-center sm:text-right border-b sm:border-b-0 sm:border-r border-zinc-800 sm:pr-4 pb-2 sm:pb-0">
+                <div className="text-center sm:text-right border-b sm:border-b-0 sm:border-r border-zinc-800 sm:pr-4 pb-2 sm:pb-0 min-w-[130px]">
                   <span className={`text-[10px] uppercase font-bold block font-mono ${isDark ? 'text-zinc-400' : 'text-zinc-500'}`}>
                     Demand Ratio (S)
                   </span>
@@ -990,56 +990,46 @@ export default function ParticipantMarketTerminal() {
                   <span className={`text-[10px] font-mono ${isDark ? 'text-zinc-500' : 'text-zinc-400'}`}>
                     {activeIPO.total_demanded_lots || 0} / {activeIPO.total_issue_lots || 100} Lots
                   </span>
-                </div>
-
-                {/* Team Selector & Lots Input */}
-                <div className="grid grid-cols-1 sm:flex sm:items-end gap-2.5 w-full sm:w-auto">
-                  <div className="flex flex-col flex-1">
-                    <label className={`text-[10px] font-bold uppercase font-mono ${isDark ? 'text-zinc-400' : 'text-zinc-600'}`}>
-                      Team
-                    </label>
-                    <select
-                      value={selectedIpoTeam}
-                      onChange={(e) => setSelectedIpoTeam(e.target.value)}
-                      className={`w-full px-2.5 py-1.5 rounded-xl border text-xs font-semibold focus:outline-none cursor-pointer ${
-                        isDark ? 'bg-[#141b16] border-[#233327] text-white' : 'bg-zinc-50 border-zinc-300 text-zinc-900'
+                  <div className="w-full bg-zinc-800/80 h-1.5 rounded-full overflow-hidden mt-1.5">
+                    <div
+                      className={`h-full transition-all duration-500 ${
+                        (activeIPO.subscription_ratio || 0) >= 1.0 ? 'bg-emerald-500' : 'bg-amber-500'
                       }`}
-                    >
-                      {teams.map((t) => (
-                        <option key={t.id} value={t.id}>
-                          {t.name} (₹{t.balance.toLocaleString('en-IN')})
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <div className="flex flex-col flex-1 sm:w-20">
-                      <label className={`text-[10px] font-bold uppercase font-mono ${isDark ? 'text-zinc-400' : 'text-zinc-600'}`}>
-                        Lots (1-30)
-                      </label>
-                      <input
-                        type="number"
-                        min={1}
-                        max={30}
-                        value={ipoLots}
-                        onChange={(e) => setIpoLots(Math.max(1, Math.min(30, parseInt(e.target.value, 10) || 1)))}
-                        className={`w-full px-2.5 py-1.5 rounded-xl border text-xs font-mono font-bold text-center focus:outline-none ${
-                          isDark ? 'bg-[#141b16] border-[#233327] text-white' : 'bg-zinc-50 border-zinc-300 text-zinc-900'
-                        }`}
-                      />
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={handleApplyIPO}
-                      disabled={ipoSubmitting}
-                      className="flex-1 sm:flex-initial self-end px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black font-black text-xs transition shadow-md cursor-pointer disabled:opacity-50 whitespace-nowrap"
-                    >
-                      {ipoSubmitting ? 'Bidding...' : `Bid ₹${(ipoLots * activeIPO.lot_size * activeIPO.reference_price).toLocaleString('en-IN')}`}
-                    </button>
+                      style={{
+                        width: `${Math.min(100, ((activeIPO.subscription_ratio || 0) / 1.5) * 100)}%`,
+                      }}
+                    />
                   </div>
                 </div>
+
+                {/* Offline Book-Building Notice */}
+                {activeIPO.status === 'ALLOTTED' ? (
+                  <div className="flex flex-col justify-center px-2 py-1 max-w-xs">
+                    <div className="flex items-center gap-1.5 text-emerald-400 font-bold text-xs font-mono">
+                      <span>🎉</span>
+                      <span>ALLOTMENT FINALIZED</span>
+                    </div>
+                    <p className={`text-[11px] mt-0.5 leading-tight font-mono ${isDark ? 'text-zinc-300' : 'text-zinc-700'}`}>
+                      Listing Price: <strong className="text-emerald-400">₹{(activeIPO.issue_price || activeIPO.reference_price).toFixed(2)}</strong>
+                    </p>
+                    <span className="text-[10px] text-amber-400/90 font-medium mt-0.5">
+                      🎙️ Allotments announced live by Econ Desk!
+                    </span>
+                  </div>
+                ) : (
+                  <div className="flex flex-col justify-center px-2 py-1 max-w-xs sm:max-w-sm">
+                    <div className="flex items-center gap-1.5 text-amber-400 font-bold text-xs font-mono">
+                      <span>📝</span>
+                      <span>OFFLINE BOOK-BUILDING</span>
+                    </div>
+                    <p className={`text-[11px] mt-0.5 leading-snug ${isDark ? 'text-zinc-300' : 'text-zinc-700'}`}>
+                      Submit physical bid slip at the <strong>Econ Admin Desk</strong>.
+                    </p>
+                    <span className="text-[10px] text-zinc-400 font-mono mt-0.5">
+                      ⚡ If oversubscribed (S &gt; 1.0x), lots are drawn via fair randomized lottery.
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
 
