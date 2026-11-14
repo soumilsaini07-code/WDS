@@ -30,16 +30,61 @@ export default function EditorialBrokerDeskPage() {
   // Toast / Status Message
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
-  // Custom Cursor State
-  const [cursorPos, setCursorPos] = useState({ x: -100, y: -100 });
-  const [isHovered, setIsHovered] = useState(false);
+  // Custom Cursor Implementation with requestAnimationFrame (0.15 Easing)
+  const cursorRef = React.useRef<HTMLDivElement | null>(null);
+  const mousePos = React.useRef({ x: -100, y: -100 });
+  const currentPos = React.useRef({ x: -100, y: -100 });
+
+  const setIsHovered = (hovered: boolean) => {
+    if (cursorRef.current) {
+      if (hovered) {
+        cursorRef.current.classList.add('cursor-hover');
+      } else {
+        cursorRef.current.classList.remove('cursor-hover');
+      }
+    }
+  };
 
   useEffect(() => {
-    const onMouseMove = (e: MouseEvent) => {
-      setCursorPos({ x: e.clientX, y: e.clientY });
+    const handleMouseMove = (e: MouseEvent) => {
+      mousePos.current = { x: e.clientX, y: e.clientY };
+
+      const target = e.target as HTMLElement | null;
+      const isInteractive = Boolean(
+        target &&
+        target.closest('button, input, select, a, [role="button"], tr, label')
+      );
+
+      if (cursorRef.current) {
+        if (isInteractive) {
+          cursorRef.current.classList.add('cursor-hover');
+        } else {
+          cursorRef.current.classList.remove('cursor-hover');
+        }
+      }
     };
-    window.addEventListener('mousemove', onMouseMove);
-    return () => window.removeEventListener('mousemove', onMouseMove);
+
+    window.addEventListener('mousemove', handleMouseMove, { passive: true });
+
+    let animationFrameId: number;
+    const updateCursor = () => {
+      // Smooth 0.15 easing movement following mouse coordinates
+      currentPos.current.x += (mousePos.current.x - currentPos.current.x) * 0.15;
+      currentPos.current.y += (mousePos.current.y - currentPos.current.y) * 0.15;
+
+      if (cursorRef.current) {
+        cursorRef.current.style.transform = `translate3d(${currentPos.current.x - 16}px, ${currentPos.current.y - 16}px, 0)`;
+      }
+
+      animationFrameId = requestAnimationFrame(updateCursor);
+    };
+
+    animationFrameId = requestAnimationFrame(updateCursor);
+
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      cancelAnimationFrame(animationFrameId);
+    };
   }, []);
 
   // Web Audio chime
@@ -269,19 +314,19 @@ export default function EditorialBrokerDeskPage() {
   return (
     <div className="min-h-screen bg-[#FFFFFF] text-[#000000] font-sans antialiased selection:bg-[#0052CC] selection:text-white transition-colors duration-500 relative">
       {/* ========================================================================= */}
-      {/* 1. CUSTOM INVERTING CURSOR (32PX CIRCLE, MIX-BLEND-MODE DIFFERENCE) */}
+      {/* 1. CUSTOM INVERTING CURSOR (id="custom-cursor", rAF 0.15 EASING, 0.5s SCALE) */}
       {/* ========================================================================= */}
       <div
-        className="pointer-events-none fixed z-50 rounded-full border border-black/40 bg-white/20 transition-transform duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] hidden md:block"
+        id="custom-cursor"
+        ref={cursorRef}
+        aria-hidden="true"
+        className="hidden md:block pointer-events-none fixed top-0 left-0 w-[32px] h-[32px] rounded-full z-[99999] will-change-transform"
         style={{
-          width: '32px',
-          height: '32px',
-          left: `${cursorPos.x - 16}px`,
-          top: `${cursorPos.y - 16}px`,
-          transform: isHovered ? 'scale(2.5)' : 'scale(1)',
           mixBlendMode: 'difference',
         }}
-      />
+      >
+        <div className="cursor-inner w-full h-full rounded-full bg-white transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]" />
+      </div>
 
       {/* ========================================================================= */}
       {/* 2. EDITORIAL TOP TICKER & METADATA BAR */}
