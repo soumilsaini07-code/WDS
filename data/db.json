@@ -254,7 +254,7 @@
       "email": "centralp@thapar.edu",
       "role": "participant",
       "username": "Central Primary Pool",
-      "balance": 2078415.2,
+      "balance": 2203958.2,
       "ecoin_balance": 0,
       "team_id": "team-yfnz05",
       "team_name": "Central Primary Pool",
@@ -296,7 +296,7 @@
       "email": "trial@thapar.edu",
       "role": "participant",
       "username": "trial",
-      "balance": 768717.22,
+      "balance": 643174.22,
       "ecoin_balance": 0,
       "team_id": "team-d1oaau",
       "team_name": "trial",
@@ -2865,7 +2865,7 @@
       "stock_id": "s-zomato",
       "shares_count": 125,
       "avg_buy_price": 354.96,
-      "updated_at": "2026-11-14T23:07:25.454Z"
+      "updated_at": "2026-11-14T23:12:17.460Z"
     },
     {
       "id": "port-ikxh7v8",
@@ -2881,7 +2881,7 @@
       "stock_id": "s-novatech",
       "shares_count": 132,
       "avg_buy_price": 300,
-      "updated_at": "2026-11-14T23:07:25.459Z"
+      "updated_at": "2026-11-14T23:12:17.463Z"
     },
     {
       "id": "port-ew67d0l",
@@ -2889,7 +2889,7 @@
       "stock_id": "s-reliance",
       "shares_count": 250,
       "avg_buy_price": 1260.3,
-      "updated_at": "2026-11-14T23:07:25.462Z"
+      "updated_at": "2026-11-14T23:12:17.466Z"
     },
     {
       "id": "port-h1pj12e",
@@ -2913,7 +2913,7 @@
       "stock_id": "s-reliance",
       "shares_count": 150,
       "avg_buy_price": 1271.55,
-      "updated_at": "2026-11-14T23:07:25.475Z"
+      "updated_at": "2026-11-14T23:12:17.478Z"
     },
     {
       "id": "port-ldw3pjb",
@@ -2929,7 +2929,7 @@
       "stock_id": "s-reliance",
       "shares_count": 250,
       "avg_buy_price": 1260,
-      "updated_at": "2026-11-14T23:07:25.483Z"
+      "updated_at": "2026-11-14T23:12:17.489Z"
     },
     {
       "id": "port-gu2yc3p",
@@ -2937,7 +2937,7 @@
       "stock_id": "s-tcs",
       "shares_count": 150,
       "avg_buy_price": 2522.1,
-      "updated_at": "2026-11-14T23:07:25.488Z"
+      "updated_at": "2026-11-14T23:12:17.492Z"
     },
     {
       "id": "port-9l0i1o6",
@@ -2969,7 +2969,7 @@
       "stock_id": "s-tcs",
       "shares_count": 100,
       "avg_buy_price": 2601.9,
-      "updated_at": "2026-11-14T23:07:25.471Z"
+      "updated_at": "2026-11-14T23:12:17.475Z"
     },
     {
       "id": "port-u7wq3zp",
@@ -2977,7 +2977,7 @@
       "stock_id": "s-hdfcbank",
       "shares_count": 130,
       "avg_buy_price": 749.7,
-      "updated_at": "2026-11-14T23:07:25.506Z"
+      "updated_at": "2026-11-14T23:12:17.505Z"
     },
     {
       "id": "port-46cq11t",
@@ -2993,7 +2993,7 @@
       "stock_id": "s-swiggy",
       "shares_count": 1000,
       "avg_buy_price": 350,
-      "updated_at": "2026-11-14T23:07:25.462Z"
+      "updated_at": "2026-11-14T23:12:17.466Z"
     },
     {
       "id": "port-3qq5i26",
@@ -3001,7 +3001,7 @@
       "stock_id": "s-swiggy",
       "shares_count": 200,
       "avg_buy_price": 350,
-      "updated_at": "2026-11-14T23:07:25.506Z"
+      "updated_at": "2026-11-14T23:12:17.505Z"
     },
     {
       "id": "port-2csjvdb",
@@ -3017,7 +3017,7 @@
       "stock_id": "s-hindalco",
       "shares_count": 5,
       "avg_buy_price": 928.94,
-      "updated_at": "2026-11-14T23:07:25.479Z"
+      "updated_at": "2026-11-14T23:12:17.483Z"
     },
     {
       "id": "port-4r1cva9",
@@ -3033,7 +3033,7 @@
       "stock_id": "s-trident",
       "shares_count": 12,
       "avg_buy_price": 21,
-      "updated_at": "2026-11-14T23:07:25.521Z"
+      "updated_at": "2026-11-14T23:12:17.516Z"
     },
     {
       "id": "port-bi2wn2j",
@@ -3041,7 +3041,7 @@
       "stock_id": "s-trident",
       "shares_count": 10,
       "avg_buy_price": 23.1,
-      "updated_at": "2026-11-14T23:07:25.528Z"
+      "updated_at": "2026-11-14T23:12:17.520Z"
     },
     {
       "id": "port-lmqz0s8",
@@ -3057,7 +3057,7 @@
       "stock_id": "s-ntpc",
       "shares_count": 20,
       "avg_buy_price": 316,
-      "updated_at": "2026-11-14T23:07:25.534Z"
+      "updated_at": "2026-11-14T23:12:17.523Z"
     },
     {
       "id": "port-03ew1ca",
@@ -3073,7 +3073,7 @@
       "stock_id": "s-godrejprop",
       "shares_count": 20,
       "avg_buy_price": 1568,
-      "updated_at": "2026-11-14T23:07:25.534Z"
+      "updated_at": "2026-11-14T23:12:17.523Z"
     },
     {
       "id": "port-ujo8xv6",
@@ -3089,7 +3089,7 @@
       "stock_id": "s-zomato",
       "shares_count": 516,
       "avg_buy_price": 375.21,
-      "updated_at": "2026-11-14T23:07:25.534Z"
+      "updated_at": "2026-11-14T23:12:17.523Z"
     },
     {
       "id": "port-mli2xs2",
@@ -3129,7 +3129,7 @@
       "stock_id": "s-zomato",
       "shares_count": 55,
       "avg_buy_price": 372.85,
-      "updated_at": "2026-11-14T23:07:25.515Z"
+      "updated_at": "2026-11-14T23:12:17.513Z"
     },
     {
       "id": "port-jdm72hr",
@@ -3145,7 +3145,7 @@
       "stock_id": "s-itc",
       "shares_count": 51,
       "avg_buy_price": 265.6,
-      "updated_at": "2026-11-14T23:07:25.479Z"
+      "updated_at": "2026-11-14T23:12:17.483Z"
     },
     {
       "id": "port-g6kl5a8",
@@ -3161,7 +3161,7 @@
       "stock_id": "s-hdfcbank",
       "shares_count": 100,
       "avg_buy_price": 692.8,
-      "updated_at": "2026-11-14T23:07:25.479Z"
+      "updated_at": "2026-11-14T23:12:17.483Z"
     },
     {
       "id": "port-3z3io3z",
@@ -3169,7 +3169,7 @@
       "stock_id": "s-na",
       "shares_count": 60,
       "avg_buy_price": 150,
-      "updated_at": "2026-11-14T23:07:25.475Z"
+      "updated_at": "2026-11-14T23:12:17.478Z"
     },
     {
       "id": "port-7dyy1i1",
@@ -3177,7 +3177,7 @@
       "stock_id": "s-na",
       "shares_count": 60,
       "avg_buy_price": 150,
-      "updated_at": "2026-11-14T23:07:25.488Z"
+      "updated_at": "2026-11-14T23:12:17.492Z"
     },
     {
       "id": "port-16mtf5x",
@@ -3193,7 +3193,7 @@
       "stock_id": "s-ather",
       "shares_count": 50,
       "avg_buy_price": 1756,
-      "updated_at": "2026-11-14T23:07:25.459Z"
+      "updated_at": "2026-11-14T23:12:17.463Z"
     },
     {
       "id": "port-pm28p63",
@@ -3209,7 +3209,7 @@
       "stock_id": "s-infy",
       "shares_count": 80,
       "avg_buy_price": 1185,
-      "updated_at": "2026-11-14T23:07:25.462Z"
+      "updated_at": "2026-11-14T23:12:17.466Z"
     },
     {
       "id": "port-2rziqul",
@@ -3217,7 +3217,7 @@
       "stock_id": "s-itc",
       "shares_count": 120,
       "avg_buy_price": 265.6,
-      "updated_at": "2026-11-14T23:07:25.467Z"
+      "updated_at": "2026-11-14T23:12:17.471Z"
     },
     {
       "id": "port-l534trq",
@@ -3233,7 +3233,7 @@
       "stock_id": "s-airtel",
       "shares_count": 60,
       "avg_buy_price": 1973.7,
-      "updated_at": "2026-11-14T23:07:25.471Z"
+      "updated_at": "2026-11-14T23:12:17.475Z"
     },
     {
       "id": "port-lx2ujst",
@@ -3249,7 +3249,7 @@
       "stock_id": "s-ixigo",
       "shares_count": 110,
       "avg_buy_price": 139.1,
-      "updated_at": "2026-11-14T23:07:25.475Z"
+      "updated_at": "2026-11-14T23:12:17.478Z"
     },
     {
       "id": "port-c7b36ce",
@@ -3265,7 +3265,7 @@
       "stock_id": "s-pw",
       "shares_count": 90,
       "avg_buy_price": 128.99,
-      "updated_at": "2026-11-14T23:07:25.479Z"
+      "updated_at": "2026-11-14T23:12:17.483Z"
     },
     {
       "id": "port-oi9t47j",
@@ -3281,7 +3281,7 @@
       "stock_id": "s-urbanco",
       "shares_count": 40,
       "avg_buy_price": 152.81,
-      "updated_at": "2026-11-14T23:07:25.483Z"
+      "updated_at": "2026-11-14T23:12:17.489Z"
     },
     {
       "id": "port-g12h9hl",
@@ -3297,7 +3297,7 @@
       "stock_id": "s-adaniports",
       "shares_count": 75,
       "avg_buy_price": 1850,
-      "updated_at": "2026-11-14T23:07:25.488Z"
+      "updated_at": "2026-11-14T23:12:17.492Z"
     },
     {
       "id": "port-eqss4y6",
@@ -3313,7 +3313,7 @@
       "stock_id": "s-asianpaint",
       "shares_count": 150,
       "avg_buy_price": 2320,
-      "updated_at": "2026-11-14T23:07:25.492Z"
+      "updated_at": "2026-11-14T23:12:17.496Z"
     },
     {
       "id": "port-y9rzn0p",
@@ -3321,7 +3321,23 @@
       "stock_id": "s-hdfcbank",
       "shares_count": 100,
       "avg_buy_price": 692.8,
-      "updated_at": "2026-11-14T23:07:25.467Z"
+      "updated_at": "2026-11-14T23:12:17.471Z"
+    },
+    {
+      "id": "port-t07qzh0",
+      "user_id": "usr-9ukdfl",
+      "stock_id": "s-maruti",
+      "shares_count": 0,
+      "avg_buy_price": 11413,
+      "updated_at": "2026-11-14T23:10:39.354Z"
+    },
+    {
+      "id": "port-iau85t1",
+      "user_id": "usr-a1fhed",
+      "stock_id": "s-maruti",
+      "shares_count": 11,
+      "avg_buy_price": 11413,
+      "updated_at": "2026-11-14T23:12:17.523Z"
     }
   ],
   "transactions": [
@@ -4762,6 +4778,32 @@
       "net_amount": 69280,
       "round_id": "round-0",
       "timestamp": "2026-11-14T23:00:18.645Z"
+    },
+    {
+      "id": "tx-5rdhejc",
+      "user_id": "usr-9ukdfl",
+      "stock_id": "s-maruti",
+      "type": "SELL",
+      "quantity": 11,
+      "price_at_trade": 11413,
+      "gross_amount": 125543,
+      "brokerage": 0,
+      "net_amount": 125543,
+      "round_id": "round-0",
+      "timestamp": "2026-11-14T23:10:39.354Z"
+    },
+    {
+      "id": "tx-xv3g226",
+      "user_id": "usr-a1fhed",
+      "stock_id": "s-maruti",
+      "type": "BUY",
+      "quantity": 11,
+      "price_at_trade": 11413,
+      "gross_amount": 125543,
+      "brokerage": 0,
+      "net_amount": 125543,
+      "round_id": "round-0",
+      "timestamp": "2026-11-14T23:10:39.354Z"
     }
   ],
   "market_events": [],
@@ -5285,7 +5327,7 @@
       "id": "team-yfnz05",
       "name": "Central Primary Pool",
       "code": "CENTRALP",
-      "balance": 2078415.2,
+      "balance": 2203958.2,
       "leader_id": "usr-9ukdfl",
       "leader_name": "Central Primary Pool",
       "leader_email": "centralp@thapar.edu",
@@ -5342,7 +5384,7 @@
       "id": "team-d1oaau",
       "name": "trial",
       "code": "TRIAL",
-      "balance": 768717.22,
+      "balance": 643174.22,
       "leader_id": "usr-a1fhed",
       "leader_name": "trial",
       "leader_email": "trial@thapar.edu",
@@ -5609,7 +5651,7 @@
     "remaining_seconds": 1200,
     "is_paused": true,
     "is_orders_locked": false,
-    "last_tick": 1794697637672
+    "last_tick": 1794697936448
   },
   "ipo_listings": [
     {
@@ -6190,14 +6232,14 @@
     }
   },
   "latest_trade": {
-    "id": "trade-1794697218656",
+    "id": "trade-1794697839365",
     "seller_team": "Central Primary Pool",
-    "buyer_team": "Beta Capital",
-    "ticker": "HDFCBANK",
-    "stock_name": "HDFC Bank",
-    "quantity": 100,
-    "price": 692.8,
-    "total_amount": 69280,
-    "timestamp": 1794697218656
+    "buyer_team": "trial",
+    "ticker": "MARUTI",
+    "stock_name": "Maruti Suzuki",
+    "quantity": 11,
+    "price": 11413,
+    "total_amount": 125543,
+    "timestamp": 1794697839365
   }
 }

@@ -810,8 +810,8 @@ export default function EditorialBrokerDeskPage() {
                   <div className="flex items-center gap-3">
                     <input
                       type="number"
-                      step="0.05"
-                      min="0.05"
+                      step="any"
+                      min="0.01"
                       value={agreedPrice}
                       onChange={(e) => setAgreedPrice(e.target.value)}
                       placeholder="AGREED PRICE"
