@@ -695,93 +695,151 @@ export default function ParticipantMarketTerminal() {
       </div>
 
       {/* ========================================================================= */}
-      {/* 3. BULLETPROOF 10-SECOND TRADE BROADCAST POPUP BANNER */}
+      {/* 3. SLEEK FINANCIAL HUD TRADE EXECUTION NOTIFICATION BANNER */}
       {/* ========================================================================= */}
       {latestTrade && tradeBannerMsRemaining > 0 && (() => {
         const isPrimary =
           latestTrade.seller_team === 'Central Primary Pool' ||
           latestTrade.seller_team.includes('Primary') ||
           latestTrade.seller_team.includes('Issuer') ||
-          latestTrade.seller_team.includes('Exchange');
+          latestTrade.seller_team.includes('Exchange') ||
+          latestTrade.buyer_team === 'Central Primary Pool';
+
+        const pctRemaining = Math.max(0, Math.min(100, (tradeBannerMsRemaining / 10000) * 100));
 
         return (
           <div
-            className={`w-full bg-gradient-to-r ${
+            className={`w-full ${
               isPrimary
-                ? 'from-[#221a08] via-[#3b2d10] to-[#221a08] border-b-2 border-amber-400'
-                : 'from-[#0d2214] via-[#1b3d25] to-[#0d2214] border-b-2 border-emerald-400'
-            } text-white px-4 py-2.5 shadow-2xl animate-in slide-in-from-top duration-300 relative z-40`}
+                ? 'bg-gradient-to-r from-[#141007]/95 via-[#1d160a]/95 to-[#141007]/95 border-b border-amber-500/30'
+                : 'bg-gradient-to-r from-[#07110b]/95 via-[#0d1d13]/95 to-[#07110b]/95 border-b border-emerald-500/30'
+            } backdrop-blur-xl text-white px-3 sm:px-6 py-2 sm:py-2.5 shadow-[0_10px_30px_-5px_rgba(0,0,0,0.8)] animate-in fade-in slide-in-from-top-2 duration-300 relative z-40`}
           >
-            {/* Progress Bar Shrinking Across 10s */}
+            {/* Top ambient hairline glow */}
             <div
-              className={`absolute bottom-0 left-0 h-1 ${
+              className={`absolute top-0 left-0 right-0 h-px ${
                 isPrimary
-                  ? 'bg-gradient-to-r from-amber-400 to-yellow-300'
-                  : 'bg-gradient-to-r from-emerald-400 to-amber-400'
-              } transition-all duration-100 ease-linear`}
-              style={{ width: `${(tradeBannerMsRemaining / 10000) * 100}%` }}
+                  ? 'bg-gradient-to-r from-transparent via-amber-400/50 to-transparent'
+                  : 'bg-gradient-to-r from-transparent via-emerald-400/50 to-transparent'
+              }`}
             />
 
-            <div className="max-w-[1780px] mx-auto flex flex-col md:flex-row md:items-center justify-between gap-3">
-              <div className="flex items-center gap-3">
-                <span
-                  className={`px-2.5 py-1 rounded-full text-black font-black text-[10px] uppercase font-mono tracking-wider flex items-center gap-1 shadow-md animate-bounce ${
-                    isPrimary ? 'bg-amber-400' : 'bg-emerald-400'
+            {/* Razor 2px Laser Progress Bar Shrinking Across 10s */}
+            <div
+              className={`absolute bottom-0 left-0 h-[2.5px] ${
+                isPrimary
+                  ? 'bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-300 shadow-[0_0_10px_#f59e0b]'
+                  : 'bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-300 shadow-[0_0_10px_#10b981]'
+              } transition-all duration-100 ease-linear`}
+              style={{ width: `${pctRemaining}%` }}
+            />
+
+            <div className="max-w-[1780px] mx-auto flex flex-col lg:flex-row lg:items-center justify-between gap-2.5 sm:gap-3">
+              {/* Left: Status Badge & Counterparty Transfer */}
+              <div className="flex items-center gap-2.5 sm:gap-3 flex-wrap">
+                {/* Status Pill with Live Radar Ping */}
+                <div
+                  className={`flex items-center gap-2 px-2.5 py-1 rounded-full font-mono text-[10px] font-bold tracking-[0.14em] uppercase shrink-0 ${
+                    isPrimary
+                      ? 'bg-amber-500/15 border border-amber-500/35 text-amber-300'
+                      : 'bg-emerald-500/15 border border-emerald-500/35 text-emerald-300'
                   }`}
                 >
-                  <span className="material-symbols-outlined text-[15px]">
-                    {isPrimary ? 'account_balance' : 'bolt'}
+                  <span className="relative flex h-2 w-2">
+                    <span
+                      className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${
+                        isPrimary ? 'bg-amber-400' : 'bg-emerald-400'
+                      }`}
+                    />
+                    <span
+                      className={`relative inline-flex rounded-full h-2 w-2 ${
+                        isPrimary
+                          ? 'bg-amber-400 shadow-[0_0_8px_#f59e0b]'
+                          : 'bg-emerald-400 shadow-[0_0_8px_#10b981]'
+                      }`}
+                    />
                   </span>
-                  {isPrimary ? 'PRIMARY ALLOCATION (ROUND 0)' : 'FLOOR TRADE EXECUTED'}
-                </span>
+                  <span>{isPrimary ? 'Primary Pool Deal' : 'Floor Trade Executed'}</span>
+                </div>
 
-                <div className="flex items-center gap-2 flex-wrap text-xs sm:text-sm font-sans">
-                  {isPrimary ? (
-                    <>
-                      <span className="font-black text-white text-sm sm:text-base px-2 py-0.5 rounded bg-black/40 border border-amber-500/30">
-                        {latestTrade.buyer_team}
-                      </span>
-                      <span className="text-amber-300 font-extrabold text-xs">acquired from</span>
-                      <span className="font-bold text-amber-200 text-xs px-2 py-0.5 rounded bg-amber-950/40 border border-amber-500/20">
-                        Central Primary Pool
-                      </span>
-                    </>
-                  ) : (
-                    <>
-                      <span className="font-black text-white text-sm sm:text-base px-2 py-0.5 rounded bg-black/40 border border-emerald-500/30">
-                        {latestTrade.seller_team}
-                      </span>
-                      <span className="text-emerald-300 font-extrabold text-xs">➔ sold to ➔</span>
-                      <span className="font-black text-white text-sm sm:text-base px-2 py-0.5 rounded bg-black/40 border border-emerald-500/30">
-                        {latestTrade.buyer_team}
-                      </span>
-                    </>
-                  )}
+                {/* Counterparties Flow */}
+                <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap text-xs font-sans">
+                  <div className="flex items-center gap-1.5 px-2.5 py-0.5 sm:py-1 rounded-lg bg-white/[0.06] border border-white/10 text-white font-bold tracking-tight shadow-xs">
+                    <span className="text-[10px] uppercase font-mono text-zinc-400 font-normal">From:</span>
+                    <span className="truncate max-w-[160px] sm:max-w-none">{latestTrade.seller_team}</span>
+                  </div>
+
+                  <div className="flex items-center gap-1 text-emerald-400 font-mono text-xs font-bold px-0.5">
+                    <span className="material-symbols-outlined text-[15px] text-emerald-400">arrow_forward</span>
+                  </div>
+
+                  <div className="flex items-center gap-1.5 px-2.5 py-0.5 sm:py-1 rounded-lg bg-white/[0.06] border border-white/10 text-white font-bold tracking-tight shadow-xs">
+                    <span className="text-[10px] uppercase font-mono text-zinc-400 font-normal">To:</span>
+                    <span className="truncate max-w-[160px] sm:max-w-none">{latestTrade.buyer_team}</span>
+                  </div>
                 </div>
               </div>
 
-            <div className="flex items-center gap-3 justify-between md:justify-end font-mono">
-              <div className="flex items-center gap-2 text-xs sm:text-sm bg-black/60 px-3.5 py-1 rounded-xl border border-emerald-400/50 shadow-inner">
-                <span className="font-black text-emerald-300">{latestTrade.quantity} shares</span>
-                <span className="text-zinc-400">of</span>
-                <span className="font-black text-white">{latestTrade.ticker}</span>
-                <span className="text-zinc-400">@</span>
-                <span className="font-black text-emerald-400">₹{latestTrade.price.toFixed(2)}</span>
-                <span className="text-zinc-500 hidden sm:inline">•</span>
-                <span className="font-bold text-amber-300 hidden sm:inline">
-                  ₹{latestTrade.total_amount.toLocaleString('en-IN', { maximumFractionDigits: 0 })}
-                </span>
-              </div>
+              {/* Right: Deal Specifics & Countdown */}
+              <div className="flex items-center gap-2 sm:gap-3 justify-between lg:justify-end flex-wrap">
+                {/* Financial Readout Pill */}
+                <div
+                  className={`flex items-center gap-2 sm:gap-2.5 px-3 py-1 rounded-xl font-mono text-xs shadow-inner ${
+                    isPrimary
+                      ? 'bg-black/60 border border-amber-500/35'
+                      : 'bg-black/60 border border-emerald-500/35'
+                  }`}
+                >
+                  <span className={`font-extrabold ${isPrimary ? 'text-amber-300' : 'text-emerald-300'}`}>
+                    {latestTrade.quantity.toLocaleString('en-IN')}
+                    <span className="text-zinc-500 font-normal text-[10px] ml-1 uppercase">shares</span>
+                  </span>
 
-              {/* 10s Countdown Pill */}
-              <span className="text-[11px] font-black font-mono px-2.5 py-0.5 rounded-lg bg-black/80 text-emerald-400 border border-emerald-500/40 shrink-0">
-                {(tradeBannerMsRemaining / 1000).toFixed(1)}s
-              </span>
+                  <span className="text-zinc-600">•</span>
+
+                  <span className="font-sans font-black text-white text-xs px-2 py-0.5 rounded bg-white/[0.08] border border-white/15 tracking-wider">
+                    {latestTrade.ticker}
+                  </span>
+
+                  <span className="text-zinc-500 text-[11px]">@</span>
+
+                  <span className="font-bold text-zinc-100">
+                    ₹{latestTrade.price.toFixed(2)}
+                  </span>
+
+                  <span className="text-zinc-600 hidden sm:inline">•</span>
+
+                  <span className="font-extrabold text-amber-300 hidden sm:inline">
+                    ₹{latestTrade.total_amount.toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+                  </span>
+                </div>
+
+                {/* 10s Timer Pill */}
+                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-black/60 border border-white/10 text-[11px] font-mono text-zinc-300 shrink-0 shadow-xs">
+                  <span className={`w-1.5 h-1.5 rounded-full animate-pulse ${isPrimary ? 'bg-amber-400' : 'bg-emerald-400'}`} />
+                  <span className={`font-bold tabular-nums ${isPrimary ? 'text-amber-300' : 'text-emerald-300'}`}>
+                    {(tradeBannerMsRemaining / 1000).toFixed(1)}s
+                  </span>
+                </div>
+
+                {/* Dismiss Button */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    tradeExpireAtRef.current = 0;
+                    setTradeBannerMsRemaining(0);
+                    setLatestTrade(null);
+                  }}
+                  className="text-zinc-400 hover:text-white hover:bg-white/10 p-1 rounded-lg transition cursor-pointer shrink-0"
+                  title="Dismiss notification"
+                >
+                  <span className="material-symbols-outlined text-[16px] block">close</span>
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      );
-    })()}
+        );
+      })()}
 
       {/* ========================================================================= */}
       {/* 4. DYNAMIC MARKET PULSE & DALAL STREET BREADTH OVERVIEW */}
