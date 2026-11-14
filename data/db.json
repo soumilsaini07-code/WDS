@@ -71,7 +71,7 @@
       "last_name": "mehta",
       "username": "Rohanmehta",
       "role": "participant",
-      "balance": 1025401.88,
+      "balance": 989905.88,
       "ecoin_balance": 100,
       "created_at": "2026-11-07T16:04:20.691Z",
       "assigned_admin_id": "usr-8ryunba",
@@ -86,7 +86,7 @@
       "email": "102203001@thapar.edu",
       "role": "participant",
       "username": "Trader_102203001",
-      "balance": 957837.5,
+      "balance": 870037.5,
       "ecoin_balance": 0,
       "team_id": "team-bull-02",
       "team_name": "Dalal Street Titans",
@@ -100,7 +100,7 @@
       "email": "alphatra@thapar.edu",
       "role": "participant",
       "username": "Alpha Traders",
-      "balance": 447785,
+      "balance": 352985,
       "ecoin_balance": 0,
       "team_id": "team-71v5u3",
       "team_name": "Alpha Traders",
@@ -114,7 +114,7 @@
       "email": "betacapi@thapar.edu",
       "role": "participant",
       "username": "Beta Capital",
-      "balance": 1107630,
+      "balance": 1075758,
       "ecoin_balance": 0,
       "team_id": "team-tumq2n",
       "team_name": "Beta Capital",
@@ -128,7 +128,7 @@
       "email": "gammabul@thapar.edu",
       "role": "participant",
       "username": "Gamma Bulls",
-      "balance": 912377.5,
+      "balance": 793955.5,
       "ecoin_balance": 0,
       "team_id": "team-vc4p4l",
       "team_name": "Gamma Bulls",
@@ -142,7 +142,7 @@
       "email": "deltahed@thapar.edu",
       "role": "participant",
       "username": "Delta Hedge",
-      "balance": 1044677.5,
+      "balance": 1020376.5,
       "ecoin_balance": 0,
       "team_id": "team-pztinz",
       "team_name": "Delta Hedge",
@@ -156,7 +156,7 @@
       "email": "epsilons@thapar.edu",
       "role": "participant",
       "username": "Epsilon Syndicate",
-      "balance": 1280355.32,
+      "balance": 1185920.62,
       "ecoin_balance": 0,
       "team_id": "team-h3pim6",
       "team_name": "Epsilon Syndicate",
@@ -170,7 +170,7 @@
       "email": "zetahold@thapar.edu",
       "role": "participant",
       "username": "Zeta Holdings",
-      "balance": 685000,
+      "balance": 678887.6,
       "ecoin_balance": 0,
       "team_id": "team-7nc14j",
       "team_name": "Zeta Holdings",
@@ -184,7 +184,7 @@
       "email": "omegaqua@thapar.edu",
       "role": "participant",
       "username": "Omega Quant",
-      "balance": 808113,
+      "balance": 660363,
       "ecoin_balance": 0,
       "team_id": "team-g53vh2",
       "team_name": "Omega Quant",
@@ -198,7 +198,7 @@
       "email": "sigmaass@thapar.edu",
       "role": "participant",
       "username": "Sigma Assets",
-      "balance": 1070740,
+      "balance": 722740,
       "ecoin_balance": 0,
       "team_id": "team-l0vaqy",
       "team_name": "Sigma Assets",
@@ -254,7 +254,7 @@
       "email": "centralp@thapar.edu",
       "role": "participant",
       "username": "Central Primary Pool",
-      "balance": 1029273.1,
+      "balance": 2000261.2,
       "ecoin_balance": 0,
       "team_id": "team-yfnz05",
       "team_name": "Central Primary Pool",
@@ -2832,6 +2832,22 @@
       "beta": 1.25,
       "pe_ratio": 24,
       "market_cap": "₹2 Cr"
+    },
+    {
+      "id": "s-na",
+      "ticker": "NA",
+      "name": "NAMAN",
+      "sector": "Emerging Technology",
+      "current_price": 118.84,
+      "previous_close": 150,
+      "day_high": 150,
+      "day_low": 150,
+      "is_frozen": false,
+      "lower_circuit": 106.96,
+      "upper_circuit": 130.72,
+      "beta": 1.25,
+      "pe_ratio": 24,
+      "market_cap": "₹0 Cr"
     }
   ],
   "portfolios": [
@@ -2847,9 +2863,9 @@
       "id": "port-zomato-apex",
       "user_id": "usr-ntxl19z",
       "stock_id": "s-zomato",
-      "shares_count": 0,
-      "avg_buy_price": 365.43,
-      "updated_at": "2026-11-08T05:39:03.067Z"
+      "shares_count": 100,
+      "avg_buy_price": 354.96,
+      "updated_at": "2026-11-14T22:42:24.410Z"
     },
     {
       "id": "port-ikxh7v8",
@@ -2865,7 +2881,7 @@
       "stock_id": "s-novatech",
       "shares_count": 132,
       "avg_buy_price": 300,
-      "updated_at": "2026-11-14T21:49:17.571Z"
+      "updated_at": "2026-11-14T22:42:24.414Z"
     },
     {
       "id": "port-ew67d0l",
@@ -2873,7 +2889,7 @@
       "stock_id": "s-reliance",
       "shares_count": 250,
       "avg_buy_price": 1260.3,
-      "updated_at": "2026-11-14T21:49:17.579Z"
+      "updated_at": "2026-11-14T22:42:24.419Z"
     },
     {
       "id": "port-h1pj12e",
@@ -2897,7 +2913,7 @@
       "stock_id": "s-reliance",
       "shares_count": 150,
       "avg_buy_price": 1271.55,
-      "updated_at": "2026-11-14T21:49:17.611Z"
+      "updated_at": "2026-11-14T22:42:24.432Z"
     },
     {
       "id": "port-ldw3pjb",
@@ -2913,7 +2929,7 @@
       "stock_id": "s-reliance",
       "shares_count": 250,
       "avg_buy_price": 1260,
-      "updated_at": "2026-11-14T21:49:17.623Z"
+      "updated_at": "2026-11-14T22:42:24.449Z"
     },
     {
       "id": "port-gu2yc3p",
@@ -2921,7 +2937,7 @@
       "stock_id": "s-tcs",
       "shares_count": 150,
       "avg_buy_price": 2522.1,
-      "updated_at": "2026-11-14T21:49:17.629Z"
+      "updated_at": "2026-11-14T22:42:24.457Z"
     },
     {
       "id": "port-9l0i1o6",
@@ -2953,7 +2969,7 @@
       "stock_id": "s-tcs",
       "shares_count": 100,
       "avg_buy_price": 2601.9,
-      "updated_at": "2026-11-14T21:49:17.597Z"
+      "updated_at": "2026-11-14T22:42:24.427Z"
     },
     {
       "id": "port-u7wq3zp",
@@ -2961,7 +2977,7 @@
       "stock_id": "s-hdfcbank",
       "shares_count": 130,
       "avg_buy_price": 749.7,
-      "updated_at": "2026-11-14T21:49:17.661Z"
+      "updated_at": "2026-11-14T22:42:24.477Z"
     },
     {
       "id": "port-46cq11t",
@@ -2977,7 +2993,7 @@
       "stock_id": "s-swiggy",
       "shares_count": 1000,
       "avg_buy_price": 350,
-      "updated_at": "2026-11-14T21:49:17.579Z"
+      "updated_at": "2026-11-14T22:42:24.419Z"
     },
     {
       "id": "port-3qq5i26",
@@ -2985,7 +3001,7 @@
       "stock_id": "s-swiggy",
       "shares_count": 200,
       "avg_buy_price": 350,
-      "updated_at": "2026-11-14T21:49:17.661Z"
+      "updated_at": "2026-11-14T22:42:24.477Z"
     },
     {
       "id": "port-2csjvdb",
@@ -3001,7 +3017,7 @@
       "stock_id": "s-hindalco",
       "shares_count": 5,
       "avg_buy_price": 928.94,
-      "updated_at": "2026-11-14T21:49:17.616Z"
+      "updated_at": "2026-11-14T22:42:24.444Z"
     },
     {
       "id": "port-4r1cva9",
@@ -3017,7 +3033,7 @@
       "stock_id": "s-trident",
       "shares_count": 12,
       "avg_buy_price": 21,
-      "updated_at": "2026-11-14T21:49:17.722Z"
+      "updated_at": "2026-11-14T22:42:24.497Z"
     },
     {
       "id": "port-bi2wn2j",
@@ -3025,7 +3041,7 @@
       "stock_id": "s-trident",
       "shares_count": 10,
       "avg_buy_price": 23.1,
-      "updated_at": "2026-11-14T21:49:17.728Z"
+      "updated_at": "2026-11-14T22:42:24.503Z"
     },
     {
       "id": "port-lmqz0s8",
@@ -3041,7 +3057,7 @@
       "stock_id": "s-ntpc",
       "shares_count": 20,
       "avg_buy_price": 316,
-      "updated_at": "2026-11-14T21:49:17.733Z"
+      "updated_at": "2026-11-14T22:42:24.508Z"
     },
     {
       "id": "port-03ew1ca",
@@ -3057,7 +3073,7 @@
       "stock_id": "s-godrejprop",
       "shares_count": 20,
       "avg_buy_price": 1568,
-      "updated_at": "2026-11-14T21:49:17.733Z"
+      "updated_at": "2026-11-14T22:42:24.508Z"
     },
     {
       "id": "port-ujo8xv6",
@@ -3073,7 +3089,7 @@
       "stock_id": "s-zomato",
       "shares_count": 516,
       "avg_buy_price": 375.21,
-      "updated_at": "2026-11-14T21:49:17.733Z"
+      "updated_at": "2026-11-14T22:42:24.508Z"
     },
     {
       "id": "port-mli2xs2",
@@ -3111,9 +3127,193 @@
       "id": "port-wib6cas",
       "user_id": "usr-9ukdfl",
       "stock_id": "s-zomato",
-      "shares_count": 180,
+      "shares_count": 80,
       "avg_buy_price": 372.85,
-      "updated_at": "2026-11-14T21:49:17.698Z"
+      "updated_at": "2026-11-14T22:42:24.490Z"
+    },
+    {
+      "id": "port-jdm72hr",
+      "user_id": "usr-9ukdfl",
+      "stock_id": "s-itc",
+      "shares_count": 0,
+      "avg_buy_price": 265.6,
+      "updated_at": "2026-11-14T22:41:25.825Z"
+    },
+    {
+      "id": "port-3i798iu",
+      "user_id": "usr-w4t3e6",
+      "stock_id": "s-itc",
+      "shares_count": 51,
+      "avg_buy_price": 265.6,
+      "updated_at": "2026-11-14T22:42:24.444Z"
+    },
+    {
+      "id": "port-g6kl5a8",
+      "user_id": "usr-9ukdfl",
+      "stock_id": "s-hdfcbank",
+      "shares_count": 0,
+      "avg_buy_price": 692.8,
+      "updated_at": "2026-11-14T21:56:49.278Z"
+    },
+    {
+      "id": "port-mc6yrcl",
+      "user_id": "usr-w4t3e6",
+      "stock_id": "s-hdfcbank",
+      "shares_count": 100,
+      "avg_buy_price": 692.8,
+      "updated_at": "2026-11-14T22:42:24.444Z"
+    },
+    {
+      "id": "port-3z3io3z",
+      "user_id": "usr-n3va0s",
+      "stock_id": "s-na",
+      "shares_count": 60,
+      "avg_buy_price": 150,
+      "updated_at": "2026-11-14T22:42:24.432Z"
+    },
+    {
+      "id": "port-7dyy1i1",
+      "user_id": "usr-zhd1vv",
+      "stock_id": "s-na",
+      "shares_count": 60,
+      "avg_buy_price": 150,
+      "updated_at": "2026-11-14T22:42:24.457Z"
+    },
+    {
+      "id": "port-16mtf5x",
+      "user_id": "usr-9ukdfl",
+      "stock_id": "s-ather",
+      "shares_count": 0,
+      "avg_buy_price": 1756,
+      "updated_at": "2026-11-14T22:41:25.608Z"
+    },
+    {
+      "id": "port-r35eaol",
+      "user_id": "usr-40rj0tq",
+      "stock_id": "s-ather",
+      "shares_count": 50,
+      "avg_buy_price": 1756,
+      "updated_at": "2026-11-14T22:42:24.414Z"
+    },
+    {
+      "id": "port-pm28p63",
+      "user_id": "usr-9ukdfl",
+      "stock_id": "s-infy",
+      "shares_count": 0,
+      "avg_buy_price": 1185,
+      "updated_at": "2026-11-14T22:41:25.720Z"
+    },
+    {
+      "id": "port-o0t56no",
+      "user_id": "usr-lyykeh",
+      "stock_id": "s-infy",
+      "shares_count": 80,
+      "avg_buy_price": 1185,
+      "updated_at": "2026-11-14T22:42:24.419Z"
+    },
+    {
+      "id": "port-2rziqul",
+      "user_id": "usr-miegsq",
+      "stock_id": "s-itc",
+      "shares_count": 120,
+      "avg_buy_price": 265.6,
+      "updated_at": "2026-11-14T22:42:24.422Z"
+    },
+    {
+      "id": "port-l534trq",
+      "user_id": "usr-9ukdfl",
+      "stock_id": "s-airtel",
+      "shares_count": 0,
+      "avg_buy_price": 1973.7,
+      "updated_at": "2026-11-14T22:41:25.945Z"
+    },
+    {
+      "id": "port-80c52zr",
+      "user_id": "usr-8i298b",
+      "stock_id": "s-airtel",
+      "shares_count": 60,
+      "avg_buy_price": 1973.7,
+      "updated_at": "2026-11-14T22:42:24.427Z"
+    },
+    {
+      "id": "port-lx2ujst",
+      "user_id": "usr-9ukdfl",
+      "stock_id": "s-ixigo",
+      "shares_count": 0,
+      "avg_buy_price": 139.1,
+      "updated_at": "2026-11-14T22:41:26.060Z"
+    },
+    {
+      "id": "port-oeth8v2",
+      "user_id": "usr-n3va0s",
+      "stock_id": "s-ixigo",
+      "shares_count": 110,
+      "avg_buy_price": 139.1,
+      "updated_at": "2026-11-14T22:42:24.432Z"
+    },
+    {
+      "id": "port-c7b36ce",
+      "user_id": "usr-9ukdfl",
+      "stock_id": "s-pw",
+      "shares_count": 0,
+      "avg_buy_price": 128.99,
+      "updated_at": "2026-11-14T22:41:26.175Z"
+    },
+    {
+      "id": "port-2sh7atj",
+      "user_id": "usr-w4t3e6",
+      "stock_id": "s-pw",
+      "shares_count": 90,
+      "avg_buy_price": 128.99,
+      "updated_at": "2026-11-14T22:42:24.444Z"
+    },
+    {
+      "id": "port-oi9t47j",
+      "user_id": "usr-9ukdfl",
+      "stock_id": "s-urbanco",
+      "shares_count": 0,
+      "avg_buy_price": 152.81,
+      "updated_at": "2026-11-14T22:41:26.287Z"
+    },
+    {
+      "id": "port-yqa9aex",
+      "user_id": "usr-02sot7",
+      "stock_id": "s-urbanco",
+      "shares_count": 40,
+      "avg_buy_price": 152.81,
+      "updated_at": "2026-11-14T22:42:24.449Z"
+    },
+    {
+      "id": "port-g12h9hl",
+      "user_id": "usr-9ukdfl",
+      "stock_id": "s-adaniports",
+      "shares_count": 0,
+      "avg_buy_price": 1850,
+      "updated_at": "2026-11-14T22:41:26.402Z"
+    },
+    {
+      "id": "port-yktsf26",
+      "user_id": "usr-zhd1vv",
+      "stock_id": "s-adaniports",
+      "shares_count": 75,
+      "avg_buy_price": 1850,
+      "updated_at": "2026-11-14T22:42:24.457Z"
+    },
+    {
+      "id": "port-eqss4y6",
+      "user_id": "usr-9ukdfl",
+      "stock_id": "s-asianpaint",
+      "shares_count": 0,
+      "avg_buy_price": 2320,
+      "updated_at": "2026-11-14T22:41:26.522Z"
+    },
+    {
+      "id": "port-6c4ovqd",
+      "user_id": "usr-wtol6i",
+      "stock_id": "s-asianpaint",
+      "shares_count": 150,
+      "avg_buy_price": 2320,
+      "updated_at": "2026-11-14T22:42:24.461Z"
     }
   ],
   "transactions": [
@@ -4166,6 +4366,342 @@
       "net_amount": 67113.9,
       "round_id": "round-0",
       "timestamp": "2026-11-14T20:59:14.436Z"
+    },
+    {
+      "id": "tx-f05twkw",
+      "user_id": "usr-9ukdfl",
+      "stock_id": "s-itc",
+      "type": "SELL",
+      "quantity": 51,
+      "price_at_trade": 265.6,
+      "gross_amount": 13545.6,
+      "brokerage": 0,
+      "net_amount": 13545.6,
+      "round_id": "round-0",
+      "timestamp": "2026-11-14T21:55:33.889Z"
+    },
+    {
+      "id": "tx-n9ao4r2",
+      "user_id": "usr-w4t3e6",
+      "stock_id": "s-itc",
+      "type": "BUY",
+      "quantity": 51,
+      "price_at_trade": 265.6,
+      "gross_amount": 13545.6,
+      "brokerage": 0,
+      "net_amount": 13545.6,
+      "round_id": "round-0",
+      "timestamp": "2026-11-14T21:55:33.889Z"
+    },
+    {
+      "id": "tx-vrjdr2n",
+      "user_id": "usr-9ukdfl",
+      "stock_id": "s-hdfcbank",
+      "type": "SELL",
+      "quantity": 100,
+      "price_at_trade": 692.8,
+      "gross_amount": 69280,
+      "brokerage": 0,
+      "net_amount": 69280,
+      "round_id": "round-0",
+      "timestamp": "2026-11-14T21:56:49.278Z"
+    },
+    {
+      "id": "tx-l3l0oqz",
+      "user_id": "usr-w4t3e6",
+      "stock_id": "s-hdfcbank",
+      "type": "BUY",
+      "quantity": 100,
+      "price_at_trade": 692.8,
+      "gross_amount": 69280,
+      "brokerage": 0,
+      "net_amount": 69280,
+      "round_id": "round-0",
+      "timestamp": "2026-11-14T21:56:49.278Z"
+    },
+    {
+      "id": "tx-ipo-h6k8x8y",
+      "user_id": "usr-n3va0s",
+      "stock_id": "s-na",
+      "type": "BUY",
+      "quantity": 60,
+      "price_at_trade": 150,
+      "gross_amount": 9000,
+      "brokerage": 0,
+      "net_amount": 9000,
+      "timestamp": "2026-11-14T22:00:25.350Z"
+    },
+    {
+      "id": "tx-ipo-kq00mg2",
+      "user_id": "usr-zhd1vv",
+      "stock_id": "s-na",
+      "type": "BUY",
+      "quantity": 60,
+      "price_at_trade": 150,
+      "gross_amount": 9000,
+      "brokerage": 0,
+      "net_amount": 9000,
+      "timestamp": "2026-11-14T22:00:25.356Z"
+    },
+    {
+      "id": "tx-55bbfa9",
+      "user_id": "usr-9ukdfl",
+      "stock_id": "s-zomato",
+      "type": "SELL",
+      "quantity": 100,
+      "price_at_trade": 354.96,
+      "gross_amount": 35496,
+      "brokerage": 0,
+      "net_amount": 35496,
+      "round_id": "round-0",
+      "timestamp": "2026-11-14T22:41:25.476Z"
+    },
+    {
+      "id": "tx-hkc7rqf",
+      "user_id": "usr-ntxl19z",
+      "stock_id": "s-zomato",
+      "type": "BUY",
+      "quantity": 100,
+      "price_at_trade": 354.96,
+      "gross_amount": 35496,
+      "brokerage": 0,
+      "net_amount": 35496,
+      "round_id": "round-0",
+      "timestamp": "2026-11-14T22:41:25.476Z"
+    },
+    {
+      "id": "tx-xh84qra",
+      "user_id": "usr-9ukdfl",
+      "stock_id": "s-ather",
+      "type": "SELL",
+      "quantity": 50,
+      "price_at_trade": 1756,
+      "gross_amount": 87800,
+      "brokerage": 0,
+      "net_amount": 87800,
+      "round_id": "round-0",
+      "timestamp": "2026-11-14T22:41:25.608Z"
+    },
+    {
+      "id": "tx-t94w742",
+      "user_id": "usr-40rj0tq",
+      "stock_id": "s-ather",
+      "type": "BUY",
+      "quantity": 50,
+      "price_at_trade": 1756,
+      "gross_amount": 87800,
+      "brokerage": 0,
+      "net_amount": 87800,
+      "round_id": "round-0",
+      "timestamp": "2026-11-14T22:41:25.608Z"
+    },
+    {
+      "id": "tx-52dc0qj",
+      "user_id": "usr-9ukdfl",
+      "stock_id": "s-infy",
+      "type": "SELL",
+      "quantity": 80,
+      "price_at_trade": 1185,
+      "gross_amount": 94800,
+      "brokerage": 0,
+      "net_amount": 94800,
+      "round_id": "round-0",
+      "timestamp": "2026-11-14T22:41:25.720Z"
+    },
+    {
+      "id": "tx-4zeql06",
+      "user_id": "usr-lyykeh",
+      "stock_id": "s-infy",
+      "type": "BUY",
+      "quantity": 80,
+      "price_at_trade": 1185,
+      "gross_amount": 94800,
+      "brokerage": 0,
+      "net_amount": 94800,
+      "round_id": "round-0",
+      "timestamp": "2026-11-14T22:41:25.720Z"
+    },
+    {
+      "id": "tx-vfpgzis",
+      "user_id": "usr-9ukdfl",
+      "stock_id": "s-itc",
+      "type": "SELL",
+      "quantity": 120,
+      "price_at_trade": 265.6,
+      "gross_amount": 31872,
+      "brokerage": 0,
+      "net_amount": 31872,
+      "round_id": "round-0",
+      "timestamp": "2026-11-14T22:41:25.825Z"
+    },
+    {
+      "id": "tx-qs5b7lk",
+      "user_id": "usr-miegsq",
+      "stock_id": "s-itc",
+      "type": "BUY",
+      "quantity": 120,
+      "price_at_trade": 265.6,
+      "gross_amount": 31872,
+      "brokerage": 0,
+      "net_amount": 31872,
+      "round_id": "round-0",
+      "timestamp": "2026-11-14T22:41:25.825Z"
+    },
+    {
+      "id": "tx-uq5hsam",
+      "user_id": "usr-9ukdfl",
+      "stock_id": "s-airtel",
+      "type": "SELL",
+      "quantity": 60,
+      "price_at_trade": 1973.7,
+      "gross_amount": 118422,
+      "brokerage": 0,
+      "net_amount": 118422,
+      "round_id": "round-0",
+      "timestamp": "2026-11-14T22:41:25.945Z"
+    },
+    {
+      "id": "tx-86xzp47",
+      "user_id": "usr-8i298b",
+      "stock_id": "s-airtel",
+      "type": "BUY",
+      "quantity": 60,
+      "price_at_trade": 1973.7,
+      "gross_amount": 118422,
+      "brokerage": 0,
+      "net_amount": 118422,
+      "round_id": "round-0",
+      "timestamp": "2026-11-14T22:41:25.945Z"
+    },
+    {
+      "id": "tx-c2w263y",
+      "user_id": "usr-9ukdfl",
+      "stock_id": "s-ixigo",
+      "type": "SELL",
+      "quantity": 110,
+      "price_at_trade": 139.1,
+      "gross_amount": 15301,
+      "brokerage": 0,
+      "net_amount": 15301,
+      "round_id": "round-0",
+      "timestamp": "2026-11-14T22:41:26.060Z"
+    },
+    {
+      "id": "tx-x92m0dp",
+      "user_id": "usr-n3va0s",
+      "stock_id": "s-ixigo",
+      "type": "BUY",
+      "quantity": 110,
+      "price_at_trade": 139.1,
+      "gross_amount": 15301,
+      "brokerage": 0,
+      "net_amount": 15301,
+      "round_id": "round-0",
+      "timestamp": "2026-11-14T22:41:26.060Z"
+    },
+    {
+      "id": "tx-yu2tv0z",
+      "user_id": "usr-9ukdfl",
+      "stock_id": "s-pw",
+      "type": "SELL",
+      "quantity": 90,
+      "price_at_trade": 128.99,
+      "gross_amount": 11609.1,
+      "brokerage": 0,
+      "net_amount": 11609.1,
+      "round_id": "round-0",
+      "timestamp": "2026-11-14T22:41:26.175Z"
+    },
+    {
+      "id": "tx-1u930ws",
+      "user_id": "usr-w4t3e6",
+      "stock_id": "s-pw",
+      "type": "BUY",
+      "quantity": 90,
+      "price_at_trade": 128.99,
+      "gross_amount": 11609.1,
+      "brokerage": 0,
+      "net_amount": 11609.1,
+      "round_id": "round-0",
+      "timestamp": "2026-11-14T22:41:26.175Z"
+    },
+    {
+      "id": "tx-01x42q2",
+      "user_id": "usr-9ukdfl",
+      "stock_id": "s-urbanco",
+      "type": "SELL",
+      "quantity": 40,
+      "price_at_trade": 152.81,
+      "gross_amount": 6112.4,
+      "brokerage": 0,
+      "net_amount": 6112.4,
+      "round_id": "round-0",
+      "timestamp": "2026-11-14T22:41:26.287Z"
+    },
+    {
+      "id": "tx-c335wor",
+      "user_id": "usr-02sot7",
+      "stock_id": "s-urbanco",
+      "type": "BUY",
+      "quantity": 40,
+      "price_at_trade": 152.81,
+      "gross_amount": 6112.4,
+      "brokerage": 0,
+      "net_amount": 6112.4,
+      "round_id": "round-0",
+      "timestamp": "2026-11-14T22:41:26.287Z"
+    },
+    {
+      "id": "tx-248t5of",
+      "user_id": "usr-9ukdfl",
+      "stock_id": "s-adaniports",
+      "type": "SELL",
+      "quantity": 75,
+      "price_at_trade": 1850,
+      "gross_amount": 138750,
+      "brokerage": 0,
+      "net_amount": 138750,
+      "round_id": "round-0",
+      "timestamp": "2026-11-14T22:41:26.402Z"
+    },
+    {
+      "id": "tx-6xezjda",
+      "user_id": "usr-zhd1vv",
+      "stock_id": "s-adaniports",
+      "type": "BUY",
+      "quantity": 75,
+      "price_at_trade": 1850,
+      "gross_amount": 138750,
+      "brokerage": 0,
+      "net_amount": 138750,
+      "round_id": "round-0",
+      "timestamp": "2026-11-14T22:41:26.402Z"
+    },
+    {
+      "id": "tx-m8fy02f",
+      "user_id": "usr-9ukdfl",
+      "stock_id": "s-asianpaint",
+      "type": "SELL",
+      "quantity": 150,
+      "price_at_trade": 2320,
+      "gross_amount": 348000,
+      "brokerage": 0,
+      "net_amount": 348000,
+      "round_id": "round-0",
+      "timestamp": "2026-11-14T22:41:26.522Z"
+    },
+    {
+      "id": "tx-w01lfss",
+      "user_id": "usr-wtol6i",
+      "stock_id": "s-asianpaint",
+      "type": "BUY",
+      "quantity": 150,
+      "price_at_trade": 2320,
+      "gross_amount": 348000,
+      "brokerage": 0,
+      "net_amount": 348000,
+      "round_id": "round-0",
+      "timestamp": "2026-11-14T22:41:26.522Z"
     }
   ],
   "market_events": [],
@@ -4445,7 +4981,7 @@
       "leader_id": "usr-9np9imt",
       "leader_name": "Aaryan Verma",
       "leader_email": "1025150050@thapar.edu",
-      "balance": 1025401.88,
+      "balance": 989905.88,
       "members": [
         {
           "id": "usr-ntxl19z",
@@ -4464,7 +5000,7 @@
       "leader_id": "usr-40rj0tq",
       "leader_name": "Trader_102203001",
       "leader_email": "102203001@thapar.edu",
-      "balance": 957837.5,
+      "balance": 870037.5,
       "members": [
         {
           "id": "usr-40rj0tq",
@@ -4480,7 +5016,7 @@
       "id": "team-71v5u3",
       "name": "Alpha Traders",
       "code": "ALPHATRA",
-      "balance": 447785,
+      "balance": 352985,
       "leader_id": "usr-lyykeh",
       "leader_name": "Alpha Traders",
       "leader_email": "alphatra@thapar.edu",
@@ -4499,7 +5035,7 @@
       "id": "team-tumq2n",
       "name": "Beta Capital",
       "code": "BETACAPI",
-      "balance": 1107630,
+      "balance": 1075758,
       "leader_id": "usr-miegsq",
       "leader_name": "Beta Capital",
       "leader_email": "betacapi@thapar.edu",
@@ -4518,7 +5054,7 @@
       "id": "team-vc4p4l",
       "name": "Gamma Bulls",
       "code": "GAMMABUL",
-      "balance": 912377.5,
+      "balance": 793955.5,
       "leader_id": "usr-8i298b",
       "leader_name": "Gamma Bulls",
       "leader_email": "gammabul@thapar.edu",
@@ -4537,7 +5073,7 @@
       "id": "team-pztinz",
       "name": "Delta Hedge",
       "code": "DELTAHED",
-      "balance": 1044677.5,
+      "balance": 1020376.5,
       "leader_id": "usr-n3va0s",
       "leader_name": "Delta Hedge",
       "leader_email": "deltahed@thapar.edu",
@@ -4556,7 +5092,7 @@
       "id": "team-h3pim6",
       "name": "Epsilon Syndicate",
       "code": "EPSILONS",
-      "balance": 1280355.32,
+      "balance": 1185920.62,
       "leader_id": "usr-w4t3e6",
       "leader_name": "Epsilon Syndicate",
       "leader_email": "epsilons@thapar.edu",
@@ -4575,7 +5111,7 @@
       "id": "team-7nc14j",
       "name": "Zeta Holdings",
       "code": "ZETAHOLD",
-      "balance": 685000,
+      "balance": 678887.6,
       "leader_id": "usr-02sot7",
       "leader_name": "Zeta Holdings",
       "leader_email": "zetahold@thapar.edu",
@@ -4594,7 +5130,7 @@
       "id": "team-g53vh2",
       "name": "Omega Quant",
       "code": "OMEGAQUA",
-      "balance": 808113,
+      "balance": 660363,
       "leader_id": "usr-zhd1vv",
       "leader_name": "Omega Quant",
       "leader_email": "omegaqua@thapar.edu",
@@ -4613,7 +5149,7 @@
       "id": "team-l0vaqy",
       "name": "Sigma Assets",
       "code": "SIGMAASS",
-      "balance": 1070740,
+      "balance": 722740,
       "leader_id": "usr-wtol6i",
       "leader_name": "Sigma Assets",
       "leader_email": "sigmaass@thapar.edu",
@@ -4689,7 +5225,7 @@
       "id": "team-yfnz05",
       "name": "Central Primary Pool",
       "code": "CENTRALP",
-      "balance": 1029273.1,
+      "balance": 2000261.2,
       "leader_id": "usr-9ukdfl",
       "leader_name": "Central Primary Pool",
       "leader_email": "centralp@thapar.edu",
@@ -5010,10 +5546,10 @@
   ],
   "current_round_id": "round-0",
   "round_clock": {
-    "remaining_seconds": 1800,
+    "remaining_seconds": 1200,
     "is_paused": true,
     "is_orders_locked": false,
-    "last_tick": 1794692945477
+    "last_tick": 1794696143914
   },
   "ipo_listings": [
     {
@@ -5046,8 +5582,8 @@
       "min_lots": 1,
       "max_lots": 30,
       "total_issue_lots": 120,
-      "total_demanded_lots": 0,
-      "subscription_ratio": 0,
+      "total_demanded_lots": 5,
+      "subscription_ratio": 0.04,
       "allotted_lots": 0,
       "status": "SUBSCRIPTION_OPEN",
       "description": "Grid-scale green hydrogen & battery storage pioneer with sovereign power purchase agreements."
@@ -5087,6 +5623,26 @@
       "allotted_lots": 30,
       "status": "ALLOTTED",
       "description": "Nationwide quick commerce and dark-store delivery ecosystem."
+    },
+    {
+      "id": "ipo-custom-1794693555309",
+      "round_id": "round-0",
+      "company_name": "NAMAN",
+      "ticker": "NA",
+      "sector": "Emerging Technology",
+      "reference_price": 150,
+      "issue_price": 118.84,
+      "lot_size": 12,
+      "min_lots": 1,
+      "max_lots": 30,
+      "total_issue_lots": 100,
+      "total_demanded_lots": 10,
+      "subscription_ratio": 0.1,
+      "allotted_lots": 10,
+      "status": "ALLOTTED",
+      "description": "Primary Book-Building Offering for NAMAN",
+      "news_impact_percent": 5,
+      "news_headline": "Foreign Institutional Inflows Cross ₹4,200 Cr in Weekly Trading"
     }
   ],
   "ipo_subscriptions": [
@@ -5153,6 +5709,54 @@
       "lots_allotted": 5,
       "status": "ALLOTTED",
       "created_at": "2026-11-11T16:02:11.369Z"
+    },
+    {
+      "id": "ipo-sub-r8n5v8w",
+      "ipo_id": "ipo-custom-1794693555309",
+      "round_id": "round-0",
+      "team_id": "team-pztinz",
+      "team_name": "Delta Hedge",
+      "user_id": "usr-n3va0s",
+      "user_name": "Delta Hedge",
+      "lots_requested": 5,
+      "share_quantity": 60,
+      "issue_price": 150,
+      "total_amount": 9000,
+      "lots_allotted": 5,
+      "status": "ALLOTTED",
+      "created_at": "2026-11-14T21:59:59.664Z"
+    },
+    {
+      "id": "ipo-sub-mtrpx19",
+      "ipo_id": "ipo-custom-1794693555309",
+      "round_id": "round-0",
+      "team_id": "team-g53vh2",
+      "team_name": "Omega Quant",
+      "user_id": "usr-zhd1vv",
+      "user_name": "Omega Quant",
+      "lots_requested": 5,
+      "share_quantity": 60,
+      "issue_price": 150,
+      "total_amount": 9000,
+      "lots_allotted": 5,
+      "status": "ALLOTTED",
+      "created_at": "2026-11-14T22:00:08.818Z"
+    },
+    {
+      "id": "ipo-sub-fginizc",
+      "ipo_id": "ipo-item-2",
+      "round_id": "ipo-2",
+      "team_id": "team-apex-01",
+      "team_name": "Apex Alpha Syndicate",
+      "user_id": "usr-ntxl19z",
+      "user_name": "Rohanmehta",
+      "lots_requested": 5,
+      "share_quantity": 60,
+      "issue_price": 200,
+      "total_amount": 12000,
+      "lots_allotted": 0,
+      "status": "BID_PLACED",
+      "created_at": "2026-11-14T22:41:26.682Z"
     }
   ],
   "round_settlements": {
@@ -5526,14 +6130,14 @@
     }
   },
   "latest_trade": {
-    "id": "trade-1794689954454",
-    "seller_team": "Vortex Capital",
-    "buyer_team": "Central Primary Pool",
-    "ticker": "ZOMATO",
-    "stock_name": "Eternal (Zomato)",
-    "quantity": 180,
-    "price": 355.1,
-    "total_amount": 63918,
-    "timestamp": 1794689954454
+    "id": "trade-1794696086534",
+    "seller_team": "Central Primary Pool",
+    "buyer_team": "Sigma Assets",
+    "ticker": "ASIANPAINT",
+    "stock_name": "Asian Paints",
+    "quantity": 150,
+    "price": 2320,
+    "total_amount": 348000,
+    "timestamp": 1794696086534
   }
 }

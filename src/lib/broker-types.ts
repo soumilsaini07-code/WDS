@@ -1,4 +1,4 @@
-import { Stock } from './types';
+import { Stock, IPOListing, IPOSubscription } from './types';
 
 export const INITIAL_PURSE_PER_TEAM = 1000000; // ₹10,00,000 (10 Lakhs Total Budget)
 export const ROUND_0_MIN_DEPLOYMENT_RATIO = 0.60; // 60% of 10L = ₹6,00,000 (6 Lakhs) must be deployed in Round 0
@@ -72,4 +72,6 @@ export interface BrokerLedgerSnapshot {
       totalValue: number;
     }[];
   };
+  ipoListings?: IPOListing[];
+  ipoSubscriptions?: IPOSubscription[];
 }

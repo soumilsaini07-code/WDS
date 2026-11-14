@@ -77,6 +77,25 @@ export async function GET() {
     const wsMatrix = XLSX.utils.json_to_sheet(matrixRows);
     XLSX.utils.book_append_sheet(wb, wsMatrix, 'Stock_Holdings_Matrix');
 
+    // 4. Sheet 4: IPO Subscriptions & Applications
+    const ipoRows = (snapshot.ipoSubscriptions || []).map((sub) => {
+      const listing = (snapshot.ipoListings || []).find((l) => l.id === sub.ipo_id);
+      return {
+        'Subscription ID': sub.id,
+        'IPO Ticker': listing?.ticker || sub.ipo_id,
+        'Company Name': listing?.company_name || 'Primary Issue',
+        'Team Name': sub.team_name,
+        'Lots Applied': sub.lots_requested,
+        'Shares Applied': sub.share_quantity,
+        'Issue Price (INR)': sub.issue_price,
+        'Bid Amount (INR)': sub.total_amount,
+        'Timestamp': sub.created_at,
+        'Status': sub.status,
+      };
+    });
+    const wsIPO = XLSX.utils.json_to_sheet(ipoRows.length > 0 ? ipoRows : [{ 'Message': 'No IPO subscriptions placed yet.' }]);
+    XLSX.utils.book_append_sheet(wb, wsIPO, 'IPO_Applications_Ledger');
+
     // Generate binary buffer
     const buf = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
 

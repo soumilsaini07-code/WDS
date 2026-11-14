@@ -222,5 +222,7 @@ export function computeBrokerLedgerSnapshot(): BrokerLedgerSnapshot {
       stocks: matrixStocks,
       teams: matrixTeams,
     },
+    ipoListings: (db.ipo_listings && db.ipo_listings.length > 0) ? db.ipo_listings : [],
+    ipoSubscriptions: db.ipo_subscriptions || [],
   };
 }

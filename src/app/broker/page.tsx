@@ -13,7 +13,14 @@ export default function EditorialBrokerDeskPage() {
   const [snapshot, setSnapshot] = useState<BrokerLedgerSnapshot | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-  const [activeTab, setActiveTab] = useState<'purses' | 'ledger' | 'matrix'>('purses');
+  const [activeTab, setActiveTab] = useState<'purses' | 'ledger' | 'matrix' | 'ipo'>('purses');
+  const [slipMode, setSlipMode] = useState<'trade' | 'ipo'>('trade');
+
+  // Form State for IPO Slip Entry
+  const [ipoSelectedId, setIpoSelectedId] = useState<string>('');
+  const [ipoTeamName, setIpoTeamName] = useState<string>('');
+  const [ipoLots, setIpoLots] = useState<string>('5');
+  const [isIpoSubmitting, setIsIpoSubmitting] = useState<boolean>(false);
 
   // Form State for Jogger / Broker Slip Entry
   const [buyerTeam, setBuyerTeam] = useState<string>('');
@@ -59,6 +66,9 @@ export default function EditorialBrokerDeskPage() {
           if (!selectedStockId && data.snapshot.stocks && data.snapshot.stocks.length > 0) {
             setSelectedStockId(data.snapshot.stocks[0].id);
             setAgreedPrice(String(data.snapshot.stocks[0].current_price));
+          }
+          if (data.snapshot.ipoListings && data.snapshot.ipoListings.length > 0) {
+            setIpoSelectedId((prev) => prev || data.snapshot.ipoListings[0].id);
           }
         }
       }
@@ -146,6 +156,75 @@ export default function EditorialBrokerDeskPage() {
   const targetR0Amount = INITIAL_PURSE_PER_TEAM * ROUND_0_MIN_DEPLOYMENT_RATIO; // ₹6,00,000 (6 Lakhs)
   const minCashFloor = INITIAL_PURSE_PER_TEAM * POST_ROUND_MIN_CASH_RATIO; // ₹1,00,00,0 (1 Lakh)
   const isCashFloorBreached = buyerPostTradeCash < minCashFloor;
+
+  // Active IPO calculation helpers
+  const activeIpoListing = snapshot?.ipoListings?.find((l) => l.id === ipoSelectedId) || snapshot?.ipoListings?.[0];
+  const ipoApplyingTeamRecord = snapshot?.teamsPurse?.find(
+    (t) => t.teamName.toLowerCase() === ipoTeamName.trim().toLowerCase() || t.teamCode.toLowerCase() === ipoTeamName.trim().toLowerCase()
+  );
+  const parsedIpoLots = parseInt(ipoLots, 10) || 0;
+  const ipoTotalShares = parsedIpoLots * (activeIpoListing?.lot_size || 12);
+  const ipoGrossOutflow = Number((ipoTotalShares * (activeIpoListing?.issue_price || 0)).toFixed(2));
+  const ipoCurrentCash = ipoApplyingTeamRecord?.currentCash ?? INITIAL_PURSE_PER_TEAM;
+  const ipoPostCash = Number((ipoCurrentCash - ipoGrossOutflow).toFixed(2));
+  const ipoMeetsReserveFloor = ipoPostCash >= (INITIAL_PURSE_PER_TEAM * POST_ROUND_MIN_CASH_RATIO);
+
+  // Handle IPO Slip Submission
+  const handleSettleIPOSlip = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setFeedback(null);
+    if (!ipoTeamName.trim()) {
+      setFeedback({ type: 'error', message: 'APPLYING TEAM NAME IS REQUIRED ON THE PHYSICAL SLIP.' });
+      return;
+    }
+    if (!activeIpoListing) {
+      setFeedback({ type: 'error', message: 'NO ACTIVE IPO LISTING SELECTED.' });
+      return;
+    }
+    if (parsedIpoLots <= 0) {
+      setFeedback({ type: 'error', message: 'APPLIED LOTS MUST BE GREATER THAN ZERO.' });
+      return;
+    }
+    if (ipoGrossOutflow > ipoCurrentCash) {
+      setFeedback({
+        type: 'error',
+        message: `INSUFFICIENT FUNDS // ${ipoTeamName} HAS ₹${ipoCurrentCash.toLocaleString('en-IN')}, REQUIRED: ₹${ipoGrossOutflow.toLocaleString('en-IN')}.`
+      });
+      return;
+    }
+
+    setIsIpoSubmitting(true);
+    try {
+      const res = await fetch('/api/ipo', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'SUBSCRIBE',
+          ipo_id: activeIpoListing.id,
+          team_id: ipoTeamName.trim(),
+          lots: parsedIpoLots,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'Failed to submit IPO application slip.');
+      }
+
+      playSuccessChime();
+      setFeedback({
+        type: 'success',
+        message: `✓ IPO APPLICATION REGISTERED // ${ipoTeamName} BID FOR ${parsedIpoLots} LOTS (${ipoTotalShares} SHARES) OF ${activeIpoListing.ticker} @ ₹${activeIpoListing.issue_price.toFixed(2)} (TOTAL: ₹${ipoGrossOutflow.toLocaleString('en-IN')}).`,
+      });
+
+      await fetchLedger();
+      setIpoLots('5');
+    } catch (err: any) {
+      setFeedback({ type: 'error', message: err.message || 'IPO BID SUBMISSION FAILED.' });
+    } finally {
+      setIsIpoSubmitting(false);
+    }
+  };
 
   // Handle Trade Slip Submission
   const handleSettleTrade = async (e: React.FormEvent) => {
@@ -382,20 +461,227 @@ export default function EditorialBrokerDeskPage() {
         )}
 
         <div className="space-y-6">
-          <div className="flex items-baseline justify-between pb-4 border-b border-black/10">
+          <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-4 pb-4 border-b border-black/10">
             <div>
               <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#737373] block">
                 INPUT MATRIX // PHYSICAL SLIP ENTRY
               </span>
-              <h3 className="text-2xl font-bold tracking-[-0.03em] text-[#000000] mt-1">
-                2×2 Execution Grid
-              </h3>
+              <div className="flex items-center gap-3 mt-2 flex-wrap">
+                <button
+                  type="button"
+                  onClick={() => setSlipMode('trade')}
+                  className={`px-4 py-1.5 rounded-full font-mono text-xs uppercase tracking-[0.15em] transition-all duration-200 cursor-pointer ${
+                    slipMode === 'trade'
+                      ? 'bg-[#000000] text-white font-bold shadow-sm'
+                      : 'bg-[#F8F9FA] text-[#737373] hover:text-[#000000] border border-black/10'
+                  }`}
+                >
+                  📄 Secondary Trade Slip
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSlipMode('ipo')}
+                  className={`px-4 py-1.5 rounded-full font-mono text-xs uppercase tracking-[0.15em] transition-all duration-200 cursor-pointer flex items-center gap-2 ${
+                    slipMode === 'ipo'
+                      ? 'bg-[#0052CC] text-white font-bold shadow-sm'
+                      : 'bg-[#F8F9FA] text-[#737373] hover:text-[#0052CC] border border-black/10'
+                  }`}
+                >
+                  <span>🏛️ IPO Application Slip</span>
+                  {(snapshot?.ipoListings && snapshot.ipoListings.length > 0) && (
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                  )}
+                </button>
+              </div>
             </div>
             <span className="font-mono text-[11px] uppercase tracking-[0.15em] text-[#0052CC] font-semibold">
-              {isRound0 ? '0% BROKERAGE // R0 EXEMPT' : '5% DUAL BROKERAGE'}
+              {slipMode === 'ipo'
+                ? 'PRIMARY ALLOTMENT // 0% BROKERAGE'
+                : isRound0
+                ? '0% BROKERAGE // R0 EXEMPT'
+                : '5% DUAL BROKERAGE'}
             </span>
           </div>
 
+          {slipMode === 'ipo' ? (
+            <form onSubmit={handleSettleIPOSlip} className="space-y-6">
+              {/* 2X2 GRID FOR IPO APPLICATION SLIP */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* CARD 01: IPO LISTING */}
+                <div className="p-6 rounded-[24px] bg-[#F8F9FA] border border-black/10 flex flex-col justify-between space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#737373]">
+                      01 // IPO LISTING
+                    </span>
+                    <span className="font-mono text-[11px] text-[#0052CC] font-bold">
+                      {activeIpoListing?.lot_size || 12} SHARES/LOT
+                    </span>
+                  </div>
+
+                  <select
+                    value={ipoSelectedId}
+                    onChange={(e) => setIpoSelectedId(e.target.value)}
+                    className="w-full text-base sm:text-lg font-bold text-[#000000] bg-transparent border-b border-black/10 pb-1 outline-none cursor-pointer"
+                  >
+                    {(snapshot?.ipoListings || []).map((ipo) => (
+                      <option key={ipo.id} value={ipo.id}>
+                        {ipo.ticker} — {ipo.company_name} (₹{ipo.issue_price.toFixed(2)}/sh)
+                      </option>
+                    ))}
+                  </select>
+
+                  <div className="pt-2 border-t border-black/5 text-[11px] font-mono text-[#737373] flex justify-between">
+                    <span>ISSUE PRICE: ₹{activeIpoListing?.issue_price?.toFixed(2) || '0.00'}</span>
+                    <span className="text-emerald-600 font-bold">0% BROKERAGE ON PRIMARY</span>
+                  </div>
+                </div>
+
+                {/* CARD 02: SUBSCRIBING TEAM */}
+                <div className="p-6 rounded-[24px] bg-[#F8F9FA] border border-black/10 flex flex-col justify-between space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#737373]">
+                      02 // SUBSCRIBING TEAM
+                    </span>
+                    {ipoApplyingTeamRecord && (
+                      <span className="font-mono text-[11px] text-[#000000] font-bold">
+                        CASH: ₹{(ipoApplyingTeamRecord.currentCash).toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="text"
+                      list="editorial-team-list"
+                      value={ipoTeamName}
+                      onChange={(e) => setIpoTeamName(e.target.value)}
+                      placeholder="ENTER APPLYING TEAM..."
+                      className="w-full text-2xl font-bold text-[#000000] bg-transparent border-none outline-none placeholder:text-black/20 focus:ring-0"
+                      required
+                    />
+                  </div>
+
+                  <div className="pt-2 border-t border-black/5 text-[11px] font-mono text-[#737373]">
+                    {ipoApplyingTeamRecord ? (
+                      <span className="text-emerald-600 font-bold">
+                        ✓ REGISTERED TEAM — STATUS: {ipoApplyingTeamRecord.status}
+                      </span>
+                    ) : (
+                      <span>Select or enter registered participant team</span>
+                    )}
+                  </div>
+                </div>
+
+                {/* CARD 03: LOTS APPLIED */}
+                <div className="p-6 rounded-[24px] bg-[#F8F9FA] border border-black/10 flex flex-col justify-between space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#737373]">
+                      03 // LOT QUANTITY
+                    </span>
+                    <span className="font-mono text-[11px] text-[#737373]">
+                      PHYSICAL RUNNER SLIP
+                    </span>
+                  </div>
+
+                  <div className="flex items-baseline gap-2">
+                    <input
+                      type="number"
+                      min="1"
+                      step="1"
+                      value={ipoLots}
+                      onChange={(e) => setIpoLots(e.target.value)}
+                      className="w-full text-2xl font-bold text-[#000000] bg-transparent border-none outline-none focus:ring-0"
+                      required
+                    />
+                    <span className="font-mono text-xs text-[#737373]">LOTS</span>
+                  </div>
+
+                  <div className="pt-2 border-t border-black/5 text-[11px] font-mono text-[#737373] flex justify-between">
+                    <span>TOTAL SHARES: {ipoTotalShares.toLocaleString('en-IN')}</span>
+                    <span>1 LOT = {activeIpoListing?.lot_size || 12} SHARES</span>
+                  </div>
+                </div>
+
+                {/* CARD 04: TOTAL APPLICATION OUTFLOW */}
+                <div className="p-6 rounded-[24px] bg-[#F8F9FA] border border-black/10 flex flex-col justify-between space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#737373]">
+                      04 // GROSS BID OUTFLOW
+                    </span>
+                    <span className="font-mono text-[11px] text-emerald-600 font-bold">
+                      FIXED ISSUE PRICE
+                    </span>
+                  </div>
+
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-2xl font-bold text-[#000000]">
+                      ₹{ipoGrossOutflow.toLocaleString('en-IN', { maximumFractionDigits: 2 })}
+                    </span>
+                  </div>
+
+                  <div className="pt-2 border-t border-black/5 text-[11px] font-mono text-[#737373] flex justify-between">
+                    <span>{ipoTotalShares} SH × ₹{activeIpoListing?.issue_price?.toFixed(2) || '0.00'}</span>
+                    <span className="text-emerald-600 font-bold">0% BROKERAGE</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* LIVE IPO AUDIT VOUCHER */}
+              <div className="p-6 rounded-[24px] bg-white border border-black/10 shadow-sm space-y-4">
+                <div className="flex items-center justify-between border-b border-black/10 pb-3">
+                  <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#737373]">
+                    FINANCIAL AUDIT // IPO BID SLIP
+                  </span>
+                  <span className="font-mono text-[11px] font-bold text-[#0052CC]">
+                    PRIMARY SUBSCRIPTION
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 font-mono text-xs">
+                  <div>
+                    <span className="text-[10px] text-[#737373] block">TOTAL OUTFLOW</span>
+                    <span className="text-base font-bold text-[#000000]">
+                      ₹{ipoGrossOutflow.toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-[#737373] block">CURRENT CASH</span>
+                    <span className="text-base font-bold text-[#000000]">
+                      ₹{ipoCurrentCash.toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-[#737373] block">POST-BID CASH</span>
+                    <span className={`text-base font-bold ${ipoPostCash < 0 ? 'text-rose-600' : 'text-[#000000]'}`}>
+                      ₹{ipoPostCash.toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-[#737373] block">10% CASH FLOOR (₹1.0L)</span>
+                    <span className={`text-base font-bold ${ipoMeetsReserveFloor ? 'text-emerald-600' : 'text-amber-600'}`}>
+                      {ipoMeetsReserveFloor ? '✓ COMPLIANT' : '⚠️ BELOW FLOOR'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* EXECUTE IPO BUTTON */}
+              <button
+                type="submit"
+                disabled={isIpoSubmitting}
+                className="w-full py-4 rounded-[20px] bg-[#0052CC] hover:bg-[#0747A6] text-white font-mono text-sm uppercase tracking-[0.2em] font-bold shadow-lg shadow-[#0052CC]/20 transition-all duration-300 disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2"
+              >
+                {isIpoSubmitting ? (
+                  <span>RECORDING IPO APPLICATION SLIP...</span>
+                ) : (
+                  <>
+                    <span>REGISTER IPO BID SLIP</span>
+                    <span className="text-xs opacity-75 font-normal">[EXCEL + ALLOTMENT DESK]</span>
+                  </>
+                )}
+              </button>
+            </form>
+          ) : (
           <form onSubmit={handleSettleTrade} className="space-y-6">
             {/* 2X2 GRID OF INPUT CARDS */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -685,6 +971,7 @@ export default function EditorialBrokerDeskPage() {
               )}
             </button>
           </form>
+          )}
         </div>
 
         {/* ===================================================================== */}
@@ -743,6 +1030,19 @@ export default function EditorialBrokerDeskPage() {
                 }`}
               >
                 [03] HOLDINGS MATRIX
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setActiveTab('ipo')}
+                className={`px-4 py-2 rounded-full uppercase tracking-[0.15em] transition-all duration-300 cursor-pointer flex items-center gap-1.5 ${
+                  activeTab === 'ipo'
+                    ? 'bg-[#0052CC] text-white font-bold'
+                    : 'bg-[#F8F9FA] text-[#737373] hover:text-[#0052CC]'
+                }`}
+              >
+                <span>[04] IPO BIDS</span>
+                <span className="text-[10px] opacity-75">({snapshot?.ipoSubscriptions?.length ?? 0})</span>
               </button>
             </div>
           </div>
@@ -978,6 +1278,76 @@ export default function EditorialBrokerDeskPage() {
                   ))}
                 </tbody>
               </table>
+            </div>
+          )}
+
+          {/* TAB 4: IPO APPLICATIONS & ALLOTMENT STATUS */}
+          {activeTab === 'ipo' && (
+            <div className="space-y-4">
+              <div className="flex flex-wrap items-center justify-between gap-4 font-mono text-xs">
+                <span className="text-[#737373]">
+                  PRIMARY ISSUE AUDIT // TOTAL APPLICATIONS: {snapshot?.ipoSubscriptions?.length ?? 0}
+                </span>
+                <span className="text-[#0052CC] font-bold">
+                  AUTONOMOUS FIFO DESK // ALLOTMENT VIA ADMIN
+                </span>
+              </div>
+
+              <div className="overflow-x-auto border border-black/10 rounded-[24px]">
+                <table className="w-full text-left text-xs font-mono">
+                  <thead className="bg-[#F8F9FA] text-[#737373] text-[11px] uppercase tracking-[0.2em] border-b border-black/10">
+                    <tr>
+                      <th className="py-3 px-4">BID ID</th>
+                      <th className="py-3 px-4">TIMESTAMP</th>
+                      <th className="py-3 px-4">TEAM</th>
+                      <th className="py-3 px-4">IPO LISTING</th>
+                      <th className="py-3 px-4 text-center">LOTS</th>
+                      <th className="py-3 px-4 text-center">SHARES</th>
+                      <th className="py-3 px-4 text-right">GROSS OUTFLOW</th>
+                      <th className="py-3 px-4">STATUS</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-black/5 text-[#000000]">
+                    {(snapshot?.ipoSubscriptions || []).map((sub) => {
+                      const listing = (snapshot?.ipoListings || []).find((l) => l.id === sub.ipo_id);
+                      return (
+                        <tr key={sub.id} className="hover:bg-[#F8F9FA] transition">
+                          <td className="py-3 px-4 font-bold text-[#0052CC]">{sub.id.slice(-8).toUpperCase()}</td>
+                          <td className="py-3 px-4 text-[#737373]">
+                            {new Date(sub.created_at).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                          </td>
+                          <td className="py-3 px-4 font-sans font-bold">{sub.team_name}</td>
+                          <td className="py-3 px-4">
+                            <span className="font-bold">{listing?.ticker || sub.ipo_id}</span>
+                            <span className="text-[10px] text-[#737373] block">{listing?.company_name || 'Primary Offering'}</span>
+                          </td>
+                          <td className="py-3 px-4 text-center font-bold">{sub.lots_requested}</td>
+                          <td className="py-3 px-4 text-center">{sub.share_quantity}</td>
+                          <td className="py-3 px-4 text-right font-bold text-emerald-600">
+                            ₹{sub.total_amount.toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+                          </td>
+                          <td className="py-3 px-4">
+                            <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                              sub.status === 'ALLOTTED'
+                                ? 'bg-emerald-100 text-emerald-800'
+                                : 'bg-amber-100 text-amber-900'
+                            }`}>
+                              {sub.status}
+                            </span>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                    {(!snapshot?.ipoSubscriptions || snapshot.ipoSubscriptions.length === 0) && (
+                      <tr>
+                        <td colSpan={8} className="py-8 text-center text-[#737373]">
+                          No IPO applications placed yet. Use the IPO Application Slip entry to register bids.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
             </div>
           )}
         </section>

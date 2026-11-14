@@ -709,40 +709,30 @@ export default function ParticipantMarketTerminal() {
 
         return (
           <div
-            className={`w-full ${
+            className={`w-full relative z-40 transition-all duration-300 ${
               isPrimary
-                ? 'bg-gradient-to-r from-[#141007]/95 via-[#1d160a]/95 to-[#141007]/95 border-b border-amber-500/30'
-                : 'bg-gradient-to-r from-[#07110b]/95 via-[#0d1d13]/95 to-[#07110b]/95 border-b border-emerald-500/30'
-            } backdrop-blur-xl text-white px-3 sm:px-6 py-2 sm:py-2.5 shadow-[0_10px_30px_-5px_rgba(0,0,0,0.8)] animate-in fade-in slide-in-from-top-2 duration-300 relative z-40`}
+                ? 'bg-[#120F09]/95 border-b border-amber-500/20 shadow-[0_4px_24px_-4px_rgba(245,158,11,0.15)]'
+                : 'bg-[#0B1015]/95 border-b border-emerald-500/20 shadow-[0_4px_24px_-4px_rgba(16,185,129,0.15)]'
+            } backdrop-blur-xl text-white`}
           >
-            {/* Top ambient hairline glow */}
+            {/* Top ambient hairline accent */}
             <div
               className={`absolute top-0 left-0 right-0 h-px ${
                 isPrimary
-                  ? 'bg-gradient-to-r from-transparent via-amber-400/50 to-transparent'
-                  : 'bg-gradient-to-r from-transparent via-emerald-400/50 to-transparent'
+                  ? 'bg-gradient-to-r from-transparent via-amber-500/40 to-transparent'
+                  : 'bg-gradient-to-r from-transparent via-emerald-500/40 to-transparent'
               }`}
             />
 
-            {/* Razor 2px Laser Progress Bar Shrinking Across 10s */}
-            <div
-              className={`absolute bottom-0 left-0 h-[2.5px] ${
-                isPrimary
-                  ? 'bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-300 shadow-[0_0_10px_#f59e0b]'
-                  : 'bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-300 shadow-[0_0_10px_#10b981]'
-              } transition-all duration-100 ease-linear`}
-              style={{ width: `${pctRemaining}%` }}
-            />
-
-            <div className="max-w-[1780px] mx-auto flex flex-col lg:flex-row lg:items-center justify-between gap-2.5 sm:gap-3">
-              {/* Left: Status Badge & Counterparty Transfer */}
-              <div className="flex items-center gap-2.5 sm:gap-3 flex-wrap">
-                {/* Status Pill with Live Radar Ping */}
+            <div className="max-w-[1780px] mx-auto px-4 sm:px-6 py-2 flex flex-col md:flex-row md:items-center justify-between gap-3">
+              {/* Left Column: Settlement Signal & Counterparty Route */}
+              <div className="flex items-center gap-3 flex-wrap">
+                {/* Live Pulse Beacon Badge */}
                 <div
-                  className={`flex items-center gap-2 px-2.5 py-1 rounded-full font-mono text-[10px] font-bold tracking-[0.14em] uppercase shrink-0 ${
+                  className={`inline-flex items-center gap-2 px-2.5 py-1 rounded-full font-mono text-[10px] font-bold tracking-[0.16em] uppercase shrink-0 ${
                     isPrimary
-                      ? 'bg-amber-500/15 border border-amber-500/35 text-amber-300'
-                      : 'bg-emerald-500/15 border border-emerald-500/35 text-emerald-300'
+                      ? 'bg-amber-500/10 border border-amber-500/30 text-amber-400'
+                      : 'bg-emerald-500/10 border border-emerald-500/30 text-emerald-400'
                   }`}
                 >
                   <span className="relative flex h-2 w-2">
@@ -753,89 +743,91 @@ export default function ParticipantMarketTerminal() {
                     />
                     <span
                       className={`relative inline-flex rounded-full h-2 w-2 ${
-                        isPrimary
-                          ? 'bg-amber-400 shadow-[0_0_8px_#f59e0b]'
-                          : 'bg-emerald-400 shadow-[0_0_8px_#10b981]'
+                        isPrimary ? 'bg-amber-500' : 'bg-emerald-500'
                       }`}
                     />
                   </span>
-                  <span>{isPrimary ? 'Primary Pool Deal' : 'Floor Trade Executed'}</span>
+                  <span>{isPrimary ? 'PRIMARY ISSUE ALLOTMENT' : 'FLOOR SETTLEMENT'}</span>
                 </div>
 
-                {/* Counterparties Flow */}
-                <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap text-xs font-sans">
-                  <div className="flex items-center gap-1.5 px-2.5 py-0.5 sm:py-1 rounded-lg bg-white/[0.06] border border-white/10 text-white font-bold tracking-tight shadow-xs">
-                    <span className="text-[10px] uppercase font-mono text-zinc-400 font-normal">From:</span>
-                    <span className="truncate max-w-[160px] sm:max-w-none">{latestTrade.seller_team}</span>
+                {/* Transfer Route */}
+                <div className="flex items-center gap-2 text-xs">
+                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/[0.04] border border-white/10 text-zinc-200">
+                    <span className="text-[10px] uppercase font-mono text-zinc-400">SELLER</span>
+                    <span className="font-semibold text-white truncate max-w-[140px] sm:max-w-none">
+                      {latestTrade.seller_team}
+                    </span>
                   </div>
 
-                  <div className="flex items-center gap-1 text-emerald-400 font-mono text-xs font-bold px-0.5">
-                    <span className="material-symbols-outlined text-[15px] text-emerald-400">arrow_forward</span>
-                  </div>
+                  <span className={`text-xs font-mono font-bold ${isPrimary ? 'text-amber-400' : 'text-emerald-400'}`}>
+                    →
+                  </span>
 
-                  <div className="flex items-center gap-1.5 px-2.5 py-0.5 sm:py-1 rounded-lg bg-white/[0.06] border border-white/10 text-white font-bold tracking-tight shadow-xs">
-                    <span className="text-[10px] uppercase font-mono text-zinc-400 font-normal">To:</span>
-                    <span className="truncate max-w-[160px] sm:max-w-none">{latestTrade.buyer_team}</span>
+                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/[0.04] border border-white/10 text-zinc-200">
+                    <span className="text-[10px] uppercase font-mono text-zinc-400">BUYER</span>
+                    <span className="font-semibold text-white truncate max-w-[140px] sm:max-w-none">
+                      {latestTrade.buyer_team}
+                    </span>
                   </div>
                 </div>
               </div>
 
-              {/* Right: Deal Specifics & Countdown */}
-              <div className="flex items-center gap-2 sm:gap-3 justify-between lg:justify-end flex-wrap">
-                {/* Financial Readout Pill */}
-                <div
-                  className={`flex items-center gap-2 sm:gap-2.5 px-3 py-1 rounded-xl font-mono text-xs shadow-inner ${
-                    isPrimary
-                      ? 'bg-black/60 border border-amber-500/35'
-                      : 'bg-black/60 border border-emerald-500/35'
-                  }`}
-                >
-                  <span className={`font-extrabold ${isPrimary ? 'text-amber-300' : 'text-emerald-300'}`}>
-                    {latestTrade.quantity.toLocaleString('en-IN')}
-                    <span className="text-zinc-500 font-normal text-[10px] ml-1 uppercase">shares</span>
-                  </span>
-
-                  <span className="text-zinc-600">•</span>
-
-                  <span className="font-sans font-black text-white text-xs px-2 py-0.5 rounded bg-white/[0.08] border border-white/15 tracking-wider">
+              {/* Right Column: Transaction Details & Countdown */}
+              <div className="flex items-center gap-3 justify-between md:justify-end flex-wrap">
+                {/* Stock & Volume Pill */}
+                <div className="flex items-center gap-2 px-3 py-1 rounded-lg bg-black/40 border border-white/10 text-xs font-mono">
+                  <span className="px-1.5 py-0.5 rounded bg-white/10 font-sans font-black text-white tracking-wider text-[11px]">
                     {latestTrade.ticker}
                   </span>
-
-                  <span className="text-zinc-500 text-[11px]">@</span>
-
-                  <span className="font-bold text-zinc-100">
+                  <span className="text-zinc-300">
+                    {latestTrade.quantity.toLocaleString('en-IN')}{' '}
+                    <span className="text-zinc-400 text-[10px]">SH</span>
+                  </span>
+                  <span className="text-zinc-400">@</span>
+                  <span className="text-white font-semibold">
                     ₹{latestTrade.price.toFixed(2)}
                   </span>
-
-                  <span className="text-zinc-600 hidden sm:inline">•</span>
-
-                  <span className="font-extrabold text-amber-300 hidden sm:inline">
+                  <span className="text-zinc-400 mx-0.5">/</span>
+                  <span className={`font-bold ${isPrimary ? 'text-amber-400' : 'text-emerald-400'}`}>
                     ₹{latestTrade.total_amount.toLocaleString('en-IN', { maximumFractionDigits: 0 })}
                   </span>
                 </div>
 
-                {/* 10s Timer Pill */}
-                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-black/60 border border-white/10 text-[11px] font-mono text-zinc-300 shrink-0 shadow-xs">
-                  <span className={`w-1.5 h-1.5 rounded-full animate-pulse ${isPrimary ? 'bg-amber-400' : 'bg-emerald-400'}`} />
-                  <span className={`font-bold tabular-nums ${isPrimary ? 'text-amber-300' : 'text-emerald-300'}`}>
-                    {(tradeBannerMsRemaining / 1000).toFixed(1)}s
-                  </span>
-                </div>
+                {/* 10s Timer & Dismiss */}
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-white/[0.04] border border-white/10 font-mono text-[11px] text-zinc-400">
+                    <span className={`w-1.5 h-1.5 rounded-full ${isPrimary ? 'bg-amber-400' : 'bg-emerald-400'} animate-pulse`} />
+                    <span className="tabular-nums font-medium text-zinc-200">
+                      {(tradeBannerMsRemaining / 1000).toFixed(1)}s
+                    </span>
+                  </div>
 
-                {/* Dismiss Button */}
-                <button
-                  type="button"
-                  onClick={() => {
-                    tradeExpireAtRef.current = 0;
-                    setTradeBannerMsRemaining(0);
-                    setLatestTrade(null);
-                  }}
-                  className="text-zinc-400 hover:text-white hover:bg-white/10 p-1 rounded-lg transition cursor-pointer shrink-0"
-                  title="Dismiss notification"
-                >
-                  <span className="material-symbols-outlined text-[16px] block">close</span>
-                </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      tradeExpireAtRef.current = 0;
+                      setTradeBannerMsRemaining(0);
+                      setLatestTrade(null);
+                    }}
+                    className="p-1 rounded-md text-zinc-400 hover:text-white hover:bg-white/10 transition cursor-pointer"
+                    title="Dismiss"
+                  >
+                    <span className="material-symbols-outlined text-[16px] block">close</span>
+                  </button>
+                </div>
               </div>
+            </div>
+
+            {/* Micro Precision Progress Line */}
+            <div className="w-full bg-white/[0.03] h-[1.5px] relative overflow-hidden">
+              <div
+                className={`h-full ${
+                  isPrimary
+                    ? 'bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-300'
+                    : 'bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-300'
+                } transition-all duration-100 ease-linear`}
+                style={{ width: `${pctRemaining}%` }}
+              />
             </div>
           </div>
         );
