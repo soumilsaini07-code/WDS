@@ -493,6 +493,33 @@ export default function ParticipantMarketTerminal() {
               </span>
             </div>
 
+            {/* Three Portals Navigation Tabs */}
+            <div className={`hidden xl:flex items-center gap-1 p-1 rounded-xl text-[11px] font-semibold border ${
+              isDark ? 'bg-black/40 border-emerald-900/40' : 'bg-zinc-100 border-zinc-200'
+            }`}>
+              <span className="px-2.5 py-1 rounded-lg bg-emerald-600 text-white font-bold shadow-xs">
+                📈 1. Terminal
+              </span>
+              <Link
+                href="/broker"
+                className={`px-2.5 py-1 rounded-lg transition ${
+                  isDark ? 'text-zinc-400 hover:text-white hover:bg-zinc-800' : 'text-zinc-600 hover:text-zinc-900 hover:bg-zinc-200'
+                }`}
+                title="Portal 2: Event Floor & Broker Slip Desk"
+              >
+                📋 2. Event Desk
+              </Link>
+              <Link
+                href="/admin"
+                className={`px-2.5 py-1 rounded-lg transition ${
+                  isDark ? 'text-zinc-400 hover:text-white hover:bg-zinc-800' : 'text-zinc-600 hover:text-zinc-900 hover:bg-zinc-200'
+                }`}
+                title="Portal 3: Market Operations & Formulas"
+              >
+                ⚙️ 3. Admin Ops
+              </Link>
+            </div>
+
             {/* Mobile Header Quick Actions (Theme & Sound buttons aligned right on mobile) */}
             <div className="flex sm:hidden items-center gap-1.5">
               <button

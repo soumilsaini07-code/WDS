@@ -936,7 +936,7 @@ export function rollbackDBSnapshot(filename: string): {
 }
 
 // In-Memory / File System Local Store Engine
-function getLocalDB(): LocalDBState {
+export function getLocalDB(): LocalDBState {
   try {
     if (fs.existsSync(DB_FILE)) {
       const stat = fs.statSync(DB_FILE);
