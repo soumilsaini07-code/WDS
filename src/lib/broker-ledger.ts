@@ -155,13 +155,18 @@ export function computeBrokerLedgerSnapshot(): BrokerLedgerSnapshot {
     const totalNetWorth = Number((currentCash + totalHoldingsValue).toFixed(2));
     const tradesCount = db.transactions.filter((t) => teamUserIds.has(t.user_id)).length;
 
-    // Determine Status
-    let status: 'QUALIFIED' | 'LOW_CASH_WARNING' | 'ELIMINATION_RISK' = 'QUALIFIED';
-    if (!round0Met60Percent && (currentRoundId !== 'round-0' || round0Spent > 0)) {
-      status = 'ELIMINATION_RISK';
-    } else if (!cashMet10PercentFloor) {
-      status = 'LOW_CASH_WARNING';
+    // Determine Strict Elimination Status
+    // Rule 1: Must deploy at least 60% of 10L (₹6 Lakhs) in Round 0
+    // Rule 2: Must maintain at least 10% of 10L (₹1 Lakh) in hand cash after each round
+    const eliminationReasons: string[] = [];
+    if (!round0Met60Percent) {
+      eliminationReasons.push(`Failed 60% R0 Rule: Deployed ₹${(round0Spent / 100000).toFixed(2)}L / ₹6.00L (Shortfall: ₹${(round0Shortfall / 100000).toFixed(2)}L)`);
     }
+    if (!cashMet10PercentFloor) {
+      eliminationReasons.push(`Failed 10% Cash Rule: In-hand cash ₹${(currentCash / 100000).toFixed(2)}L is below ₹1.00L (10%) floor reserve`);
+    }
+
+    const status: 'QUALIFIED' | 'ELIMINATED' = eliminationReasons.length > 0 ? 'ELIMINATED' : 'QUALIFIED';
 
     return {
       teamId: team.id,
@@ -181,6 +186,7 @@ export function computeBrokerLedgerSnapshot(): BrokerLedgerSnapshot {
       totalNetWorth,
       tradesCount,
       status,
+      eliminationReasons,
       holdingsByStock,
     };
   });

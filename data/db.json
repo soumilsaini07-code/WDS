@@ -226,7 +226,7 @@
       "email": "vortexca@thapar.edu",
       "role": "participant",
       "username": "Vortex Capital",
-      "balance": 905689,
+      "balance": 966411.1,
       "ecoin_balance": 0,
       "team_id": "team-3ymt9k",
       "team_name": "Vortex Capital",
@@ -254,7 +254,7 @@
       "email": "centralp@thapar.edu",
       "role": "participant",
       "username": "Central Primary Pool",
-      "balance": 1096387,
+      "balance": 1029273.1,
       "ecoin_balance": 0,
       "team_id": "team-yfnz05",
       "team_name": "Central Primary Pool",
@@ -354,12 +354,12 @@
       "ticker": "ZOMATO",
       "name": "Eternal (Zomato)",
       "sector": "Food tech / Quick Commerce",
-      "current_price": 355.1,
+      "current_price": 354.96,
       "previous_close": 341.93,
       "day_high": 365,
       "day_low": 212.6,
-      "change": 13.17,
-      "change_percent": 3.85,
+      "change": 13.03,
+      "change_percent": 3.81,
       "is_frozen": false,
       "lower_circuit": 309.28,
       "upper_circuit": 378.01,
@@ -382,7 +382,8 @@
         357.5,
         354.52,
         353.28,
-        355.1
+        355.1,
+        354.96
       ],
       "drifts": {
         "r1": 0.005,
@@ -2864,7 +2865,7 @@
       "stock_id": "s-novatech",
       "shares_count": 132,
       "avg_buy_price": 300,
-      "updated_at": "2026-11-14T20:56:58.454Z"
+      "updated_at": "2026-11-14T21:05:59.463Z"
     },
     {
       "id": "port-ew67d0l",
@@ -2872,7 +2873,7 @@
       "stock_id": "s-reliance",
       "shares_count": 250,
       "avg_buy_price": 1260.3,
-      "updated_at": "2026-11-14T20:56:58.458Z"
+      "updated_at": "2026-11-14T21:05:59.467Z"
     },
     {
       "id": "port-h1pj12e",
@@ -2896,7 +2897,7 @@
       "stock_id": "s-reliance",
       "shares_count": 150,
       "avg_buy_price": 1271.55,
-      "updated_at": "2026-11-14T20:56:58.471Z"
+      "updated_at": "2026-11-14T21:05:59.479Z"
     },
     {
       "id": "port-ldw3pjb",
@@ -2912,7 +2913,7 @@
       "stock_id": "s-reliance",
       "shares_count": 250,
       "avg_buy_price": 1260,
-      "updated_at": "2026-11-14T20:56:58.480Z"
+      "updated_at": "2026-11-14T21:05:59.487Z"
     },
     {
       "id": "port-gu2yc3p",
@@ -2920,7 +2921,7 @@
       "stock_id": "s-tcs",
       "shares_count": 150,
       "avg_buy_price": 2522.1,
-      "updated_at": "2026-11-14T20:56:58.483Z"
+      "updated_at": "2026-11-14T21:05:59.490Z"
     },
     {
       "id": "port-9l0i1o6",
@@ -2952,7 +2953,7 @@
       "stock_id": "s-tcs",
       "shares_count": 100,
       "avg_buy_price": 2601.9,
-      "updated_at": "2026-11-14T20:56:58.467Z"
+      "updated_at": "2026-11-14T21:05:59.475Z"
     },
     {
       "id": "port-u7wq3zp",
@@ -2960,7 +2961,7 @@
       "stock_id": "s-hdfcbank",
       "shares_count": 130,
       "avg_buy_price": 749.7,
-      "updated_at": "2026-11-14T20:56:58.505Z"
+      "updated_at": "2026-11-14T21:05:59.501Z"
     },
     {
       "id": "port-46cq11t",
@@ -2976,7 +2977,7 @@
       "stock_id": "s-swiggy",
       "shares_count": 1000,
       "avg_buy_price": 350,
-      "updated_at": "2026-11-14T20:56:58.458Z"
+      "updated_at": "2026-11-14T21:05:59.467Z"
     },
     {
       "id": "port-3qq5i26",
@@ -2984,7 +2985,7 @@
       "stock_id": "s-swiggy",
       "shares_count": 200,
       "avg_buy_price": 350,
-      "updated_at": "2026-11-14T20:56:58.505Z"
+      "updated_at": "2026-11-14T21:05:59.501Z"
     },
     {
       "id": "port-2csjvdb",
@@ -3000,7 +3001,7 @@
       "stock_id": "s-hindalco",
       "shares_count": 5,
       "avg_buy_price": 928.94,
-      "updated_at": "2026-11-14T20:56:58.474Z"
+      "updated_at": "2026-11-14T21:05:59.482Z"
     },
     {
       "id": "port-4r1cva9",
@@ -3016,7 +3017,7 @@
       "stock_id": "s-trident",
       "shares_count": 12,
       "avg_buy_price": 21,
-      "updated_at": "2026-11-14T20:56:58.516Z"
+      "updated_at": "2026-11-14T21:05:59.513Z"
     },
     {
       "id": "port-bi2wn2j",
@@ -3024,7 +3025,7 @@
       "stock_id": "s-trident",
       "shares_count": 10,
       "avg_buy_price": 23.1,
-      "updated_at": "2026-11-14T20:56:58.520Z"
+      "updated_at": "2026-11-14T21:05:59.516Z"
     },
     {
       "id": "port-lmqz0s8",
@@ -3040,7 +3041,7 @@
       "stock_id": "s-ntpc",
       "shares_count": 20,
       "avg_buy_price": 316,
-      "updated_at": "2026-11-14T20:56:58.524Z"
+      "updated_at": "2026-11-14T21:05:59.519Z"
     },
     {
       "id": "port-03ew1ca",
@@ -3056,7 +3057,7 @@
       "stock_id": "s-godrejprop",
       "shares_count": 20,
       "avg_buy_price": 1568,
-      "updated_at": "2026-11-14T20:56:58.524Z"
+      "updated_at": "2026-11-14T21:05:59.519Z"
     },
     {
       "id": "port-ujo8xv6",
@@ -3072,7 +3073,7 @@
       "stock_id": "s-zomato",
       "shares_count": 516,
       "avg_buy_price": 375.21,
-      "updated_at": "2026-11-14T20:56:58.524Z"
+      "updated_at": "2026-11-14T21:05:59.519Z"
     },
     {
       "id": "port-mli2xs2",
@@ -3097,6 +3098,22 @@
       "shares_count": 0,
       "avg_buy_price": 357.5,
       "updated_at": "2026-11-11T19:09:58.259Z"
+    },
+    {
+      "id": "port-2uw75ic",
+      "user_id": "usr-865cdg",
+      "stock_id": "s-zomato",
+      "shares_count": 0,
+      "avg_buy_price": 355.1,
+      "updated_at": "2026-11-14T20:59:14.436Z"
+    },
+    {
+      "id": "port-wib6cas",
+      "user_id": "usr-9ukdfl",
+      "stock_id": "s-zomato",
+      "shares_count": 180,
+      "avg_buy_price": 372.85,
+      "updated_at": "2026-11-14T21:05:59.510Z"
     }
   ],
   "transactions": [
@@ -4123,6 +4140,32 @@
       "net_amount": 4451.33,
       "round_id": "round-0",
       "timestamp": "2026-11-11T19:09:58.259Z"
+    },
+    {
+      "id": "tx-qrr6t41",
+      "user_id": "usr-865cdg",
+      "stock_id": "s-zomato",
+      "type": "SELL",
+      "quantity": 180,
+      "price_at_trade": 355.1,
+      "gross_amount": 63918,
+      "brokerage": 3195.9,
+      "net_amount": 60722.1,
+      "round_id": "round-0",
+      "timestamp": "2026-11-14T20:59:14.436Z"
+    },
+    {
+      "id": "tx-ffmx144",
+      "user_id": "usr-9ukdfl",
+      "stock_id": "s-zomato",
+      "type": "BUY",
+      "quantity": 180,
+      "price_at_trade": 355.1,
+      "gross_amount": 63918,
+      "brokerage": 3195.9,
+      "net_amount": 67113.9,
+      "round_id": "round-0",
+      "timestamp": "2026-11-14T20:59:14.436Z"
     }
   ],
   "market_events": [],
@@ -4608,7 +4651,7 @@
       "id": "team-3ymt9k",
       "name": "Vortex Capital",
       "code": "VORTEXCA",
-      "balance": 905689,
+      "balance": 966411.1,
       "leader_id": "usr-865cdg",
       "leader_name": "Vortex Capital",
       "leader_email": "vortexca@thapar.edu",
@@ -4646,7 +4689,7 @@
       "id": "team-yfnz05",
       "name": "Central Primary Pool",
       "code": "CENTRALP",
-      "balance": 1096387,
+      "balance": 1029273.1,
       "leader_id": "usr-9ukdfl",
       "leader_name": "Central Primary Pool",
       "leader_email": "centralp@thapar.edu",
@@ -4970,7 +5013,7 @@
     "remaining_seconds": 1800,
     "is_paused": true,
     "is_orders_locked": false,
-    "last_tick": 1794689335946
+    "last_tick": 1794690333458
   },
   "ipo_listings": [
     {
@@ -5483,14 +5526,14 @@
     }
   },
   "latest_trade": {
-    "id": "trade-1794424198269",
-    "seller_team": "team21",
-    "buyer_team": "trial",
+    "id": "trade-1794689954454",
+    "seller_team": "Vortex Capital",
+    "buyer_team": "Central Primary Pool",
     "ticker": "ZOMATO",
     "stock_name": "Eternal (Zomato)",
-    "quantity": 12,
-    "price": 353.28,
-    "total_amount": 4239.36,
-    "timestamp": 1794424198269
+    "quantity": 180,
+    "price": 355.1,
+    "total_amount": 63918,
+    "timestamp": 1794689954454
   }
 }

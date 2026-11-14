@@ -277,9 +277,10 @@ export default function CorporateBrokerDeskPage() {
   });
 
   // Quick Stats for Secondary Digest
-  const qualifiedCount = (snapshot?.teamsPurse || []).filter((t) => t.round0Met60Percent).length;
-  const atRiskCount = (snapshot?.teamsPurse || []).filter((t) => !t.round0Met60Percent).length;
+  const qualifiedCount = (snapshot?.teamsPurse || []).filter((t) => t.status === 'QUALIFIED').length;
+  const eliminatedCount = (snapshot?.teamsPurse || []).filter((t) => t.status === 'ELIMINATED').length;
   const lowCashCount = (snapshot?.teamsPurse || []).filter((t) => !t.cashMet10PercentFloor).length;
+  const r0FailedCount = (snapshot?.teamsPurse || []).filter((t) => !t.round0Met60Percent).length;
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] text-[#0F172A] font-sans flex antialiased selection:bg-red-500/20 selection:text-red-600">
@@ -752,17 +753,17 @@ export default function CorporateBrokerDeskPage() {
                   {/* TEAM BUDGET COMPLIANCE & ELIMINATION CHECKS */}
                   <div className="p-4 rounded-[12px] bg-white border border-[#E2E8F0] space-y-2 text-xs">
                     <div className="flex items-center justify-between text-[11px]">
-                      <span className="text-[#64748B]">Buyer Remaining Cash:</span>
+                      <span className="text-[#64748B]">Buyer In-Hand Cash Remaining:</span>
                       <span className={`font-bold font-mono ${isCashFloorBreached ? 'text-red-600' : 'text-emerald-600'}`}>
                         ₹{buyerPostTradeCash.toLocaleString('en-IN', { maximumFractionDigits: 0 })}
                       </span>
                     </div>
 
                     {isCashFloorBreached && (
-                      <div className="p-2 rounded-[8px] bg-red-50 border border-red-200 text-red-700 text-xs flex items-center gap-1.5">
+                      <div className="p-2.5 rounded-[8px] bg-red-50 border border-red-200 text-red-700 text-xs flex items-center gap-2 font-medium">
                         <AlertTriangle className="w-4 h-4 text-red-500 shrink-0" />
                         <span>
-                          <strong>Low Cash Warning:</strong> Cash drops below ₹10L (10% post-round floor reserve)!
+                          <strong>Elimination Violation:</strong> In-hand cash drops below ₹1,00,000 (10% of 10L budget). Team will be <strong>ELIMINATED</strong>!
                         </span>
                       </div>
                     )}
@@ -770,25 +771,25 @@ export default function CorporateBrokerDeskPage() {
                     {isRound0 && (
                       <div className="space-y-1.5 pt-1 border-t border-[#E2E8F0]">
                         <div className="flex items-center justify-between text-[11px]">
-                          <span className="text-[#64748B]">Round 0 Budget Deployed:</span>
-                          <span className="font-bold text-[#0F172A]">
-                            {buyerProjectedR0Percent}% (Target: &ge;60%)
+                          <span className="text-[#64748B]">Round 0 Budget Deployed (60% of 10L):</span>
+                          <span className={`font-bold ${buyerProjectedR0Percent >= 60 ? 'text-emerald-700' : 'text-red-600'}`}>
+                            {buyerProjectedR0Percent}% (Target: &ge;60% = ₹6,00,000)
                           </span>
                         </div>
                         <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
                           <div
                             className={`h-full transition-all duration-300 ${
-                              buyerProjectedR0Percent >= 60 ? 'bg-emerald-500' : 'bg-amber-500'
+                              buyerProjectedR0Percent >= 60 ? 'bg-emerald-500' : 'bg-red-500'
                             }`}
                             style={{ width: `${Math.min(100, buyerProjectedR0Percent)}%` }}
                           ></div>
                         </div>
                         <div className="flex items-center justify-between text-[11px] text-[#64748B]">
-                          <span>Spent: ₹{(buyerProjectedR0Spent / 100000).toFixed(1)}L / ₹60.0L</span>
-                          <span>
+                          <span>Spent: ₹{(buyerProjectedR0Spent / 100000).toFixed(2)}L / ₹6.00L Target</span>
+                          <span className="font-semibold">
                             {buyerProjectedR0Percent >= 60
-                              ? '✅ Target Met'
-                              : `Needs ₹${((targetR0Amount - buyerProjectedR0Spent) / 100000).toFixed(1)}L more`}
+                              ? '✅ QUALIFIED'
+                              : `❌ ELIMINATED unless ₹${((targetR0Amount - buyerProjectedR0Spent) / 100000).toFixed(2)}L more deployed`}
                           </span>
                         </div>
                       </div>
@@ -885,23 +886,24 @@ export default function CorporateBrokerDeskPage() {
                         <thead className="bg-[#F8FAFC] text-[#64748B] text-[11px] font-semibold uppercase tracking-wider border-b border-[#E2E8F0]">
                           <tr>
                             <th className="py-2.5 px-3">Team</th>
-                            <th className="py-2.5 px-3 font-mono">Cash Balance</th>
+                            <th className="py-2.5 px-3 font-mono">In-Hand Cash</th>
                             <th className="py-2.5 px-3 font-mono">R0 Spent</th>
                             <th className="py-2.5 px-3">R0 Deployed %</th>
-                            <th className="py-2.5 px-3">60% Rule</th>
-                            <th className="py-2.5 px-3">10% Cash Rule</th>
+                            <th className="py-2.5 px-3">60% R0 Rule (&ge;6L)</th>
+                            <th className="py-2.5 px-3">10% Cash Rule (&ge;1L)</th>
+                            <th className="py-2.5 px-3">Final Status</th>
                             <th className="py-2.5 px-3 font-mono">Net Worth</th>
                             <th className="py-2.5 px-3 text-right">Action</th>
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-[#E2E8F0] text-[#0F172A]">
                           {filteredTeams.map((tp) => {
-                            const isEliminateRisk = !tp.round0Met60Percent;
+                            const isEliminated = tp.status === 'ELIMINATED';
                             return (
                               <tr
                                 key={tp.teamId}
                                 className={`hover:bg-[#F8FAFC] transition ${
-                                  isEliminateRisk ? 'bg-red-50/40' : ''
+                                  isEliminated ? 'bg-red-50/50' : ''
                                 }`}
                               >
                                 <td className="py-2.5 px-3">
@@ -909,11 +911,11 @@ export default function CorporateBrokerDeskPage() {
                                   <div className="text-[10px] text-[#64748B] font-mono">{tp.teamCode}</div>
                                 </td>
 
-                                <td className="py-2.5 px-3 font-mono font-bold text-emerald-700">
+                                <td className={`py-2.5 px-3 font-mono font-bold ${tp.cashMet10PercentFloor ? 'text-emerald-700' : 'text-red-600'}`}>
                                   ₹{(tp.currentCash / 100000).toFixed(2)}L
                                 </td>
 
-                                <td className="py-2.5 px-3 font-mono text-amber-700">
+                                <td className="py-2.5 px-3 font-mono text-[#0F172A]">
                                   ₹{(tp.round0Spent / 100000).toFixed(2)}L
                                 </td>
 
@@ -940,23 +942,35 @@ export default function CorporateBrokerDeskPage() {
                                 <td className="py-2.5 px-3">
                                   {tp.round0Met60Percent ? (
                                     <span className="px-2 py-0.5 rounded-full text-[10px] bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold">
-                                      PASS
+                                      PASS (&ge;6L)
                                     </span>
                                   ) : (
-                                    <span className="px-2 py-0.5 rounded-full text-[10px] bg-red-50 text-red-700 border border-red-200 font-bold">
-                                      ELIMINATE
+                                    <span className="px-2 py-0.5 rounded-full text-[10px] bg-red-50 text-red-700 border border-red-200 font-bold" title={`Shortfall: ₹${(tp.round0Shortfall / 100000).toFixed(2)}L`}>
+                                      FAIL (&lt;6L)
                                     </span>
                                   )}
                                 </td>
 
                                 <td className="py-2.5 px-3">
                                   {tp.cashMet10PercentFloor ? (
-                                    <span className="px-2 py-0.5 rounded-full text-[10px] bg-emerald-50 text-emerald-700 font-semibold">
-                                      &ge;10L
+                                    <span className="px-2 py-0.5 rounded-full text-[10px] bg-emerald-50 text-emerald-700 border border-emerald-200 font-semibold">
+                                      PASS (&ge;1L)
                                     </span>
                                   ) : (
-                                    <span className="px-2 py-0.5 rounded-full text-[10px] bg-amber-50 text-amber-700 border border-amber-200 font-bold">
-                                      &lt;10L
+                                    <span className="px-2 py-0.5 rounded-full text-[10px] bg-red-50 text-red-700 border border-red-200 font-bold" title="In-hand cash below ₹1L (10% floor reserve)">
+                                      FAIL (&lt;1L)
+                                    </span>
+                                  )}
+                                </td>
+
+                                <td className="py-2.5 px-3">
+                                  {isEliminated ? (
+                                    <span className="px-2.5 py-0.5 rounded-full text-[10px] bg-red-100 text-red-800 border border-red-300 font-black tracking-wide" title={(tp.eliminationReasons || []).join(' | ')}>
+                                      ELIMINATED
+                                    </span>
+                                  ) : (
+                                    <span className="px-2.5 py-0.5 rounded-full text-[10px] bg-emerald-100 text-emerald-800 border border-emerald-300 font-black tracking-wide">
+                                      QUALIFIED
                                     </span>
                                   )}
                                 </td>
@@ -1126,12 +1140,16 @@ export default function CorporateBrokerDeskPage() {
 
                 <div className="space-y-2.5 text-xs text-slate-300">
                   <div className="p-2.5 rounded-[12px] bg-slate-800/80 border border-slate-700/60">
-                    <strong className="text-white block font-semibold mb-0.5">Round 0 60% Budget Rule:</strong>
-                    Teams must deploy at least ₹60 Lakhs (60%) of initial ₹1 Crore budget in Round 0 or face elimination.
+                    <strong className="text-white block font-semibold mb-0.5">Total Budget: ₹10,00,000 (10 Lakhs)</strong>
+                    Every team starts with a total purse of 10 Lakhs.
                   </div>
                   <div className="p-2.5 rounded-[12px] bg-slate-800/80 border border-slate-700/60">
-                    <strong className="text-white block font-semibold mb-0.5">10% Post-Round Cash Floor:</strong>
-                    Every team must retain &ge; ₹10 Lakhs (10%) cash reserve at all times.
+                    <strong className="text-white block font-semibold mb-0.5">Round 0 60% Rule (Target &ge; ₹6L):</strong>
+                    Teams must deploy at least 60% of their 10L budget (₹6 Lakhs) in Round 0. Any team failing to do so will be <span className="text-red-400 font-bold">ELIMINATED</span>.
+                  </div>
+                  <div className="p-2.5 rounded-[12px] bg-slate-800/80 border border-slate-700/60">
+                    <strong className="text-white block font-semibold mb-0.5">Post-Round 10% Cash Rule (Floor &ge; ₹1L):</strong>
+                    After the end of each round, every team must have at least 10% of 10L (₹1,00,000 / 1 Lakh) in-hand cash, or their status will be <span className="text-red-400 font-bold">ELIMINATED</span>.
                   </div>
                   <div className="p-2.5 rounded-[12px] bg-slate-800/80 border border-slate-700/60">
                     <strong className="text-white block font-semibold mb-0.5">Brokerage Fee:</strong>
@@ -1188,16 +1206,20 @@ export default function CorporateBrokerDeskPage() {
                     <span className="font-bold text-[#0F172A]">{snapshot?.teamsPurse?.length ?? 0}</span>
                   </div>
                   <div className="flex items-center justify-between p-2 rounded-[12px] bg-emerald-50 border border-emerald-100 text-emerald-800">
-                    <span>Qualified (&ge;60% R0):</span>
+                    <span>Qualified Teams:</span>
                     <span className="font-bold">{qualifiedCount}</span>
                   </div>
                   <div className="flex items-center justify-between p-2 rounded-[12px] bg-red-50 border border-red-100 text-red-800">
-                    <span>Elimination Risk (&lt;60%):</span>
-                    <span className="font-bold">{atRiskCount}</span>
+                    <span>Eliminated Teams:</span>
+                    <span className="font-bold">{eliminatedCount}</span>
                   </div>
                   <div className="flex items-center justify-between p-2 rounded-[12px] bg-amber-50 border border-amber-100 text-amber-800">
-                    <span>Low Cash Violations (&lt;10L):</span>
+                    <span>Low Cash Violations (&lt;1L):</span>
                     <span className="font-bold">{lowCashCount}</span>
+                  </div>
+                  <div className="flex items-center justify-between p-2 rounded-[12px] bg-slate-50 border border-slate-200 text-slate-700">
+                    <span>Failed R0 60% Rule (&lt;6L):</span>
+                    <span className="font-bold">{r0FailedCount}</span>
                   </div>
                 </div>
               </div>

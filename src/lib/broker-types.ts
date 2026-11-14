@@ -1,8 +1,8 @@
 import { Stock } from './types';
 
-export const INITIAL_PURSE_PER_TEAM = 10000000; // ₹1,00,00,000 (100 Lakhs / 1 Crore)
-export const ROUND_0_MIN_DEPLOYMENT_RATIO = 0.60; // 60% must be deployed in Round 0 (₹60 Lakhs)
-export const POST_ROUND_MIN_CASH_RATIO = 0.10; // 10% cash reserve floor (₹10 Lakhs)
+export const INITIAL_PURSE_PER_TEAM = 1000000; // ₹10,00,000 (10 Lakhs Total Budget)
+export const ROUND_0_MIN_DEPLOYMENT_RATIO = 0.60; // 60% of 10L = ₹6,00,000 (6 Lakhs) must be deployed in Round 0
+export const POST_ROUND_MIN_CASH_RATIO = 0.10; // 10% of 10L = ₹1,00,000 (1 Lakh) minimum in-hand cash after each round
 
 export interface TeamPurseRecord {
   teamId: string;
@@ -21,7 +21,8 @@ export interface TeamPurseRecord {
   totalHoldingsValue: number;
   totalNetWorth: number;
   tradesCount: number;
-  status: 'QUALIFIED' | 'LOW_CASH_WARNING' | 'ELIMINATION_RISK';
+  status: 'QUALIFIED' | 'ELIMINATED';
+  eliminationReasons: string[];
   holdingsByStock: Record<string, number>; // ticker -> quantity
 }
 
