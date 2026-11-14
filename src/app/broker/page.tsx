@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { supabaseClient } from '@/lib/supabase-client';
 import {
   BrokerLedgerSnapshot,
@@ -21,6 +21,10 @@ export default function EditorialBrokerDeskPage() {
   const [ipoTeamName, setIpoTeamName] = useState<string>('');
   const [ipoLots, setIpoLots] = useState<string>('5');
   const [isIpoSubmitting, setIsIpoSubmitting] = useState<boolean>(false);
+
+  // Persistent stock and IPO refs to prevent closure polling resets
+  const selectedStockIdRef = useRef<string>('');
+  const ipoSelectedIdRef = useRef<string>('');
 
   // Form State for Jogger / Broker Slip Entry
   const [buyerTeam, setBuyerTeam] = useState<string>('');
@@ -63,12 +67,16 @@ export default function EditorialBrokerDeskPage() {
         const data = await res.json();
         if (data.snapshot) {
           setSnapshot(data.snapshot);
-          if (!selectedStockId && data.snapshot.stocks && data.snapshot.stocks.length > 0) {
-            setSelectedStockId(data.snapshot.stocks[0].id);
-            setAgreedPrice(String(data.snapshot.stocks[0].current_price));
+          if (!selectedStockIdRef.current && data.snapshot.stocks && data.snapshot.stocks.length > 0) {
+            const firstStock = data.snapshot.stocks[0];
+            selectedStockIdRef.current = firstStock.id;
+            setSelectedStockId(firstStock.id);
+            setAgreedPrice(String(firstStock.current_price));
           }
-          if (data.snapshot.ipoListings && data.snapshot.ipoListings.length > 0) {
-            setIpoSelectedId((prev) => prev || data.snapshot.ipoListings[0].id);
+          if (!ipoSelectedIdRef.current && data.snapshot.ipoListings && data.snapshot.ipoListings.length > 0) {
+            const firstIpo = data.snapshot.ipoListings[0];
+            ipoSelectedIdRef.current = firstIpo.id;
+            setIpoSelectedId(firstIpo.id);
           }
         }
       }
@@ -108,6 +116,7 @@ export default function EditorialBrokerDeskPage() {
   );
 
   const handleStockChange = (stockId: string) => {
+    selectedStockIdRef.current = stockId;
     setSelectedStockId(stockId);
     const stock = (snapshot?.stocks || []).find((s) => s.id === stockId);
     if (stock) {
@@ -525,7 +534,7 @@ export default function EditorialBrokerDeskPage() {
 
                   <select
                     value={ipoSelectedId}
-                    onChange={(e) => setIpoSelectedId(e.target.value)}
+                    onChange={(e) => { ipoSelectedIdRef.current = e.target.value; setIpoSelectedId(e.target.value); }}
                     className="w-full text-base sm:text-lg font-bold text-[#000000] bg-transparent border-b border-black/10 pb-1 outline-none cursor-pointer"
                   >
                     {(snapshot?.ipoListings || []).map((ipo) => (
@@ -694,7 +703,7 @@ export default function EditorialBrokerDeskPage() {
               <div className="p-6 rounded-[24px] bg-[#F8F9FA] border border-black/10 flex flex-col justify-between space-y-4">
                 <div className="flex items-center justify-between">
                   <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#737373]">
-                    01 // BUYING ENTITY
+                    01 // BUYING TEAM (PURCHASER)
                   </span>
                   {buyerRecord && (
                     <span className="font-mono text-[11px] text-[#000000] font-bold">
@@ -729,7 +738,7 @@ export default function EditorialBrokerDeskPage() {
               <div className="p-6 rounded-[24px] bg-[#F8F9FA] border border-black/10 flex flex-col justify-between space-y-4">
                 <div className="flex items-center justify-between">
                   <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#737373]">
-                    02 // SELLING ENTITY
+                    02 // SELLING TEAM (OR CENTRAL PRIMARY POOL)
                   </span>
                   <button
                     type="button"
@@ -768,7 +777,7 @@ export default function EditorialBrokerDeskPage() {
               <div className="p-6 rounded-[24px] bg-[#F8F9FA] border border-black/10 flex flex-col justify-between space-y-4">
                 <div className="flex items-center justify-between">
                   <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#737373]">
-                    03 // SECURITY &amp; PRICE
+                    03 // STOCK &amp; AGREED PRICE
                   </span>
                   {selectedStock && (
                     <button
@@ -836,7 +845,7 @@ export default function EditorialBrokerDeskPage() {
               <div className="p-6 rounded-[24px] bg-[#F8F9FA] border border-black/10 flex flex-col justify-between space-y-4">
                 <div className="flex items-center justify-between">
                   <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#737373]">
-                    04 // QUANTITY (SHARES)
+                    04 // SHARE QUANTITY (VOLUME)
                   </span>
                   <span className="font-mono text-[11px] text-[#000000] font-bold">
                     GROSS: ₹{grossDealValue.toLocaleString('en-IN', { maximumFractionDigits: 2 })}
@@ -1074,15 +1083,15 @@ export default function EditorialBrokerDeskPage() {
                 <table className="w-full text-left text-xs font-mono">
                   <thead className="bg-[#F8F9FA] text-[#737373] text-[11px] uppercase tracking-[0.2em] border-b border-black/10">
                     <tr>
-                      <th className="py-3 px-4">TEAM</th>
-                      <th className="py-3 px-4">IN-HAND CASH</th>
-                      <th className="py-3 px-4">R0 SPENT</th>
-                      <th className="py-3 px-4">R0 DEPLOYED</th>
-                      <th className="py-3 px-4">60% RULE (&ge;6L)</th>
-                      <th className="py-3 px-4">10% CASH (&ge;1L)</th>
-                      <th className="py-3 px-4">STATUS</th>
-                      <th className="py-3 px-4">NET WORTH</th>
-                      <th className="py-3 px-4 text-right">ACTION</th>
+                      <th className="py-3 px-4">PARTICIPANT TEAM</th>
+                      <th className="py-3 px-4">CURRENT CASH IN-HAND</th>
+                      <th className="py-3 px-4">ROUND 0 PURCHASED</th>
+                      <th className="py-3 px-4">% BUDGET USED</th>
+                      <th className="py-3 px-4">60% RULE (MIN ₹6.0L)</th>
+                      <th className="py-3 px-4">10% CASH FLOOR (MIN ₹1.0L)</th>
+                      <th className="py-3 px-4">COMPLIANCE STATUS</th>
+                      <th className="py-3 px-4">TOTAL PORTFOLIO VALUE</th>
+                      <th className="py-3 px-4 text-right">QUICK SLIP FILL</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-black/5 text-[#000000]">
@@ -1194,17 +1203,17 @@ export default function EditorialBrokerDeskPage() {
                 <table className="w-full text-left text-xs font-mono">
                   <thead className="bg-[#F8F9FA] text-[#737373] text-[11px] uppercase tracking-[0.2em] border-b border-black/10">
                     <tr>
-                      <th className="py-3 px-4">SLIP</th>
-                      <th className="py-3 px-4">TIMESTAMP</th>
-                      <th className="py-3 px-4">BUYER</th>
-                      <th className="py-3 px-4">SELLER</th>
-                      <th className="py-3 px-4">TICKER</th>
-                      <th className="py-3 px-4">QTY</th>
-                      <th className="py-3 px-4">PRICE</th>
-                      <th className="py-3 px-4">GROSS</th>
-                      <th className="py-3 px-4">BROK</th>
-                      <th className="py-3 px-4">TOTAL DEBIT</th>
-                      <th className="py-3 px-4">STATUS</th>
+                      <th className="py-3 px-4">SLIP ID</th>
+                      <th className="py-3 px-4">EXECUTION TIME</th>
+                      <th className="py-3 px-4">BUYING TEAM</th>
+                      <th className="py-3 px-4">SELLING TEAM</th>
+                      <th className="py-3 px-4">STOCK (TICKER)</th>
+                      <th className="py-3 px-4">SHARES (QTY)</th>
+                      <th className="py-3 px-4">PRICE / SHARE (₹)</th>
+                      <th className="py-3 px-4">GROSS DEAL VALUE (₹)</th>
+                      <th className="py-3 px-4">5% BROKERAGE (₹)</th>
+                      <th className="py-3 px-4">BUYER TOTAL PAID (₹)</th>
+                      <th className="py-3 px-4">SETTLEMENT STATUS</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-black/5 text-[#000000]">
@@ -1254,7 +1263,7 @@ export default function EditorialBrokerDeskPage() {
                         <div className="text-[10px] text-[#737373]">₹{s.current_price.toFixed(1)}</div>
                       </th>
                     ))}
-                    <th className="py-3 px-4 text-right">VALUE</th>
+                    <th className="py-3 px-4 text-right">TOTAL PORTFOLIO VALUE (₹)</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-black/5 text-[#000000]">
@@ -1302,14 +1311,14 @@ export default function EditorialBrokerDeskPage() {
                 <table className="w-full text-left text-xs font-mono">
                   <thead className="bg-[#F8F9FA] text-[#737373] text-[11px] uppercase tracking-[0.2em] border-b border-black/10">
                     <tr>
-                      <th className="py-3 px-4">BID ID</th>
+                      <th className="py-3 px-4">APPLICATION SLIP ID</th>
                       <th className="py-3 px-4">TIMESTAMP</th>
-                      <th className="py-3 px-4">TEAM</th>
-                      <th className="py-3 px-4">IPO LISTING</th>
-                      <th className="py-3 px-4 text-center">LOTS</th>
-                      <th className="py-3 px-4 text-center">SHARES</th>
-                      <th className="py-3 px-4 text-right">GROSS OUTFLOW</th>
-                      <th className="py-3 px-4">STATUS</th>
+                      <th className="py-3 px-4">APPLYING TEAM</th>
+                      <th className="py-3 px-4">IPO COMPANY &amp; TICKER</th>
+                      <th className="py-3 px-4 text-center">LOTS APPLIED</th>
+                      <th className="py-3 px-4 text-center">TOTAL SHARES</th>
+                      <th className="py-3 px-4 text-right">GROSS BID OUTFLOW (₹)</th>
+                      <th className="py-3 px-4">ALLOTMENT STATUS</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-black/5 text-[#000000]">
