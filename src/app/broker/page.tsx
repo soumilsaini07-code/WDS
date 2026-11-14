@@ -1,19 +1,34 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
-import Link from 'next/link';
+import React, { useState, useEffect } from 'react';
 import { supabaseClient } from '@/lib/supabase-client';
-import { Stock } from '@/lib/types';
+import {
+  FileText,
+  DollarSign,
+  Layers,
+  Download,
+  RefreshCw,
+  TrendingUp,
+  AlertTriangle,
+  CheckCircle2,
+  XCircle,
+  Search,
+  Building,
+  Hash,
+  Coins,
+  ShieldAlert,
+  Clock,
+  ArrowUpRight,
+  ArrowDownLeft,
+} from 'lucide-react';
 import {
   BrokerLedgerSnapshot,
-  TeamPurseRecord,
-  TradeLedgerRow,
   INITIAL_PURSE_PER_TEAM,
   ROUND_0_MIN_DEPLOYMENT_RATIO,
   POST_ROUND_MIN_CASH_RATIO,
 } from '@/lib/broker-types';
 
-export default function BrokerDeskPage() {
+export default function CorporateBrokerDeskPage() {
   const [snapshot, setSnapshot] = useState<BrokerLedgerSnapshot | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
@@ -27,23 +42,23 @@ export default function BrokerDeskPage() {
   const [agreedPrice, setAgreedPrice] = useState<string>('');
   const [allowCircuitBypass, setAllowCircuitBypass] = useState<boolean>(false);
 
-  // Search & Filter
+  // Search
   const [teamSearch, setTeamSearch] = useState<string>('');
   const [ledgerSearch, setLedgerSearch] = useState<string>('');
 
-  // Alerts & Notifications
+  // Toast Feedback
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
-  // Audio Beep for Trade Settlement (Web Audio API)
+  // Play subtle audio chime for settled trades
   const playSuccessChime = () => {
     try {
       const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.type = 'sine';
-      osc.frequency.setValueAtTime(587.33, ctx.currentTime); // D5
-      osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.15); // A5
-      gain.gain.setValueAtTime(0.2, ctx.currentTime);
+      osc.frequency.setValueAtTime(587.33, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.15);
+      gain.gain.setValueAtTime(0.15, ctx.currentTime);
       gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
       osc.connect(gain);
       gain.connect(ctx.destination);
@@ -60,7 +75,6 @@ export default function BrokerDeskPage() {
         const data = await res.json();
         if (data.snapshot) {
           setSnapshot(data.snapshot);
-          // Set initial stock if unset
           if (!selectedStockId && data.snapshot.stocks && data.snapshot.stocks.length > 0) {
             setSelectedStockId(data.snapshot.stocks[0].id);
             setAgreedPrice(String(data.snapshot.stocks[0].current_price));
@@ -80,7 +94,7 @@ export default function BrokerDeskPage() {
     return () => clearInterval(interval);
   }, []);
 
-  // Supabase Realtime Listener for Instant Floor Sync
+  // Supabase Realtime Listener
   useEffect(() => {
     const channel = supabaseClient
       .channel('broker-desk-sync')
@@ -102,7 +116,6 @@ export default function BrokerDeskPage() {
     (s) => s.id === selectedStockId || s.ticker.toUpperCase() === selectedStockId.toUpperCase()
   );
 
-  // Update agreed price when stock selection changes
   const handleStockChange = (stockId: string) => {
     setSelectedStockId(stockId);
     const stock = (snapshot?.stocks || []).find((s) => s.id === stockId);
@@ -111,7 +124,7 @@ export default function BrokerDeskPage() {
     }
   };
 
-  // Calculation Metrics for the Active Slip
+  // Calculation Metrics
   const currentRoundId = snapshot?.currentRoundId || 'round-0';
   const isRound0 = currentRoundId === 'round-0';
   const isPrimaryPool =
@@ -149,8 +162,8 @@ export default function BrokerDeskPage() {
   const buyerPostTradeCash = Number((buyerCurrentCash - totalBuyerDebit).toFixed(2));
   const buyerProjectedR0Spent = (buyerRecord?.round0Spent || 0) + (isRound0 ? grossDealValue : 0);
   const buyerProjectedR0Percent = Number(((buyerProjectedR0Spent / INITIAL_PURSE_PER_TEAM) * 100).toFixed(1));
-  const targetR0Amount = INITIAL_PURSE_PER_TEAM * ROUND_0_MIN_DEPLOYMENT_RATIO; // 60 Lakhs
-  const minCashFloor = INITIAL_PURSE_PER_TEAM * POST_ROUND_MIN_CASH_RATIO; // 10 Lakhs
+  const targetR0Amount = INITIAL_PURSE_PER_TEAM * ROUND_0_MIN_DEPLOYMENT_RATIO;
+  const minCashFloor = INITIAL_PURSE_PER_TEAM * POST_ROUND_MIN_CASH_RATIO;
   const isCashFloorBreached = buyerPostTradeCash < minCashFloor;
 
   // Handle Trade Slip Submission
@@ -167,7 +180,7 @@ export default function BrokerDeskPage() {
       return;
     }
     if (buyerTeam.trim().toLowerCase() === sellerTeam.trim().toLowerCase()) {
-      setFeedback({ type: 'error', message: 'Buyer and Seller team cannot be identical!' });
+      setFeedback({ type: 'error', message: 'Buyer and Seller team cannot be the same!' });
       return;
     }
     if (!selectedStockId) {
@@ -213,7 +226,7 @@ export default function BrokerDeskPage() {
       playSuccessChime();
       setFeedback({
         type: 'success',
-        message: `✅ SLIP APPROVED & BROADCAST! ${parsedQty} shares of ${selectedStock?.ticker} settled between "${buyerTeam}" & "${sellerTeam}" at ₹${parsedPrice.toFixed(2)}. Visible on participant terminal for 10s!`,
+        message: `Slip Approved! ${parsedQty} shares of ${selectedStock?.ticker} settled between "${buyerTeam}" & "${sellerTeam}" @ ₹${parsedPrice.toFixed(2)}. Broadcast to all participant screens!`,
       });
 
       if (data.snapshot) {
@@ -222,7 +235,6 @@ export default function BrokerDeskPage() {
         fetchLedger();
       }
 
-      // Reset form quantity, keep round context
       setQuantity('100');
     } catch (err: any) {
       setFeedback({ type: 'error', message: err.message || 'Error executing trade.' });
@@ -231,7 +243,7 @@ export default function BrokerDeskPage() {
     }
   };
 
-  // Quick helper to fill form from table
+  // Quick fill helper from table
   const selectTeamAsBuyer = (teamName: string) => {
     setBuyerTeam(teamName);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -264,795 +276,935 @@ export default function BrokerDeskPage() {
     );
   });
 
+  // Quick Stats for Secondary Digest
+  const qualifiedCount = (snapshot?.teamsPurse || []).filter((t) => t.round0Met60Percent).length;
+  const atRiskCount = (snapshot?.teamsPurse || []).filter((t) => !t.round0Met60Percent).length;
+  const lowCashCount = (snapshot?.teamsPurse || []).filter((t) => !t.cashMet10PercentFloor).length;
+
   return (
-    <div className="min-h-screen bg-[#0c1015] text-slate-100 font-sans flex flex-col selection:bg-emerald-500/30">
+    <div className="min-h-screen bg-[#F8FAFC] text-[#0F172A] font-sans flex antialiased selection:bg-red-500/20 selection:text-red-600">
       {/* ========================================================================= */}
-      {/* 1. UNIVERSAL TOP BAR: 3-PORTAL NAVIGATION & LIVE FLOOR TELEMETRY */}
+      {/* 1. FIXED 256PX SIDEBAR NAVIGATION (WHITE / SLATE-200 / RED-500) */}
       {/* ========================================================================= */}
-      <header className="sticky top-0 z-50 bg-[#121820]/95 backdrop-blur-md border-b border-slate-800 shadow-md">
-        <div className="max-w-[1720px] mx-auto px-4 sm:px-6 py-2.5 flex flex-wrap items-center justify-between gap-3">
-          {/* Brand & Floor Title */}
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-400 flex items-center justify-center font-black text-white text-base shadow-lg shadow-emerald-950/40">
-              ₹
+      <aside className="w-64 fixed inset-y-0 left-0 bg-[#FFFFFF] border-r border-[#E2E8F0] z-40 flex flex-col justify-between">
+        {/* Top: Brand Logo */}
+        <div>
+          <div className="p-6 border-b border-[#E2E8F0] flex items-center gap-3">
+            <div className="w-10 h-10 rounded-[12px] bg-[#EF4444] flex items-center justify-center text-white shadow-xs">
+              <FileText className="w-5 h-5 text-white" />
             </div>
             <div>
-              <div className="flex items-center gap-2">
-                <h1 className="font-black text-sm sm:text-base tracking-tight text-white uppercase">
-                  Wolf of Dalal Street
-                </h1>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold font-mono tracking-wider uppercase bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-                  PORTAL 2: EVENT DESK
-                </span>
-              </div>
-              <p className="text-[11px] text-slate-400 font-medium hidden sm:block">
-                Floor Broker Slip Settlement Console &amp; Live Excel Ledger
-              </p>
+              <h2 className="font-bold text-base text-[#0F172A] leading-tight tracking-tight">
+                Floor Desk
+              </h2>
+              <span className="text-xs text-[#64748B] font-medium block">
+                Slip Settlement Portal
+              </span>
             </div>
           </div>
 
-          {/* Three Portals Navigation Tabs */}
-          <nav className="flex items-center gap-1.5 bg-[#0a0d12] p-1 rounded-xl border border-slate-800 text-xs font-semibold">
-            <Link
-              href="/dashboard"
-              className="px-3 py-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/60 transition flex items-center gap-1.5"
-              title="Portal 1: Public Live Terminal for Participants"
+          {/* Navigation List */}
+          <nav className="p-4 space-y-1.5">
+            <button
+              type="button"
+              onClick={() => setActiveTab('purses')}
+              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-[12px] text-xs font-semibold transition-all duration-200 ease-[cubic-bezier(0.4,0,0.2,1)] cursor-pointer ${
+                activeTab === 'purses'
+                  ? 'bg-[#F1F5F9] text-[#EF4444] border-r-4 border-[#EF4444]'
+                  : 'text-[#64748B] hover:text-[#0F172A] hover:bg-[#F8FAFC]'
+              }`}
             >
-              <span>📈</span>
-              <span className="hidden md:inline">1. Participant</span>
-              <span>Terminal</span>
-            </Link>
+              <DollarSign className="w-4 h-4" />
+              <span>Team Purses &amp; Elimination</span>
+            </button>
 
-            <div className="px-3 py-1.5 rounded-lg bg-emerald-600 text-white font-bold shadow-xs flex items-center gap-1.5 cursor-default">
-              <span>📋</span>
-              <span className="hidden md:inline">2. Event Floor &amp;</span>
-              <span>Broker Desk</span>
+            <button
+              type="button"
+              onClick={() => setActiveTab('ledger')}
+              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-[12px] text-xs font-semibold transition-all duration-200 ease-[cubic-bezier(0.4,0,0.2,1)] cursor-pointer ${
+                activeTab === 'ledger'
+                  ? 'bg-[#F1F5F9] text-[#EF4444] border-r-4 border-[#EF4444]'
+                  : 'text-[#64748B] hover:text-[#0F172A] hover:bg-[#F8FAFC]'
+              }`}
+            >
+              <Clock className="w-4 h-4" />
+              <span>Trades Master Ledger</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setActiveTab('matrix')}
+              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-[12px] text-xs font-semibold transition-all duration-200 ease-[cubic-bezier(0.4,0,0.2,1)] cursor-pointer ${
+                activeTab === 'matrix'
+                  ? 'bg-[#F1F5F9] text-[#EF4444] border-r-4 border-[#EF4444]'
+                  : 'text-[#64748B] hover:text-[#0F172A] hover:bg-[#F8FAFC]'
+              }`}
+            >
+              <Layers className="w-4 h-4" />
+              <span>Stock Holdings Matrix</span>
+            </button>
+
+            <div className="pt-4 border-t border-[#E2E8F0]/70 mt-4">
+              <a
+                href="/api/broker/export-excel"
+                download
+                className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-[12px] text-xs font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 transition-all duration-200 ease-[cubic-bezier(0.4,0,0.2,1)] shadow-xs"
+              >
+                <Download className="w-4 h-4" />
+                <span>Export Excel (.xlsx)</span>
+              </a>
             </div>
-
-            <Link
-              href="/admin"
-              className="px-3 py-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/60 transition flex items-center gap-1.5"
-              title="Portal 3: Market Operations, News Catalysts & Formulas"
-            >
-              <span>⚙️</span>
-              <span className="hidden md:inline">3. Admin Market</span>
-              <span>Ops</span>
-            </Link>
           </nav>
+        </div>
 
-          {/* Floor Status & Telemetry Strip */}
-          <div className="flex items-center gap-2 font-mono text-xs">
-            <div className="px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-700/70 flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-              <span className="font-bold text-emerald-400 uppercase">
-                {snapshot?.currentRoundName || 'ROUND 0'}
-              </span>
+        {/* Bottom: Desk Operator Profile Card */}
+        <div className="p-4 border-t border-[#E2E8F0] m-4 rounded-[16px] bg-[#F8FAFC] border flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full bg-[#0F172A] text-white flex items-center justify-center font-bold text-xs">
+            FD
+          </div>
+          <div className="min-w-0 flex-1">
+            <h4 className="text-xs font-bold text-[#0F172A] truncate">Floor Desk Officer</h4>
+            <p className="text-[11px] text-[#64748B] truncate">Event Organizing Team</p>
+          </div>
+        </div>
+      </aside>
+
+      {/* ========================================================================= */}
+      {/* 2. FLUID MAIN CONTENT AREA (MARGIN-LEFT: 256PX) */}
+      {/* ========================================================================= */}
+      <div className="ml-64 flex-1 flex flex-col min-w-0">
+        {/* Header Section (Top Row with 32px padding-bottom) */}
+        <header className="px-8 pt-8 pb-6 bg-[#FFFFFF] border-b border-[#E2E8F0] flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold text-[#0F172A] tracking-tight">
+              Slip Settlement &amp; Live Ledger
+            </h1>
+            <p className="text-sm text-[#64748B] mt-0.5">
+              Record paper slips, apply automated 5% brokerage, and monitor team budget compliance in real time.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-3">
+            {/* Status Pulse Badge */}
+            <div className="bg-emerald-50 border border-emerald-200 text-emerald-700 px-3 py-1.5 rounded-full text-xs font-semibold flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+              <span>Realtime Broadcast Active</span>
             </div>
+
+            {/* Current Round Indicator */}
+            <div className="px-3 py-1.5 rounded-[12px] bg-[#F1F5F9] border border-[#E2E8F0] text-xs font-bold font-mono text-[#0F172A]">
+              {snapshot?.currentRoundName || 'ROUND 0'}
+            </div>
+
             <button
               onClick={fetchLedger}
-              className="p-1.5 rounded-lg bg-slate-900 border border-slate-700 hover:bg-slate-800 text-slate-300 transition"
+              className="p-2 rounded-[12px] bg-[#FFFFFF] border border-[#E2E8F0] hover:bg-[#F8FAFC] text-[#64748B] hover:text-[#0F172A] transition"
               title="Refresh Live Ledger"
             >
-              🔄
+              <RefreshCw className="w-4 h-4" />
             </button>
-          </div>
-        </div>
-      </header>
 
-      {/* ========================================================================= */}
-      {/* 2. LIVE METRICS KPI STRIP */}
-      {/* ========================================================================= */}
-      <section className="bg-[#0f141c] border-b border-slate-800/80 py-2.5 px-4 sm:px-6">
-        <div className="max-w-[1720px] mx-auto grid grid-cols-2 sm:grid-cols-4 gap-3 font-mono text-xs">
-          <div className="p-2.5 rounded-xl bg-slate-900/60 border border-slate-800 flex items-center justify-between">
-            <span className="text-slate-400 uppercase tracking-wider text-[11px]">Deals Settled</span>
-            <span className="font-black text-white text-sm">{snapshot?.totalDealsSettled ?? 0}</span>
-          </div>
-          <div className="p-2.5 rounded-xl bg-slate-900/60 border border-slate-800 flex items-center justify-between">
-            <span className="text-slate-400 uppercase tracking-wider text-[11px]">Shares Traded</span>
-            <span className="font-black text-emerald-400 text-sm">
-              {(snapshot?.totalVolumeShares ?? 0).toLocaleString('en-IN')}
-            </span>
-          </div>
-          <div className="p-2.5 rounded-xl bg-slate-900/60 border border-slate-800 flex items-center justify-between">
-            <span className="text-slate-400 uppercase tracking-wider text-[11px]">Gross Consideration</span>
-            <span className="font-black text-amber-300 text-sm">
-              ₹{(snapshot?.totalGrossConsideration ?? 0).toLocaleString('en-IN', { maximumFractionDigits: 0 })}
-            </span>
-          </div>
-          <div className="p-2.5 rounded-xl bg-slate-900/60 border border-slate-800 flex items-center justify-between">
-            <span className="text-slate-400 uppercase tracking-wider text-[11px]">Desk Commission</span>
-            <span className="font-black text-teal-400 text-sm">
-              ₹{(snapshot?.totalDeskCommission ?? 0).toLocaleString('en-IN', { maximumFractionDigits: 0 })}
-            </span>
-          </div>
-        </div>
-      </section>
-
-      {/* ========================================================================= */}
-      {/* 3. MAIN WORKSPACE: PHYSICAL SLIP ENTRY (LEFT) + LIVE EXCEL SHEET (RIGHT) */}
-      {/* ========================================================================= */}
-      <main className="max-w-[1720px] mx-auto px-4 sm:px-6 py-5 flex-1 w-full space-y-6">
-        {feedback && (
-          <div
-            className={`p-3.5 rounded-xl border text-xs sm:text-sm font-semibold flex items-center justify-between gap-3 animate-fadeIn ${
-              feedback.type === 'success'
-                ? 'bg-emerald-950/80 border-emerald-500/60 text-emerald-200'
-                : 'bg-rose-950/80 border-rose-500/60 text-rose-200'
-            }`}
-          >
-            <div className="flex items-center gap-2">
-              <span>{feedback.type === 'success' ? '⚡' : '⚠️'}</span>
-              <span>{feedback.message}</span>
-            </div>
-            <button
-              onClick={() => setFeedback(null)}
-              className="text-xs px-2 py-0.5 rounded bg-black/30 hover:bg-black/60 transition"
+            <a
+              href="/api/broker/export-excel"
+              download
+              className="px-4 py-2 rounded-[12px] bg-[#0F172A] hover:bg-slate-800 text-white font-bold text-xs flex items-center gap-1.5 transition shadow-xs"
             >
-              ✕
-            </button>
+              <Download className="w-3.5 h-3.5" />
+              <span>Download Excel</span>
+            </a>
           </div>
-        )}
+        </header>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          {/* ===================================================================== */}
-          {/* LEFT COLUMN (5 COLS): PHYSICAL SLIP ENTRY & INSTANT VOUCHER */}
-          {/* ===================================================================== */}
-          <div className="lg:col-span-5 bg-[#121822] rounded-2xl border border-slate-800 shadow-xl overflow-hidden sticky top-20">
-            {/* Form Header */}
-            <div className="px-5 py-4 bg-gradient-to-r from-slate-900 to-[#16202c] border-b border-slate-800 flex items-center justify-between">
-              <div>
-                <h2 className="font-black text-white text-sm sm:text-base flex items-center gap-2 uppercase tracking-wide">
-                  <span className="text-emerald-400">🏃</span>
-                  <span>Physical Broker Slip Entry</span>
-                </h2>
-                <p className="text-[11px] text-slate-400 mt-0.5">
-                  Type slip details brought by floor runners/joggers
-                </p>
+        {/* Workspace Body */}
+        <div className="p-8 space-y-8">
+          {/* Feedback Banner */}
+          {feedback && (
+            <div
+              className={`p-4 rounded-[16px] border text-xs sm:text-sm font-semibold flex items-center justify-between gap-3 ${
+                feedback.type === 'success'
+                  ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
+                  : 'bg-red-50 border-red-200 text-red-800'
+              }`}
+            >
+              <div className="flex items-center gap-2.5">
+                {feedback.type === 'success' ? (
+                  <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+                ) : (
+                  <AlertTriangle className="w-5 h-5 text-red-600 shrink-0" />
+                )}
+                <span>{feedback.message}</span>
               </div>
-              <span className="px-2.5 py-1 rounded-md text-[10px] font-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40 uppercase">
-                {isRound0 ? 'Round 0 Exemption Active' : 'Dual 5% Brokerage'}
-              </span>
+              <button
+                onClick={() => setFeedback(null)}
+                className="text-xs px-2 py-1 rounded-[8px] bg-black/5 hover:bg-black/10 transition"
+              >
+                Dismiss
+              </button>
+            </div>
+          )}
+
+          {/* ===================================================================== */}
+          {/* 3. STATISTICS GRID (4-COLUMN RESPONSIVE WITH 24PX GAPS) */}
+          {/* ===================================================================== */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
+            {/* Stat Card 1: Slips Settled */}
+            <div className="bg-[#FFFFFF] border border-[#E2E8F0] p-6 rounded-[16px] flex flex-col justify-between">
+              <div className="flex items-center justify-between">
+                <div className="w-10 h-10 rounded-[12px] bg-red-500/10 flex items-center justify-center text-[#EF4444]">
+                  <FileText className="w-5 h-5 text-[#EF4444]" />
+                </div>
+                <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100">
+                  +100% Floor
+                </span>
+              </div>
+              <div className="mt-4">
+                <span className="text-sm text-[#64748B] block font-medium">Slips Settled</span>
+                <span className="text-2xl font-bold text-[#0F172A] mt-1 block">
+                  {snapshot?.totalDealsSettled ?? 0}
+                </span>
+              </div>
             </div>
 
-            {/* Slip Form */}
-            <form onSubmit={handleSettleTrade} className="p-5 space-y-4">
-              {/* Buyer & Seller Teams Grid */}
-              <div className="space-y-3">
-                {/* 1. Buying Team */}
-                <div>
-                  <div className="flex items-center justify-between mb-1">
-                    <label className="text-[11px] font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
-                      <span>📥 1. Buying Team (Purchaser)</span>
-                    </label>
-                    {buyerRecord && (
-                      <span className="text-[10px] font-mono text-slate-400">
-                        Cash: ₹{(buyerRecord.currentCash).toLocaleString('en-IN', { maximumFractionDigits: 0 })}
-                      </span>
-                    )}
+            {/* Stat Card 2: Volume Traded */}
+            <div className="bg-[#FFFFFF] border border-[#E2E8F0] p-6 rounded-[16px] flex flex-col justify-between">
+              <div className="flex items-center justify-between">
+                <div className="w-10 h-10 rounded-[12px] bg-blue-500/10 flex items-center justify-center text-blue-600">
+                  <TrendingUp className="w-5 h-5 text-blue-600" />
+                </div>
+                <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-100">
+                  Shares
+                </span>
+              </div>
+              <div className="mt-4">
+                <span className="text-sm text-[#64748B] block font-medium">Total Shares Traded</span>
+                <span className="text-2xl font-bold text-[#0F172A] mt-1 block">
+                  {(snapshot?.totalVolumeShares ?? 0).toLocaleString('en-IN')}
+                </span>
+              </div>
+            </div>
+
+            {/* Stat Card 3: Gross Consideration */}
+            <div className="bg-[#FFFFFF] border border-[#E2E8F0] p-6 rounded-[16px] flex flex-col justify-between">
+              <div className="flex items-center justify-between">
+                <div className="w-10 h-10 rounded-[12px] bg-amber-500/10 flex items-center justify-center text-amber-600">
+                  <Coins className="w-5 h-5 text-amber-600" />
+                </div>
+                <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-100">
+                  Gross Value
+                </span>
+              </div>
+              <div className="mt-4">
+                <span className="text-sm text-[#64748B] block font-medium">Gross Consideration</span>
+                <span className="text-2xl font-bold text-[#0F172A] mt-1 block">
+                  ₹{(snapshot?.totalGrossConsideration ?? 0).toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+                </span>
+              </div>
+            </div>
+
+            {/* Stat Card 4: Desk Commission */}
+            <div className="bg-[#FFFFFF] border border-[#E2E8F0] p-6 rounded-[16px] flex flex-col justify-between">
+              <div className="flex items-center justify-between">
+                <div className="w-10 h-10 rounded-[12px] bg-emerald-500/10 flex items-center justify-center text-emerald-600">
+                  <DollarSign className="w-5 h-5 text-emerald-600" />
+                </div>
+                <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100">
+                  5% Brokerage
+                </span>
+              </div>
+              <div className="mt-4">
+                <span className="text-sm text-[#64748B] block font-medium">Desk Commission (Fee)</span>
+                <span className="text-2xl font-bold text-[#0F172A] mt-1 block">
+                  ₹{(snapshot?.totalDeskCommission ?? 0).toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* ===================================================================== */}
+          {/* 4. MAIN ACTIVITY AREA (2/3 PRIMARY + 1/3 SECONDARY WIDGETS) */}
+          {/* ===================================================================== */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            {/* 2/3 COLUMN (8 COLS): PHYSICAL SLIP ENTRY & INTERACTIVE SPREADSHEET */}
+            <div className="lg:col-span-8 space-y-8">
+              {/* SLIP ENTRY FORM CARD */}
+              <div className="bg-[#FFFFFF] border border-[#E2E8F0] rounded-[16px] p-6 space-y-6">
+                <div className="flex items-center justify-between pb-4 border-b border-[#E2E8F0]">
+                  <div>
+                    <h2 className="text-lg font-bold text-[#0F172A]">Physical Jogger Slip Entry</h2>
+                    <p className="text-xs text-[#64748B] mt-0.5">
+                      Type counterparty and price details. Formulas and live voucher compute automatically.
+                    </p>
                   </div>
-                  <input
-                    type="text"
-                    list="broker-team-list"
-                    value={buyerTeam}
-                    onChange={(e) => setBuyerTeam(e.target.value)}
-                    placeholder="Type or select Buyer (e.g. Team 14, Apex Alpha)..."
-                    className="w-full py-2.5 px-3.5 rounded-xl bg-slate-900 border border-slate-700/80 text-xs font-semibold text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
-                    required
-                  />
+                  <span className="text-xs font-semibold px-2.5 py-1 rounded-[12px] bg-slate-100 text-slate-700 border border-slate-200">
+                    {isRound0 ? 'Round 0 Exemption Active' : 'Dual 5% Brokerage'}
+                  </span>
                 </div>
 
-                {/* 2. Selling Team */}
-                <div>
-                  <div className="flex items-center justify-between mb-1">
-                    <label className="text-[11px] font-bold text-rose-400 uppercase tracking-wider flex items-center gap-1.5">
-                      <span>📤 2. Selling Team (Seller)</span>
-                    </label>
+                <form onSubmit={handleSettleTrade} className="space-y-5">
+                  {/* Row 1: Buying & Selling Teams */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {/* Buyer */}
+                    <div>
+                      <div className="flex items-center justify-between mb-1.5">
+                        <label className="text-xs font-bold text-[#0F172A] flex items-center gap-1.5">
+                          <ArrowDownLeft className="w-3.5 h-3.5 text-emerald-600" />
+                          <span>1. Buying Team (Purchaser)</span>
+                        </label>
+                        {buyerRecord && (
+                          <span className="text-[11px] font-mono text-[#64748B]">
+                            Cash: ₹{(buyerRecord.currentCash).toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+                          </span>
+                        )}
+                      </div>
+                      <input
+                        type="text"
+                        list="corporate-broker-team-list"
+                        value={buyerTeam}
+                        onChange={(e) => setBuyerTeam(e.target.value)}
+                        placeholder="Type or select Buyer team..."
+                        className="w-full py-2.5 px-3.5 rounded-[12px] bg-[#FFFFFF] border border-[#E2E8F0] text-xs font-semibold text-[#0F172A] placeholder-slate-400 focus:outline-none focus:border-[#EF4444] focus:ring-1 focus:ring-[#EF4444]"
+                        required
+                      />
+                    </div>
+
+                    {/* Seller */}
+                    <div>
+                      <div className="flex items-center justify-between mb-1.5">
+                        <label className="text-xs font-bold text-[#0F172A] flex items-center gap-1.5">
+                          <ArrowUpRight className="w-3.5 h-3.5 text-rose-600" />
+                          <span>2. Selling Team (Seller)</span>
+                        </label>
+                        <button
+                          type="button"
+                          onClick={() => setSellerTeam('Central Primary Pool')}
+                          className="text-[11px] font-semibold text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200 px-2 py-0.5 rounded-[8px] transition cursor-pointer"
+                          title="Preset seller to Central Primary Pool"
+                        >
+                          🏛️ Round 0 Primary Pool
+                        </button>
+                      </div>
+                      <input
+                        type="text"
+                        list="corporate-broker-team-list"
+                        value={sellerTeam}
+                        onChange={(e) => setSellerTeam(e.target.value)}
+                        placeholder="Type or select Seller team..."
+                        className="w-full py-2.5 px-3.5 rounded-[12px] bg-[#FFFFFF] border border-[#E2E8F0] text-xs font-semibold text-[#0F172A] placeholder-slate-400 focus:outline-none focus:border-[#EF4444] focus:ring-1 focus:ring-[#EF4444]"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  {/* Datalist for team autocomplete */}
+                  <datalist id="corporate-broker-team-list">
+                    <option value="Central Primary Pool">🏛️ Central Primary Pool (Round 0 Unlimited Issuance)</option>
+                    {(snapshot?.teamsPurse || []).map((t) => (
+                      <option key={t.teamId} value={t.teamName}>
+                        {t.teamCode} — Cash: ₹{t.currentCash.toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+                      </option>
+                    ))}
+                  </datalist>
+
+                  {/* Row 2: Security, Qty & Agreed Price */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    {/* Stock Select */}
+                    <div>
+                      <label className="text-xs font-bold text-[#0F172A] block mb-1.5">
+                        3. Traded Security (Stock)
+                      </label>
+                      <select
+                        value={selectedStockId}
+                        onChange={(e) => handleStockChange(e.target.value)}
+                        className="w-full py-2.5 px-3.5 rounded-[12px] bg-[#FFFFFF] border border-[#E2E8F0] text-xs font-semibold text-[#0F172A] focus:outline-none focus:border-[#EF4444]"
+                      >
+                        {(snapshot?.stocks || []).map((s) => (
+                          <option key={s.id} value={s.id}>
+                            {s.ticker} — {s.name} [₹{s.current_price.toFixed(2)}]
+                          </option>
+                        ))}
+                      </select>
+                      {selectedStock && (
+                        <div className="mt-1 flex items-center justify-between text-[11px] text-[#64748B]">
+                          <span>LTP: <strong className="text-[#0F172A]">₹{selectedStock.current_price.toFixed(2)}</strong></span>
+                          <span>LC: ₹{selectedStock.lower_circuit?.toFixed(1)} / UC: ₹{selectedStock.upper_circuit?.toFixed(1)}</span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Quantity */}
+                    <div>
+                      <label className="text-xs font-bold text-[#0F172A] block mb-1.5">
+                        4. Quantity (Shares)
+                      </label>
+                      <input
+                        type="number"
+                        min="1"
+                        step="1"
+                        value={quantity}
+                        onChange={(e) => setQuantity(e.target.value)}
+                        placeholder="e.g. 500"
+                        className="w-full py-2.5 px-3.5 rounded-[12px] bg-[#FFFFFF] border border-[#E2E8F0] text-xs font-mono font-bold text-[#0F172A] focus:outline-none focus:border-[#EF4444]"
+                        required
+                      />
+                    </div>
+
+                    {/* Price */}
+                    <div>
+                      <div className="flex items-center justify-between mb-1.5">
+                        <label className="text-xs font-bold text-[#0F172A] block">
+                          5. Agreed Price (₹)
+                        </label>
+                        {selectedStock && (
+                          <button
+                            type="button"
+                            onClick={() => setAgreedPrice(String(selectedStock.current_price))}
+                            className="text-[11px] text-[#EF4444] font-semibold hover:underline cursor-pointer"
+                          >
+                            Reset LTP
+                          </button>
+                        )}
+                      </div>
+                      <input
+                        type="number"
+                        step="0.05"
+                        min="0.05"
+                        value={agreedPrice}
+                        onChange={(e) => setAgreedPrice(e.target.value)}
+                        placeholder="Price per share"
+                        className="w-full py-2.5 px-3.5 rounded-[12px] bg-[#FFFFFF] border border-[#E2E8F0] text-xs font-mono font-bold text-[#0F172A] focus:outline-none focus:border-[#EF4444]"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  {/* Circuit Collar Warning */}
+                  {isCircuitBreached && (
+                    <div className="p-3.5 rounded-[12px] bg-amber-50 border border-amber-200 text-amber-800 text-xs space-y-1.5">
+                      <div className="flex items-center gap-2 font-bold">
+                        <AlertTriangle className="w-4 h-4 text-amber-600" />
+                        <span>Price Breaches Circuit Collar (±10%)</span>
+                      </div>
+                      <p className="text-[11px] leading-snug">
+                        Agreed price ₹{parsedPrice.toFixed(2)} is outside collar (LC: ₹{selectedStock?.lower_circuit?.toFixed(2)} - UC: ₹{selectedStock?.upper_circuit?.toFixed(2)}).
+                      </p>
+                      <label className="flex items-center gap-2 pt-1 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={allowCircuitBypass}
+                          onChange={(e) => setAllowCircuitBypass(e.target.checked)}
+                          className="rounded border-amber-400 text-amber-600 focus:ring-0"
+                        />
+                        <span className="text-xs font-bold text-amber-900">
+                          Bypass Circuit (Official Physical Floor Deal)
+                        </span>
+                      </label>
+                    </div>
+                  )}
+
+                  {/* AUTOMATED DEAL SETTLEMENT VOUCHER */}
+                  <div className="p-4 rounded-[12px] bg-[#F8FAFC] border border-[#E2E8F0] space-y-2 text-xs">
+                    <div className="flex items-center justify-between text-xs pb-1.5 border-b border-[#E2E8F0]">
+                      <span className="font-bold text-[#0F172A] uppercase tracking-wider">
+                        Settlement Voucher Breakdown
+                      </span>
+                      <span className="px-2 py-0.5 rounded-[8px] bg-white border border-[#E2E8F0] text-[11px] font-semibold text-[#64748B]">
+                        {isBrokerageWaived ? '0% Brokerage (0th Round Exemption)' : 'Dual 5% Brokerage'}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center justify-between text-[#64748B]">
+                      <span>Gross Deal Value ({parsedQty} × ₹{parsedPrice.toFixed(2)}):</span>
+                      <span className="font-bold text-[#0F172A]">
+                        ₹{grossDealValue.toLocaleString('en-IN', { maximumFractionDigits: 2 })}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center justify-between text-emerald-700">
+                      <span>Buyer 5% Brokerage:</span>
+                      <span>{isBrokerageWaived ? '₹0.00 (Waived)' : `+₹${buyerBrokerage.toLocaleString('en-IN')}`}</span>
+                    </div>
+
+                    <div className="flex items-center justify-between font-bold text-[#0F172A] border-t border-[#E2E8F0] pt-1.5">
+                      <span>Total Buyer Outflow (Debit):</span>
+                      <span className="text-sm text-emerald-600">
+                        ₹{totalBuyerDebit.toLocaleString('en-IN', { maximumFractionDigits: 2 })}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center justify-between text-rose-700 text-[11px]">
+                      <span>Seller 5% Brokerage:</span>
+                      <span>{isBrokerageWaived ? '₹0.00 (Waived)' : `-₹${sellerBrokerage.toLocaleString('en-IN')}`}</span>
+                    </div>
+
+                    <div className="flex items-center justify-between font-bold text-[#0F172A]">
+                      <span>Total Seller Net Proceeds:</span>
+                      <span className="text-sm text-rose-600">
+                        ₹{totalSellerCredit.toLocaleString('en-IN', { maximumFractionDigits: 2 })}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center justify-between text-[11px] text-teal-700 border-t border-[#E2E8F0] pt-1">
+                      <span>Econ Desk Total Commission:</span>
+                      <span>₹{totalDeskFee.toLocaleString('en-IN', { maximumFractionDigits: 2 })}</span>
+                    </div>
+                  </div>
+
+                  {/* TEAM BUDGET COMPLIANCE & ELIMINATION CHECKS */}
+                  <div className="p-4 rounded-[12px] bg-white border border-[#E2E8F0] space-y-2 text-xs">
+                    <div className="flex items-center justify-between text-[11px]">
+                      <span className="text-[#64748B]">Buyer Remaining Cash:</span>
+                      <span className={`font-bold font-mono ${isCashFloorBreached ? 'text-red-600' : 'text-emerald-600'}`}>
+                        ₹{buyerPostTradeCash.toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+                      </span>
+                    </div>
+
+                    {isCashFloorBreached && (
+                      <div className="p-2 rounded-[8px] bg-red-50 border border-red-200 text-red-700 text-xs flex items-center gap-1.5">
+                        <AlertTriangle className="w-4 h-4 text-red-500 shrink-0" />
+                        <span>
+                          <strong>Low Cash Warning:</strong> Cash drops below ₹10L (10% post-round floor reserve)!
+                        </span>
+                      </div>
+                    )}
+
+                    {isRound0 && (
+                      <div className="space-y-1.5 pt-1 border-t border-[#E2E8F0]">
+                        <div className="flex items-center justify-between text-[11px]">
+                          <span className="text-[#64748B]">Round 0 Budget Deployed:</span>
+                          <span className="font-bold text-[#0F172A]">
+                            {buyerProjectedR0Percent}% (Target: &ge;60%)
+                          </span>
+                        </div>
+                        <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                          <div
+                            className={`h-full transition-all duration-300 ${
+                              buyerProjectedR0Percent >= 60 ? 'bg-emerald-500' : 'bg-amber-500'
+                            }`}
+                            style={{ width: `${Math.min(100, buyerProjectedR0Percent)}%` }}
+                          ></div>
+                        </div>
+                        <div className="flex items-center justify-between text-[11px] text-[#64748B]">
+                          <span>Spent: ₹{(buyerProjectedR0Spent / 100000).toFixed(1)}L / ₹60.0L</span>
+                          <span>
+                            {buyerProjectedR0Percent >= 60
+                              ? '✅ Target Met'
+                              : `Needs ₹${((targetR0Amount - buyerProjectedR0Spent) / 100000).toFixed(1)}L more`}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Primary Action Button in RED-500 */}
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="w-full py-3.5 px-6 rounded-[12px] bg-[#EF4444] hover:bg-red-600 text-white font-bold text-sm tracking-wide shadow-xs transition-all duration-200 ease-[cubic-bezier(0.4,0,0.2,1)] active:scale-[0.99] disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                        <span>Broadcasting &amp; Settling Trade...</span>
+                      </>
+                    ) : (
+                      <>
+                        <FileText className="w-4 h-4 text-white" />
+                        <span>Approve &amp; Settle Trade Slip</span>
+                      </>
+                    )}
+                  </button>
+                </form>
+              </div>
+
+              {/* INTERACTIVE SPREADSHEET TABLE CARD */}
+              <div className="bg-[#FFFFFF] border border-[#E2E8F0] rounded-[16px] p-6 space-y-4">
+                {/* Header & Tabs */}
+                <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-[#E2E8F0]">
+                  <div className="flex items-center gap-1.5">
                     <button
                       type="button"
-                      onClick={() => setSellerTeam('Central Primary Pool')}
-                      className="text-[10px] font-mono font-bold text-amber-300 bg-amber-950/70 hover:bg-amber-900/90 border border-amber-500/40 px-2 py-0.5 rounded transition"
-                      title="Set Central Primary Pool as seller for Round 0 allocations"
+                      onClick={() => setActiveTab('purses')}
+                      className={`px-3 py-1.5 rounded-[12px] text-xs font-bold transition cursor-pointer ${
+                        activeTab === 'purses'
+                          ? 'bg-[#F1F5F9] text-[#EF4444]'
+                          : 'text-[#64748B] hover:text-[#0F172A]'
+                      }`}
                     >
-                      🏛️ Round 0 Primary Pool
+                      Team Purses &amp; Elimination
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setActiveTab('ledger')}
+                      className={`px-3 py-1.5 rounded-[12px] text-xs font-bold transition cursor-pointer ${
+                        activeTab === 'ledger'
+                          ? 'bg-[#F1F5F9] text-[#EF4444]'
+                          : 'text-[#64748B] hover:text-[#0F172A]'
+                      }`}
+                    >
+                      Trades Master Ledger ({snapshot?.tradesLedger?.length ?? 0})
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setActiveTab('matrix')}
+                      className={`px-3 py-1.5 rounded-[12px] text-xs font-bold transition cursor-pointer ${
+                        activeTab === 'matrix'
+                          ? 'bg-[#F1F5F9] text-[#EF4444]'
+                          : 'text-[#64748B] hover:text-[#0F172A]'
+                      }`}
+                    >
+                      Holdings Matrix
                     </button>
                   </div>
-                  <input
-                    type="text"
-                    list="broker-team-list"
-                    value={sellerTeam}
-                    onChange={(e) => setSellerTeam(e.target.value)}
-                    placeholder="Type or select Seller (e.g. Central Primary Pool, Team 8)..."
-                    className="w-full py-2.5 px-3.5 rounded-xl bg-slate-900 border border-slate-700/80 text-xs font-semibold text-white placeholder-slate-500 focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500"
-                    required
-                  />
-                </div>
-              </div>
 
-              {/* Datalist for autocomplete team selection */}
-              <datalist id="broker-team-list">
-                <option value="Central Primary Pool">🏛️ Central Primary Pool (Round 0 Unlimited Issuance)</option>
-                {(snapshot?.teamsPurse || []).map((t) => (
-                  <option key={t.teamId} value={t.teamName}>
-                    {t.teamCode} — Cash: ₹{t.currentCash.toLocaleString('en-IN', { maximumFractionDigits: 0 })}
-                  </option>
-                ))}
-              </datalist>
-
-              {/* 3. Traded Security (Stock) */}
-              <div>
-                <label className="text-[11px] font-bold text-slate-300 uppercase tracking-wider block mb-1">
-                  🏢 3. Security (Stock)
-                </label>
-                <select
-                  value={selectedStockId}
-                  onChange={(e) => handleStockChange(e.target.value)}
-                  className="w-full py-2.5 px-3.5 rounded-xl bg-slate-900 border border-slate-700/80 text-xs font-semibold text-white focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
-                >
-                  {(snapshot?.stocks || []).map((s) => (
-                    <option key={s.id} value={s.id}>
-                      {s.ticker} — {s.name} [LTP: ₹{s.current_price.toFixed(2)}]
-                    </option>
-                  ))}
-                </select>
-                {selectedStock && (
-                  <div className="mt-1.5 flex items-center justify-between text-[11px] font-mono text-slate-400 px-1">
-                    <span>
-                      LTP: <strong className="text-white">₹{selectedStock.current_price.toFixed(2)}</strong>
-                    </span>
-                    <span>
-                      Collar: LC ₹{selectedStock.lower_circuit?.toFixed(1)} - UC ₹{selectedStock.upper_circuit?.toFixed(1)}
-                    </span>
-                  </div>
-                )}
-              </div>
-
-              {/* 4 & 5. Quantity & Agreed Price */}
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="text-[11px] font-bold text-slate-300 uppercase tracking-wider block mb-1">
-                    📊 4. Quantity (Shares)
-                  </label>
-                  <input
-                    type="number"
-                    min="1"
-                    step="1"
-                    value={quantity}
-                    onChange={(e) => setQuantity(e.target.value)}
-                    placeholder="e.g. 500"
-                    className="w-full py-2.5 px-3.5 rounded-xl bg-slate-900 border border-slate-700/80 text-xs font-mono font-bold text-white focus:outline-none focus:border-emerald-500"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <div className="flex items-center justify-between mb-1">
-                    <label className="text-[11px] font-bold text-slate-300 uppercase tracking-wider block">
-                      💵 5. Agreed Price (₹)
-                    </label>
-                    {selectedStock && (
-                      <button
-                        type="button"
-                        onClick={() => setAgreedPrice(String(selectedStock.current_price))}
-                        className="text-[10px] text-teal-400 hover:underline cursor-pointer"
-                      >
-                        Reset to LTP
-                      </button>
-                    )}
-                  </div>
-                  <input
-                    type="number"
-                    step="0.05"
-                    min="0.05"
-                    value={agreedPrice}
-                    onChange={(e) => setAgreedPrice(e.target.value)}
-                    placeholder="Price per share"
-                    className="w-full py-2.5 px-3.5 rounded-xl bg-slate-900 border border-slate-700/80 text-xs font-mono font-bold text-white focus:outline-none focus:border-emerald-500"
-                    required
-                  />
-                </div>
-              </div>
-
-              {/* Circuit Limit Warning & Bypass */}
-              {isCircuitBreached && (
-                <div className="p-3 rounded-xl bg-amber-950/60 border border-amber-500/50 text-amber-200 text-xs space-y-1.5">
-                  <div className="flex items-center gap-1.5 font-bold">
-                    <span>⚠️</span>
-                    <span>Circuit Collar Limit Breached!</span>
-                  </div>
-                  <p className="text-[11px] text-amber-300 leading-snug">
-                    Price ₹{parsedPrice.toFixed(2)} exceeds 10% bounds (LC: ₹{selectedStock?.lower_circuit?.toFixed(2)} / UC: ₹{selectedStock?.upper_circuit?.toFixed(2)}).
-                  </p>
-                  <label className="flex items-center gap-2 pt-1 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={allowCircuitBypass}
-                      onChange={(e) => setAllowCircuitBypass(e.target.checked)}
-                      className="rounded border-amber-600 text-amber-500 focus:ring-0"
-                    />
-                    <span className="text-[11px] font-bold text-amber-100">
-                      Bypass Circuit (Official Physical Auction Deal)
-                    </span>
-                  </label>
-                </div>
-              )}
-
-              {/* ================================================================= */}
-              {/* REAL-TIME DEAL SETTLEMENT VOUCHER WITH FORMULAS */}
-              {/* ================================================================= */}
-              <div className="p-4 rounded-xl bg-[#090d12] border border-slate-800 space-y-2.5 font-mono text-xs">
-                <div className="flex items-center justify-between text-slate-400 text-[11px] pb-1 border-b border-slate-800">
-                  <span className="font-bold uppercase tracking-wider text-white">Deal Settlement Voucher</span>
-                  <span className="text-[10px] px-2 py-0.5 rounded bg-slate-800 text-slate-300 font-semibold">
-                    {isBrokerageWaived ? '0% Brok (0th Round Exemption)' : 'Dual 5% Brokerage'}
-                  </span>
-                </div>
-
-                <div className="flex items-center justify-between text-slate-300">
-                  <span>Gross Consideration:</span>
-                  <span className="font-bold text-white text-sm">
-                    ₹{grossDealValue.toLocaleString('en-IN', { maximumFractionDigits: 2 })}
-                  </span>
-                </div>
-
-                <div className="flex items-center justify-between text-emerald-400">
-                  <span>Buyer 5% Brokerage:</span>
-                  <span>{isBrokerageWaived ? '₹0.00 (Waived)' : `+₹${buyerBrokerage.toLocaleString('en-IN')}`}</span>
-                </div>
-
-                <div className="flex items-center justify-between font-bold text-emerald-300 border-t border-slate-800/80 pt-1">
-                  <span>Total Buyer Outflow:</span>
-                  <span>₹{totalBuyerDebit.toLocaleString('en-IN', { maximumFractionDigits: 2 })}</span>
-                </div>
-
-                <div className="flex items-center justify-between text-rose-400 text-[11px]">
-                  <span>Seller 5% Brokerage:</span>
-                  <span>{isBrokerageWaived ? '₹0.00 (Waived)' : `-₹${sellerBrokerage.toLocaleString('en-IN')}`}</span>
-                </div>
-
-                <div className="flex items-center justify-between font-bold text-rose-300">
-                  <span>Total Seller Net Proceeds:</span>
-                  <span>₹{totalSellerCredit.toLocaleString('en-IN', { maximumFractionDigits: 2 })}</span>
-                </div>
-
-                <div className="flex items-center justify-between text-[11px] text-teal-400 border-t border-slate-800/80 pt-1">
-                  <span>Econ Desk Total Commission:</span>
-                  <span>₹{totalDeskFee.toLocaleString('en-IN', { maximumFractionDigits: 2 })}</span>
-                </div>
-              </div>
-
-              {/* ================================================================= */}
-              {/* TEAM BUDGET & COMPLIANCE GUARDRAIL (60% R0 & 10% CASH FLOOR) */}
-              {/* ================================================================= */}
-              <div className="p-3.5 rounded-xl bg-slate-900/90 border border-slate-800 text-xs space-y-2">
-                <div className="flex items-center justify-between font-mono text-[11px]">
-                  <span className="text-slate-400">Buyer Cash Remaining:</span>
-                  <span
-                    className={`font-black ${
-                      isCashFloorBreached ? 'text-rose-400' : 'text-emerald-400'
-                    }`}
+                  <a
+                    href="/api/broker/export-excel"
+                    download
+                    className="text-xs font-semibold text-[#EF4444] hover:underline flex items-center gap-1"
                   >
-                    ₹{buyerPostTradeCash.toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+                    <Download className="w-3.5 h-3.5" />
+                    <span>Export Workbook (.xlsx)</span>
+                  </a>
+                </div>
+
+                {/* TAB 1: TEAM PURSES & ELIMINATION AUDIT */}
+                {activeTab === 'purses' && (
+                  <div className="space-y-3">
+                    <div className="relative">
+                      <Search className="w-4 h-4 absolute left-3 top-2.5 text-[#64748B]" />
+                      <input
+                        type="text"
+                        value={teamSearch}
+                        onChange={(e) => setTeamSearch(e.target.value)}
+                        placeholder="Search team name or code..."
+                        className="w-full py-2 pl-9 pr-3 rounded-[12px] bg-[#F8FAFC] border border-[#E2E8F0] text-xs text-[#0F172A] focus:outline-none focus:border-[#EF4444]"
+                      />
+                    </div>
+
+                    <div className="overflow-x-auto border border-[#E2E8F0] rounded-[12px]">
+                      <table className="w-full text-left text-xs">
+                        <thead className="bg-[#F8FAFC] text-[#64748B] text-[11px] font-semibold uppercase tracking-wider border-b border-[#E2E8F0]">
+                          <tr>
+                            <th className="py-2.5 px-3">Team</th>
+                            <th className="py-2.5 px-3 font-mono">Cash Balance</th>
+                            <th className="py-2.5 px-3 font-mono">R0 Spent</th>
+                            <th className="py-2.5 px-3">R0 Deployed %</th>
+                            <th className="py-2.5 px-3">60% Rule</th>
+                            <th className="py-2.5 px-3">10% Cash Rule</th>
+                            <th className="py-2.5 px-3 font-mono">Net Worth</th>
+                            <th className="py-2.5 px-3 text-right">Action</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-[#E2E8F0] text-[#0F172A]">
+                          {filteredTeams.map((tp) => {
+                            const isEliminateRisk = !tp.round0Met60Percent;
+                            return (
+                              <tr
+                                key={tp.teamId}
+                                className={`hover:bg-[#F8FAFC] transition ${
+                                  isEliminateRisk ? 'bg-red-50/40' : ''
+                                }`}
+                              >
+                                <td className="py-2.5 px-3">
+                                  <div className="font-bold text-[#0F172A]">{tp.teamName}</div>
+                                  <div className="text-[10px] text-[#64748B] font-mono">{tp.teamCode}</div>
+                                </td>
+
+                                <td className="py-2.5 px-3 font-mono font-bold text-emerald-700">
+                                  ₹{(tp.currentCash / 100000).toFixed(2)}L
+                                </td>
+
+                                <td className="py-2.5 px-3 font-mono text-amber-700">
+                                  ₹{(tp.round0Spent / 100000).toFixed(2)}L
+                                </td>
+
+                                <td className="py-2.5 px-3">
+                                  <div className="flex items-center gap-2">
+                                    <div className="w-12 bg-slate-200 h-1.5 rounded-full overflow-hidden">
+                                      <div
+                                        className={`h-full ${
+                                          tp.round0DeployedPercent >= 60 ? 'bg-emerald-500' : 'bg-red-500'
+                                        }`}
+                                        style={{ width: `${Math.min(100, tp.round0DeployedPercent)}%` }}
+                                      ></div>
+                                    </div>
+                                    <span
+                                      className={`font-mono font-bold ${
+                                        tp.round0DeployedPercent >= 60 ? 'text-emerald-700' : 'text-red-600'
+                                      }`}
+                                    >
+                                      {tp.round0DeployedPercent}%
+                                    </span>
+                                  </div>
+                                </td>
+
+                                <td className="py-2.5 px-3">
+                                  {tp.round0Met60Percent ? (
+                                    <span className="px-2 py-0.5 rounded-full text-[10px] bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold">
+                                      PASS
+                                    </span>
+                                  ) : (
+                                    <span className="px-2 py-0.5 rounded-full text-[10px] bg-red-50 text-red-700 border border-red-200 font-bold">
+                                      ELIMINATE
+                                    </span>
+                                  )}
+                                </td>
+
+                                <td className="py-2.5 px-3">
+                                  {tp.cashMet10PercentFloor ? (
+                                    <span className="px-2 py-0.5 rounded-full text-[10px] bg-emerald-50 text-emerald-700 font-semibold">
+                                      &ge;10L
+                                    </span>
+                                  ) : (
+                                    <span className="px-2 py-0.5 rounded-full text-[10px] bg-amber-50 text-amber-700 border border-amber-200 font-bold">
+                                      &lt;10L
+                                    </span>
+                                  )}
+                                </td>
+
+                                <td className="py-2.5 px-3 font-mono font-bold text-[#0F172A]">
+                                  ₹{(tp.totalNetWorth / 100000).toFixed(2)}L
+                                </td>
+
+                                <td className="py-2.5 px-3 text-right">
+                                  <div className="flex items-center justify-end gap-1">
+                                    <button
+                                      type="button"
+                                      onClick={() => selectTeamAsBuyer(tp.teamName)}
+                                      className="px-2 py-0.5 rounded-[6px] text-[10px] font-bold bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition"
+                                    >
+                                      +Buy
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => selectTeamAsSeller(tp.teamName)}
+                                      className="px-2 py-0.5 rounded-[6px] text-[10px] font-bold bg-rose-50 text-rose-700 hover:bg-rose-100 transition"
+                                    >
+                                      +Sell
+                                    </button>
+                                  </div>
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
+
+                {/* TAB 2: TRADES MASTER LEDGER */}
+                {activeTab === 'ledger' && (
+                  <div className="space-y-3">
+                    <div className="relative">
+                      <Search className="w-4 h-4 absolute left-3 top-2.5 text-[#64748B]" />
+                      <input
+                        type="text"
+                        value={ledgerSearch}
+                        onChange={(e) => setLedgerSearch(e.target.value)}
+                        placeholder="Search slip ID, buyer, seller, or stock ticker..."
+                        className="w-full py-2 pl-9 pr-3 rounded-[12px] bg-[#F8FAFC] border border-[#E2E8F0] text-xs text-[#0F172A] focus:outline-none focus:border-[#EF4444]"
+                      />
+                    </div>
+
+                    <div className="overflow-x-auto border border-[#E2E8F0] rounded-[12px]">
+                      <table className="w-full text-left text-xs font-mono">
+                        <thead className="bg-[#F8FAFC] text-[#64748B] text-[11px] font-semibold uppercase tracking-wider border-b border-[#E2E8F0]">
+                          <tr>
+                            <th className="py-2.5 px-3">Slip ID</th>
+                            <th className="py-2.5 px-3">Time</th>
+                            <th className="py-2.5 px-3">Buyer</th>
+                            <th className="py-2.5 px-3">Seller</th>
+                            <th className="py-2.5 px-3">Stock</th>
+                            <th className="py-2.5 px-3">Qty</th>
+                            <th className="py-2.5 px-3">Price</th>
+                            <th className="py-2.5 px-3">Gross</th>
+                            <th className="py-2.5 px-3">Brok</th>
+                            <th className="py-2.5 px-3">Debit</th>
+                            <th className="py-2.5 px-3">Status</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-[#E2E8F0] text-[#0F172A]">
+                          {filteredTrades.map((t) => (
+                            <tr key={t.slipId} className="hover:bg-[#F8FAFC] transition">
+                              <td className="py-2.5 px-3 font-bold text-[#0F172A]">{t.slipId}</td>
+                              <td className="py-2.5 px-3 text-[#64748B] text-[10px]">
+                                {new Date(t.timestamp).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                              </td>
+                              <td className="py-2.5 px-3 font-sans font-bold text-emerald-700">{t.buyerTeam}</td>
+                              <td className="py-2.5 px-3 font-sans font-bold text-rose-700">{t.sellerTeam}</td>
+                              <td className="py-2.5 px-3 font-bold text-[#0F172A]">{t.ticker}</td>
+                              <td className="py-2.5 px-3 text-[#64748B]">{t.quantity}</td>
+                              <td className="py-2.5 px-3 text-[#0F172A]">₹{t.price.toFixed(2)}</td>
+                              <td className="py-2.5 px-3 font-bold text-[#0F172A]">
+                                ₹{t.grossAmount.toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+                              </td>
+                              <td className="py-2.5 px-3 text-amber-700">
+                                {t.isRound0Exempt ? '₹0' : `₹${t.buyerBrokerage.toFixed(0)}`}
+                              </td>
+                              <td className="py-2.5 px-3 font-bold text-emerald-700">
+                                ₹{t.buyerTotalDebit.toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+                              </td>
+                              <td className="py-2.5 px-3">
+                                <span className="px-2 py-0.5 rounded-full text-[10px] bg-emerald-50 text-emerald-700 font-bold border border-emerald-200">
+                                  {t.status}
+                                </span>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
+
+                {/* TAB 3: HOLDINGS MATRIX */}
+                {activeTab === 'matrix' && (
+                  <div className="overflow-x-auto border border-[#E2E8F0] rounded-[12px]">
+                    <table className="w-full text-left text-xs font-mono">
+                      <thead className="bg-[#F8FAFC] text-[#64748B] text-[11px] font-semibold uppercase tracking-wider border-b border-[#E2E8F0]">
+                        <tr>
+                          <th className="py-2.5 px-3 sticky left-0 bg-[#F8FAFC] z-10">Team</th>
+                          {(snapshot?.holdingsMatrix.stocks || []).map((s) => (
+                            <th key={s.id} className="py-2.5 px-3 text-center">
+                              <div>{s.ticker}</div>
+                              <div className="text-[10px] text-[#64748B] font-normal">₹{s.current_price.toFixed(1)}</div>
+                            </th>
+                          ))}
+                          <th className="py-2.5 px-3 text-right">Value</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-[#E2E8F0] text-[#0F172A]">
+                        {(snapshot?.holdingsMatrix.teams || []).map((team) => (
+                          <tr key={team.teamId} className="hover:bg-[#F8FAFC] transition">
+                            <td className="py-2.5 px-3 font-sans font-bold text-[#0F172A] sticky left-0 bg-white z-10 border-r border-[#E2E8F0]">
+                              {team.teamName}
+                            </td>
+                            {(snapshot?.holdingsMatrix.stocks || []).map((s) => {
+                              const count = team.holdings[s.ticker] || 0;
+                              return (
+                                <td
+                                  key={s.id}
+                                  className={`py-2.5 px-3 text-center ${
+                                    count > 0 ? 'text-emerald-700 font-bold bg-emerald-50/40' : 'text-slate-400'
+                                  }`}
+                                >
+                                  {count > 0 ? count : '—'}
+                                </td>
+                              );
+                            })}
+                            <td className="py-2.5 px-3 font-bold text-[#0F172A] text-right">
+                              ₹{(team.totalValue / 100000).toFixed(2)}L
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* =================================================================== */}
+            {/* 1/3 COLUMN (4 COLS): SECONDARY WIDGETS STACK */}
+            {/* =================================================================== */}
+            <div className="lg:col-span-4 space-y-6">
+              {/* DARK ACTION CARD (Promotions / Critical Event Rules) */}
+              <div className="bg-[#0F172A] text-white p-6 rounded-[16px] space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <ShieldAlert className="w-5 h-5 text-red-400" />
+                    <h3 className="font-bold text-sm text-white">Event Rules Engine</h3>
+                  </div>
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                    Active
                   </span>
                 </div>
 
-                {/* 10% Cash Floor Warning */}
-                {isCashFloorBreached && (
-                  <div className="p-2 rounded bg-rose-950/70 border border-rose-500/40 text-rose-200 text-[11px] flex items-center gap-1.5">
-                    <span>⚠️</span>
-                    <span>
-                      <strong>Warning:</strong> Buyer cash will drop below ₹10 Lakhs (10% post-round floor reserve)!
-                    </span>
+                <p className="text-xs text-slate-300 leading-relaxed">
+                  Automatic compliance validation runs on every slip before approval.
+                </p>
+
+                <div className="space-y-2.5 text-xs text-slate-300">
+                  <div className="p-2.5 rounded-[12px] bg-slate-800/80 border border-slate-700/60">
+                    <strong className="text-white block font-semibold mb-0.5">Round 0 60% Budget Rule:</strong>
+                    Teams must deploy at least ₹60 Lakhs (60%) of initial ₹1 Crore budget in Round 0 or face elimination.
                   </div>
-                )}
-
-                {/* Round 0 60% Budget Deployment Progress */}
-                {isRound0 && (
-                  <div className="space-y-1 pt-1 border-t border-slate-800 font-mono text-[11px]">
-                    <div className="flex items-center justify-between">
-                      <span className="text-slate-400">Round 0 Budget Deployed:</span>
-                      <span className="font-bold text-amber-300">
-                        {buyerProjectedR0Percent}% (Target: 60%)
-                      </span>
-                    </div>
-                    <div className="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
-                      <div
-                        className={`h-full transition-all duration-300 ${
-                          buyerProjectedR0Percent >= 60 ? 'bg-emerald-500' : 'bg-amber-500'
-                        }`}
-                        style={{ width: `${Math.min(100, buyerProjectedR0Percent)}%` }}
-                      ></div>
-                    </div>
-                    <div className="flex items-center justify-between text-[10px] text-slate-500">
-                      <span>Spent: ₹{(buyerProjectedR0Spent / 100000).toFixed(1)}L / ₹60.0L</span>
-                      <span>
-                        {buyerProjectedR0Percent >= 60
-                          ? '✅ Target Met'
-                          : `Needs ₹${((targetR0Amount - buyerProjectedR0Spent) / 100000).toFixed(1)}L more`}
-                      </span>
-                    </div>
+                  <div className="p-2.5 rounded-[12px] bg-slate-800/80 border border-slate-700/60">
+                    <strong className="text-white block font-semibold mb-0.5">10% Post-Round Cash Floor:</strong>
+                    Every team must retain &ge; ₹10 Lakhs (10%) cash reserve at all times.
                   </div>
-                )}
-              </div>
+                  <div className="p-2.5 rounded-[12px] bg-slate-800/80 border border-slate-700/60">
+                    <strong className="text-white block font-semibold mb-0.5">Brokerage Fee:</strong>
+                    0% waived on Round 0 Primary Pool issuance; 5% dual fee applies on all secondary rounds.
+                  </div>
+                </div>
 
-              {/* Submit Button */}
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-black text-sm uppercase tracking-wider shadow-lg shadow-emerald-950/50 transition active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer"
-              >
-                {isSubmitting ? (
-                  <>
-                    <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-                    <span>Broadcasting &amp; Settling Trade...</span>
-                  </>
-                ) : (
-                  <>
-                    <span>⚡</span>
-                    <span>Approve &amp; Settle Trade Slip</span>
-                  </>
-                )}
-              </button>
-            </form>
-          </div>
-
-          {/* ===================================================================== */}
-          {/* RIGHT COLUMN (7 COLS): LIVE EVENT EXCEL SPREADSHEET & ELIMINATION */}
-          {/* ===================================================================== */}
-          <div className="lg:col-span-7 bg-[#121822] rounded-2xl border border-slate-800 shadow-xl overflow-hidden flex flex-col min-h-[720px]">
-            {/* Sheet Tabs & Excel Actions Toolbar */}
-            <div className="p-4 bg-gradient-to-r from-slate-900 to-[#16202c] border-b border-slate-800 flex flex-wrap items-center justify-between gap-3">
-              {/* Tab Buttons */}
-              <div className="flex items-center gap-1 bg-[#090d12] p-1 rounded-xl border border-slate-800 text-xs font-semibold">
-                <button
-                  type="button"
-                  onClick={() => setActiveTab('purses')}
-                  className={`px-3 py-1.5 rounded-lg transition flex items-center gap-1.5 cursor-pointer ${
-                    activeTab === 'purses'
-                      ? 'bg-emerald-600 text-white font-bold shadow-xs'
-                      : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
-                  }`}
-                >
-                  <span>💰</span>
-                  <span>Team Purses &amp; Elimination</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setActiveTab('ledger')}
-                  className={`px-3 py-1.5 rounded-lg transition flex items-center gap-1.5 cursor-pointer ${
-                    activeTab === 'ledger'
-                      ? 'bg-emerald-600 text-white font-bold shadow-xs'
-                      : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
-                  }`}
-                >
-                  <span>📋</span>
-                  <span>Trades Master Ledger ({snapshot?.tradesLedger?.length ?? 0})</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setActiveTab('matrix')}
-                  className={`px-3 py-1.5 rounded-lg transition flex items-center gap-1.5 cursor-pointer ${
-                    activeTab === 'matrix'
-                      ? 'bg-emerald-600 text-white font-bold shadow-xs'
-                      : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
-                  }`}
-                >
-                  <span>🏢</span>
-                  <span>Holdings Matrix</span>
-                </button>
-              </div>
-
-              {/* Export Buttons */}
-              <div className="flex items-center gap-2">
                 <a
                   href="/api/broker/export-excel"
                   download
-                  className="px-3 py-1.5 rounded-xl bg-emerald-700/80 hover:bg-emerald-600 text-white font-bold text-xs flex items-center gap-1.5 transition border border-emerald-500/40 shadow-xs"
-                  title="Download genuine multi-tab Excel Workbook (.xlsx)"
+                  className="w-full block text-center py-2.5 px-4 rounded-[12px] text-xs font-bold border border-white/20 text-white hover:bg-white hover:text-[#0F172A] transition duration-200"
                 >
-                  <span>📗</span>
-                  <span className="hidden sm:inline">Download</span>
-                  <span>Excel (.xlsx)</span>
+                  Download Official Excel Workbook
                 </a>
+              </div>
 
-                <a
-                  href="/api/admin/export-ledger"
-                  download
-                  className="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-xs flex items-center gap-1 transition border border-slate-700"
-                  title="Download raw CSV Ledger"
-                >
-                  <span>📄</span>
-                  <span>CSV</span>
-                </a>
+              {/* CARD 2: ROUND & TIMER STATUS */}
+              <div className="bg-[#FFFFFF] border border-[#E2E8F0] p-6 rounded-[16px] space-y-3">
+                <div className="flex items-center justify-between pb-3 border-b border-[#E2E8F0]">
+                  <h3 className="font-bold text-sm text-[#0F172A]">Round Telemetry</h3>
+                  <span className="text-xs font-mono font-bold text-[#EF4444]">
+                    {snapshot?.currentRoundName}
+                  </span>
+                </div>
+                <div className="space-y-2 text-xs">
+                  <div className="flex items-center justify-between text-[#64748B]">
+                    <span>Trading Phase:</span>
+                    <span className="font-bold text-[#0F172A]">
+                      {isRound0 ? 'Primary Desk (R0)' : 'Secondary Inter-Team'}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between text-[#64748B]">
+                    <span>Brokerage Rate:</span>
+                    <span className="font-bold text-emerald-700">
+                      {isRound0 ? '0% (Exempt)' : '5% Dual (+5% / -5%)'}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between text-[#64748B]">
+                    <span>Broadcast Target:</span>
+                    <span className="font-bold text-[#0F172A]">All Participant Screens (10s)</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* CARD 3: TEAM ELIMINATION DIGEST */}
+              <div className="bg-[#FFFFFF] border border-[#E2E8F0] p-6 rounded-[16px] space-y-3">
+                <h3 className="font-bold text-sm text-[#0F172A] pb-3 border-b border-[#E2E8F0]">
+                  Elimination &amp; Purse Health
+                </h3>
+
+                <div className="space-y-2 text-xs">
+                  <div className="flex items-center justify-between p-2 rounded-[12px] bg-[#F8FAFC] border border-[#E2E8F0]">
+                    <span className="text-[#64748B]">Total Teams:</span>
+                    <span className="font-bold text-[#0F172A]">{snapshot?.teamsPurse?.length ?? 0}</span>
+                  </div>
+                  <div className="flex items-center justify-between p-2 rounded-[12px] bg-emerald-50 border border-emerald-100 text-emerald-800">
+                    <span>Qualified (&ge;60% R0):</span>
+                    <span className="font-bold">{qualifiedCount}</span>
+                  </div>
+                  <div className="flex items-center justify-between p-2 rounded-[12px] bg-red-50 border border-red-100 text-red-800">
+                    <span>Elimination Risk (&lt;60%):</span>
+                    <span className="font-bold">{atRiskCount}</span>
+                  </div>
+                  <div className="flex items-center justify-between p-2 rounded-[12px] bg-amber-50 border border-amber-100 text-amber-800">
+                    <span>Low Cash Violations (&lt;10L):</span>
+                    <span className="font-bold">{lowCashCount}</span>
+                  </div>
+                </div>
               </div>
             </div>
-
-            {/* TAB 1: TEAM PURSES, BUDGET AUDIT & ELIMINATION TRACKER */}
-            {activeTab === 'purses' && (
-              <div className="p-4 flex-1 flex flex-col space-y-3">
-                {/* Search Bar & Rule Legend */}
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                  <div className="relative flex-1 min-w-[220px]">
-                    <input
-                      type="text"
-                      value={teamSearch}
-                      onChange={(e) => setTeamSearch(e.target.value)}
-                      placeholder="Search team name or code..."
-                      className="w-full py-2 pl-8 pr-3 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
-                    />
-                    <span className="absolute left-2.5 top-2.5 text-xs text-slate-500">🔍</span>
-                  </div>
-
-                  <div className="flex items-center gap-2 text-[10px] font-mono text-slate-400">
-                    <span className="flex items-center gap-1">
-                      <span className="w-2 h-2 rounded-full bg-emerald-400"></span> Qualified
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <span className="w-2 h-2 rounded-full bg-amber-400"></span> Low Cash (&lt;10L)
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <span className="w-2 h-2 rounded-full bg-rose-500"></span> Eliminate (&lt;60% R0)
-                    </span>
-                  </div>
-                </div>
-
-                {/* Table Container */}
-                <div className="flex-1 overflow-x-auto border border-slate-800 rounded-xl bg-[#090d12]">
-                  <table className="w-full text-left text-xs font-mono">
-                    <thead className="bg-[#141b24] text-slate-300 text-[11px] uppercase tracking-wider border-b border-slate-800 sticky top-0">
-                      <tr>
-                        <th className="py-2.5 px-3">Team</th>
-                        <th className="py-2.5 px-3">Cash Balance</th>
-                        <th className="py-2.5 px-3">R0 Spent</th>
-                        <th className="py-2.5 px-3">R0 Deployed %</th>
-                        <th className="py-2.5 px-3">60% Rule</th>
-                        <th className="py-2.5 px-3">10% Cash Rule</th>
-                        <th className="py-2.5 px-3">Holdings Value</th>
-                        <th className="py-2.5 px-3">Net Worth</th>
-                        <th className="py-2.5 px-3 text-right">Quick Fill</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-800/60 text-slate-300">
-                      {filteredTeams.length === 0 ? (
-                        <tr>
-                          <td colSpan={9} className="text-center py-8 text-slate-500">
-                            No matching teams found.
-                          </td>
-                        </tr>
-                      ) : (
-                        filteredTeams.map((tp) => {
-                          const isEliminateRisk = !tp.round0Met60Percent;
-                          const isLowCash = !tp.cashMet10PercentFloor;
-
-                          return (
-                            <tr
-                              key={tp.teamId}
-                              className={`hover:bg-slate-800/40 transition ${
-                                isEliminateRisk ? 'bg-rose-950/10' : isLowCash ? 'bg-amber-950/10' : ''
-                              }`}
-                            >
-                              <td className="py-2.5 px-3 font-sans">
-                                <div className="font-bold text-white text-xs">{tp.teamName}</div>
-                                <div className="text-[10px] text-slate-400 font-mono">{tp.teamCode}</div>
-                              </td>
-
-                              <td className="py-2.5 px-3 font-bold text-emerald-400">
-                                ₹{(tp.currentCash / 100000).toFixed(2)}L
-                              </td>
-
-                              <td className="py-2.5 px-3 text-amber-300">
-                                ₹{(tp.round0Spent / 100000).toFixed(2)}L
-                              </td>
-
-                              <td className="py-2.5 px-3">
-                                <div className="flex items-center gap-2">
-                                  <div className="w-12 bg-slate-800 h-1.5 rounded-full overflow-hidden">
-                                    <div
-                                      className={`h-full ${
-                                        tp.round0DeployedPercent >= 60 ? 'bg-emerald-400' : 'bg-rose-500'
-                                      }`}
-                                      style={{ width: `${Math.min(100, tp.round0DeployedPercent)}%` }}
-                                    ></div>
-                                  </div>
-                                  <span
-                                    className={`font-bold ${
-                                      tp.round0DeployedPercent >= 60 ? 'text-emerald-400' : 'text-rose-400'
-                                    }`}
-                                  >
-                                    {tp.round0DeployedPercent}%
-                                  </span>
-                                </div>
-                              </td>
-
-                              <td className="py-2.5 px-3">
-                                {tp.round0Met60Percent ? (
-                                  <span className="px-1.5 py-0.5 rounded text-[10px] bg-emerald-950 text-emerald-300 border border-emerald-500/40 font-bold">
-                                    ✅ PASS
-                                  </span>
-                                ) : (
-                                  <span className="px-1.5 py-0.5 rounded text-[10px] bg-rose-950 text-rose-300 border border-rose-500/40 font-bold">
-                                    ❌ ELIMINATE
-                                  </span>
-                                )}
-                              </td>
-
-                              <td className="py-2.5 px-3">
-                                {tp.cashMet10PercentFloor ? (
-                                  <span className="px-1.5 py-0.5 rounded text-[10px] bg-emerald-950/60 text-emerald-400 font-semibold">
-                                    ✅ &ge;10L
-                                  </span>
-                                ) : (
-                                  <span className="px-1.5 py-0.5 rounded text-[10px] bg-amber-950/70 text-amber-300 border border-amber-500/40 font-bold">
-                                    ⚠️ &lt;10L
-                                  </span>
-                                )}
-                              </td>
-
-                              <td className="py-2.5 px-3 text-slate-300">
-                                ₹{(tp.totalHoldingsValue / 100000).toFixed(2)}L
-                              </td>
-
-                              <td className="py-2.5 px-3 font-bold text-white">
-                                ₹{(tp.totalNetWorth / 100000).toFixed(2)}L
-                              </td>
-
-                              <td className="py-2.5 px-3 text-right">
-                                <div className="flex items-center justify-end gap-1 font-sans">
-                                  <button
-                                    type="button"
-                                    onClick={() => selectTeamAsBuyer(tp.teamName)}
-                                    className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-900/60 hover:bg-emerald-800 text-emerald-200 transition"
-                                    title="Set as Buyer on active slip"
-                                  >
-                                    +Buy
-                                  </button>
-                                  <button
-                                    type="button"
-                                    onClick={() => selectTeamAsSeller(tp.teamName)}
-                                    className="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-900/60 hover:bg-rose-800 text-rose-200 transition"
-                                    title="Set as Seller on active slip"
-                                  >
-                                    +Sell
-                                  </button>
-                                </div>
-                              </td>
-                            </tr>
-                          );
-                        })
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
-
-            {/* TAB 2: TRADES MASTER LEDGER */}
-            {activeTab === 'ledger' && (
-              <div className="p-4 flex-1 flex flex-col space-y-3">
-                <div className="relative">
-                  <input
-                    type="text"
-                    value={ledgerSearch}
-                    onChange={(e) => setLedgerSearch(e.target.value)}
-                    placeholder="Search slip ID, team, or stock ticker..."
-                    className="w-full py-2 pl-8 pr-3 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
-                  />
-                  <span className="absolute left-2.5 top-2.5 text-xs text-slate-500">🔍</span>
-                </div>
-
-                <div className="flex-1 overflow-x-auto border border-slate-800 rounded-xl bg-[#090d12]">
-                  <table className="w-full text-left text-xs font-mono">
-                    <thead className="bg-[#141b24] text-slate-300 text-[11px] uppercase tracking-wider border-b border-slate-800 sticky top-0">
-                      <tr>
-                        <th className="py-2.5 px-3">Slip ID</th>
-                        <th className="py-2.5 px-3">Time</th>
-                        <th className="py-2.5 px-3">Buyer</th>
-                        <th className="py-2.5 px-3">Seller</th>
-                        <th className="py-2.5 px-3">Stock</th>
-                        <th className="py-2.5 px-3">Qty</th>
-                        <th className="py-2.5 px-3">Price</th>
-                        <th className="py-2.5 px-3">Gross</th>
-                        <th className="py-2.5 px-3">Buyer Brok</th>
-                        <th className="py-2.5 px-3">Buyer Debit</th>
-                        <th className="py-2.5 px-3">Status</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-800/60 text-slate-300">
-                      {filteredTrades.length === 0 ? (
-                        <tr>
-                          <td colSpan={11} className="text-center py-8 text-slate-500">
-                            No trades recorded yet.
-                          </td>
-                        </tr>
-                      ) : (
-                        filteredTrades.map((t) => (
-                          <tr key={t.slipId} className="hover:bg-slate-800/40 transition">
-                            <td className="py-2.5 px-3 font-bold text-teal-400">{t.slipId}</td>
-                            <td className="py-2.5 px-3 text-slate-400 text-[10px]">
-                              {new Date(t.timestamp).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
-                            </td>
-                            <td className="py-2.5 px-3 font-bold text-emerald-400 font-sans">{t.buyerTeam}</td>
-                            <td className="py-2.5 px-3 font-bold text-rose-400 font-sans">{t.sellerTeam}</td>
-                            <td className="py-2.5 px-3 font-black text-white">{t.ticker}</td>
-                            <td className="py-2.5 px-3 text-slate-200">{t.quantity}</td>
-                            <td className="py-2.5 px-3 text-emerald-300">₹{t.price.toFixed(2)}</td>
-                            <td className="py-2.5 px-3 font-bold text-white">
-                              ₹{t.grossAmount.toLocaleString('en-IN', { maximumFractionDigits: 0 })}
-                            </td>
-                            <td className="py-2.5 px-3 text-amber-400">
-                              {t.isRound0Exempt ? '₹0 (Waived)' : `₹${t.buyerBrokerage.toFixed(0)}`}
-                            </td>
-                            <td className="py-2.5 px-3 font-black text-emerald-300">
-                              ₹{t.buyerTotalDebit.toLocaleString('en-IN', { maximumFractionDigits: 0 })}
-                            </td>
-                            <td className="py-2.5 px-3">
-                              <span className="px-1.5 py-0.5 rounded text-[10px] bg-emerald-950 text-emerald-300 font-bold border border-emerald-500/30">
-                                {t.status}
-                              </span>
-                            </td>
-                          </tr>
-                        ))
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
-
-            {/* TAB 3: TEAM STOCK HOLDINGS MATRIX */}
-            {activeTab === 'matrix' && (
-              <div className="p-4 flex-1 flex flex-col space-y-3">
-                <div className="text-xs text-slate-400 font-medium">
-                  Showing physical share counts allocated across all participant syndicates:
-                </div>
-                <div className="flex-1 overflow-x-auto border border-slate-800 rounded-xl bg-[#090d12]">
-                  <table className="w-full text-left text-xs font-mono">
-                    <thead className="bg-[#141b24] text-slate-300 text-[11px] uppercase tracking-wider border-b border-slate-800 sticky top-0">
-                      <tr>
-                        <th className="py-2.5 px-3 sticky left-0 bg-[#141b24] z-10">Team</th>
-                        {(snapshot?.holdingsMatrix.stocks || []).map((s) => (
-                          <th key={s.id} className="py-2.5 px-3 text-center">
-                            <div>{s.ticker}</div>
-                            <div className="text-[10px] text-slate-500 font-normal">₹{s.current_price.toFixed(1)}</div>
-                          </th>
-                        ))}
-                        <th className="py-2.5 px-3 text-right">Portfolio Value</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-800/60 text-slate-300">
-                      {(snapshot?.holdingsMatrix.teams || []).map((team) => (
-                        <tr key={team.teamId} className="hover:bg-slate-800/40 transition">
-                          <td className="py-2.5 px-3 font-sans font-bold text-white sticky left-0 bg-[#090d12] z-10 border-r border-slate-800">
-                            {team.teamName}
-                          </td>
-                          {(snapshot?.holdingsMatrix.stocks || []).map((s) => {
-                            const count = team.holdings[s.ticker] || 0;
-                            return (
-                              <td
-                                key={s.id}
-                                className={`py-2.5 px-3 text-center ${
-                                  count > 0 ? 'text-emerald-400 font-bold bg-emerald-950/20' : 'text-slate-600'
-                                }`}
-                              >
-                                {count > 0 ? count : '—'}
-                              </td>
-                            );
-                          })}
-                          <td className="py-2.5 px-3 font-bold text-amber-300 text-right">
-                            ₹{(team.totalValue / 100000).toFixed(2)}L
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
           </div>
         </div>
-      </main>
+      </div>
     </div>
   );
 }

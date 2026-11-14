@@ -1401,30 +1401,6 @@ export default function AdminPage() {
 
             <div className="h-5 w-px bg-outline-variant/50 hidden sm:block"></div>
 
-            {/* Three Portals Navigation Bar */}
-            <div className="flex items-center gap-1 p-1 rounded-xl bg-surface-container border border-outline-variant/60 text-xs font-semibold">
-              <Link
-                href="/dashboard"
-                className="px-2.5 py-1 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition flex items-center gap-1"
-                title="Portal 1: Participant Market Terminal"
-              >
-                <span>📈</span>
-                <span className="hidden md:inline">1. Terminal</span>
-              </Link>
-              <Link
-                href="/broker"
-                className="px-2.5 py-1 rounded-lg text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 transition flex items-center gap-1 font-bold"
-                title="Portal 2: Event Floor Broker Slip Desk & Live Excel Ledger"
-              >
-                <span>📋</span>
-                <span className="hidden md:inline">2. Event Desk</span>
-              </Link>
-              <div className="px-2.5 py-1 rounded-lg bg-primary text-on-primary font-bold shadow-xs flex items-center gap-1 cursor-default">
-                <span>⚙️</span>
-                <span className="hidden md:inline">3. Admin Ops</span>
-              </div>
-            </div>
-
             <button
               onClick={fetchAdminData}
               className="h-8.5 w-8.5 sm:h-9 sm:w-9 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container flex items-center justify-center transition-colors shrink-0"

@@ -2864,7 +2864,7 @@
       "stock_id": "s-novatech",
       "shares_count": 132,
       "avg_buy_price": 300,
-      "updated_at": "2026-11-08T05:39:56.779Z"
+      "updated_at": "2026-11-14T20:56:58.454Z"
     },
     {
       "id": "port-ew67d0l",
@@ -2872,7 +2872,7 @@
       "stock_id": "s-reliance",
       "shares_count": 250,
       "avg_buy_price": 1260.3,
-      "updated_at": "2026-11-11T17:44:01.422Z"
+      "updated_at": "2026-11-14T20:56:58.458Z"
     },
     {
       "id": "port-h1pj12e",
@@ -2896,7 +2896,7 @@
       "stock_id": "s-reliance",
       "shares_count": 150,
       "avg_buy_price": 1271.55,
-      "updated_at": "2026-11-11T15:31:28.689Z"
+      "updated_at": "2026-11-14T20:56:58.471Z"
     },
     {
       "id": "port-ldw3pjb",
@@ -2912,7 +2912,7 @@
       "stock_id": "s-reliance",
       "shares_count": 250,
       "avg_buy_price": 1260,
-      "updated_at": "2026-11-11T15:31:28.229Z"
+      "updated_at": "2026-11-14T20:56:58.480Z"
     },
     {
       "id": "port-gu2yc3p",
@@ -2920,7 +2920,7 @@
       "stock_id": "s-tcs",
       "shares_count": 150,
       "avg_buy_price": 2522.1,
-      "updated_at": "2026-11-11T15:31:28.798Z"
+      "updated_at": "2026-11-14T20:56:58.483Z"
     },
     {
       "id": "port-9l0i1o6",
@@ -2952,7 +2952,7 @@
       "stock_id": "s-tcs",
       "shares_count": 100,
       "avg_buy_price": 2601.9,
-      "updated_at": "2026-11-11T15:31:28.692Z"
+      "updated_at": "2026-11-14T20:56:58.467Z"
     },
     {
       "id": "port-u7wq3zp",
@@ -2960,7 +2960,7 @@
       "stock_id": "s-hdfcbank",
       "shares_count": 130,
       "avg_buy_price": 749.7,
-      "updated_at": "2026-11-11T16:03:50.703Z"
+      "updated_at": "2026-11-14T20:56:58.505Z"
     },
     {
       "id": "port-46cq11t",
@@ -2976,7 +2976,7 @@
       "stock_id": "s-swiggy",
       "shares_count": 1000,
       "avg_buy_price": 350,
-      "updated_at": "2026-11-11T17:44:01.422Z"
+      "updated_at": "2026-11-14T20:56:58.458Z"
     },
     {
       "id": "port-3qq5i26",
@@ -2984,7 +2984,7 @@
       "stock_id": "s-swiggy",
       "shares_count": 200,
       "avg_buy_price": 350,
-      "updated_at": "2026-11-11T16:03:50.703Z"
+      "updated_at": "2026-11-14T20:56:58.505Z"
     },
     {
       "id": "port-2csjvdb",
@@ -3000,7 +3000,7 @@
       "stock_id": "s-hindalco",
       "shares_count": 5,
       "avg_buy_price": 928.94,
-      "updated_at": "2026-11-11T17:46:41.881Z"
+      "updated_at": "2026-11-14T20:56:58.474Z"
     },
     {
       "id": "port-4r1cva9",
@@ -3016,7 +3016,7 @@
       "stock_id": "s-trident",
       "shares_count": 12,
       "avg_buy_price": 21,
-      "updated_at": "2026-11-11T18:57:25.367Z"
+      "updated_at": "2026-11-14T20:56:58.516Z"
     },
     {
       "id": "port-bi2wn2j",
@@ -3024,7 +3024,7 @@
       "stock_id": "s-trident",
       "shares_count": 10,
       "avg_buy_price": 23.1,
-      "updated_at": "2026-11-11T18:08:34.290Z"
+      "updated_at": "2026-11-14T20:56:58.520Z"
     },
     {
       "id": "port-lmqz0s8",
@@ -3040,7 +3040,7 @@
       "stock_id": "s-ntpc",
       "shares_count": 20,
       "avg_buy_price": 316,
-      "updated_at": "2026-11-11T19:09:58.264Z"
+      "updated_at": "2026-11-14T20:56:58.524Z"
     },
     {
       "id": "port-03ew1ca",
@@ -3056,7 +3056,7 @@
       "stock_id": "s-godrejprop",
       "shares_count": 20,
       "avg_buy_price": 1568,
-      "updated_at": "2026-11-11T19:09:58.264Z"
+      "updated_at": "2026-11-14T20:56:58.524Z"
     },
     {
       "id": "port-ujo8xv6",
@@ -3072,7 +3072,7 @@
       "stock_id": "s-zomato",
       "shares_count": 516,
       "avg_buy_price": 375.21,
-      "updated_at": "2026-11-11T19:09:58.264Z"
+      "updated_at": "2026-11-14T20:56:58.524Z"
     },
     {
       "id": "port-mli2xs2",
@@ -4402,7 +4402,7 @@
       "leader_id": "usr-9np9imt",
       "leader_name": "Aaryan Verma",
       "leader_email": "1025150050@thapar.edu",
-      "balance": 985245,
+      "balance": 1025401.88,
       "members": [
         {
           "id": "usr-ntxl19z",
@@ -4421,7 +4421,7 @@
       "leader_id": "usr-40rj0tq",
       "leader_name": "Trader_102203001",
       "leader_email": "102203001@thapar.edu",
-      "balance": 951045,
+      "balance": 957837.5,
       "members": [
         {
           "id": "usr-40rj0tq",
@@ -4513,7 +4513,7 @@
       "id": "team-h3pim6",
       "name": "Epsilon Syndicate",
       "code": "EPSILONS",
-      "balance": 1285000,
+      "balance": 1280355.32,
       "leader_id": "usr-w4t3e6",
       "leader_name": "Epsilon Syndicate",
       "leader_email": "epsilons@thapar.edu",
@@ -4970,7 +4970,7 @@
     "remaining_seconds": 1800,
     "is_paused": true,
     "is_orders_locked": false,
-    "last_tick": 1794424198066
+    "last_tick": 1794689335946
   },
   "ipo_listings": [
     {
