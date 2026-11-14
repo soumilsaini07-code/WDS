@@ -372,6 +372,11 @@ export default function EditorialBrokerDeskPage() {
             ↻
           </button>
 
+          <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-[11px] font-mono">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span className="font-bold tracking-tight">SHEET AUTO-SYNC ACTIVE</span>
+          </div>
+
           <a
             href="/api/broker/export-excel"
             download

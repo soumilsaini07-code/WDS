@@ -5,7 +5,9 @@ import {
   subscribeToIPO,
   allotIPOLots,
   createCustomIPO,
+  getLocalDB,
 } from '@/lib/db';
+import { pushIpoBidToGoogleSheets } from '@/lib/google-sheets-sync';
 
 export async function GET(request: Request) {
   try {
@@ -49,6 +51,22 @@ export async function POST(request: Request) {
             user_id: user_id || '',
             lots: Number(lots),
           });
+
+          if (result.success && result.subscription) {
+            const db = getLocalDB();
+            const ipo = (db.ipo_listings || []).find((i) => i.id === ipo_id);
+            pushIpoBidToGoogleSheets({
+              subscriptionId: result.subscription.id,
+              teamName: result.subscription.team_name,
+              ticker: ipo?.ticker || result.subscription.ipo_id,
+              lots: result.subscription.lots_requested,
+              shares: result.subscription.share_quantity,
+              issuePrice: result.subscription.issue_price,
+              totalAmount: result.subscription.total_amount,
+              status: result.subscription.status,
+            });
+          }
+
           resolve(NextResponse.json(result, { status: result.success ? 200 : 400 }));
           return;
         }

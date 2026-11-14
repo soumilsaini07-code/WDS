@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { executeInterTeamTrade } from '@/lib/db';
 import { computeBrokerLedgerSnapshot } from '@/lib/broker-ledger';
 import { getCurrentSession } from '@/lib/auth';
+import { pushTradeToGoogleSheets } from '@/lib/google-sheets-sync';
 
 // In-process FIFO settlement queue ensuring ACID atomic execution during peak concurrent student submissions
 let settlementQueue: Promise<any> = Promise.resolve();
@@ -54,6 +55,24 @@ export async function POST(request: Request) {
         if (!tradeResult.success) {
           resolve(NextResponse.json({ error: tradeResult.error || 'Failed to settle slip trade.' }, { status: 400 }));
           return;
+        }
+
+        // Fire background push to Live Google Sheets
+        if (tradeResult.summary) {
+          pushTradeToGoogleSheets({
+            sellerTeam: tradeResult.summary.sellerTeam,
+            buyerTeam: tradeResult.summary.buyerTeam,
+            ticker: tradeResult.summary.ticker,
+            quantity: tradeResult.summary.quantity,
+            agreedPrice: tradeResult.summary.agreedPrice,
+            grossDealValue: tradeResult.summary.grossDealValue,
+            buyerBrokerage: tradeResult.summary.buyerBrokerage,
+            sellerBrokerage: tradeResult.summary.sellerBrokerage,
+            totalEconCommission: tradeResult.summary.totalEconCommission,
+            totalBuyerDebit: tradeResult.summary.totalBuyerDebit,
+            totalSellerCredit: tradeResult.summary.totalSellerCredit,
+            dealsCount: tradeResult.summary.dealsCount,
+          });
         }
 
         // Compute updated snapshot
