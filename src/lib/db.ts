@@ -3399,6 +3399,109 @@ export async function applyTeamPenalty(
 }
 
 // =============================================================================
+// TEAM BUDGET CONTROLLER (SET, ADD, DEDUCT, RESET TO 10 LAKHS)
+// =============================================================================
+export async function modifyTeamBudget(
+  adminEmail: string,
+  teamId: string | 'ALL',
+  action: 'SET' | 'ADD' | 'DEDUCT' | 'RESET_10L' | 'RESET_ALL_10L',
+  amount?: number,
+  reason?: string
+): Promise<{ success: boolean; team?: Team; teams?: Team[]; newBalance?: number; error?: string; message?: string }> {
+  const db = getLocalDB();
+  if (!db.teams) db.teams = [];
+
+  if (action === 'RESET_ALL_10L' || teamId === 'ALL') {
+    db.teams.forEach((t) => {
+      t.balance = 1000000;
+      const memberEmails = (t.members || []).map((m) => (m.email || '').toLowerCase());
+      const memberIds = (t.members || []).map((m) => m.id);
+      const teamUsers = db.users.filter(
+        (u) =>
+          u.team_id === t.id ||
+          memberIds.includes(u.id) ||
+          (u.email && memberEmails.includes(u.email.toLowerCase()))
+      );
+      teamUsers.forEach((u) => {
+        u.balance = 1000000;
+      });
+    });
+    saveLocalDB(db);
+    return { success: true, teams: db.teams, message: 'All teams successfully reset to initial ₹10,00,000 purse.' };
+  }
+
+  const team = db.teams.find((t) => t.id === teamId || t.name.toLowerCase() === teamId.toLowerCase());
+  if (!team) {
+    return { success: false, error: 'Team not found.' };
+  }
+
+  const oldBalance = team.balance ?? 1000000;
+  let newBalance = oldBalance;
+
+  if (action === 'SET') {
+    if (amount === undefined || isNaN(amount) || amount < 0) {
+      return { success: false, error: 'A valid non-negative amount is required for SET.' };
+    }
+    newBalance = Number(amount.toFixed(2));
+  } else if (action === 'ADD') {
+    if (!amount || amount <= 0) {
+      return { success: false, error: 'A valid positive amount is required for ADD.' };
+    }
+    newBalance = Number((oldBalance + amount).toFixed(2));
+  } else if (action === 'DEDUCT') {
+    if (!amount || amount <= 0) {
+      return { success: false, error: 'A valid positive amount is required for DEDUCT.' };
+    }
+    newBalance = Number(Math.max(0, oldBalance - amount).toFixed(2));
+  } else if (action === 'RESET_10L') {
+    newBalance = 1000000;
+  }
+
+  team.balance = newBalance;
+
+  // Sync to all team members
+  const memberEmails = (team.members || []).map((m) => (m.email || '').toLowerCase());
+  const memberIds = (team.members || []).map((m) => m.id);
+  const teamUsers = db.users.filter(
+    (u) =>
+      u.team_id === team.id ||
+      memberIds.includes(u.id) ||
+      (u.email && memberEmails.includes(u.email.toLowerCase()))
+  );
+  teamUsers.forEach((u) => {
+    u.balance = newBalance;
+  });
+
+  // Log transaction
+  const delta = newBalance - oldBalance;
+  if (delta !== 0) {
+    const tx: Transaction = {
+      id: 'budget-' + Math.random().toString(36).substring(2, 9),
+      user_id: team.leader_id || (teamUsers[0] ? teamUsers[0].id : 'admin'),
+      stock_id: 's-budget-adjustment',
+      type: delta > 0 ? 'BUY' : 'SELL',
+      quantity: 1,
+      price_at_trade: Math.abs(delta),
+      gross_amount: Math.abs(delta),
+      brokerage: 0,
+      net_amount: Math.abs(delta),
+      timestamp: new Date().toISOString(),
+    };
+    db.transactions.push(tx);
+  }
+
+  saveLocalDB(db);
+
+  return {
+    success: true,
+    team,
+    teams: db.teams,
+    newBalance,
+    message: `Team ${team.name} budget updated to ₹${newBalance.toLocaleString('en-IN')}`,
+  };
+}
+
+// =============================================================================
 // INTER-TEAM (P2P) DESK EXECUTION (ROUNDS 2–7)
 // =============================================================================
 export async function executeInterTeamTrade(
