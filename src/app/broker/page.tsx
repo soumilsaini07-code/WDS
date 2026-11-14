@@ -30,63 +30,6 @@ export default function EditorialBrokerDeskPage() {
   // Toast / Status Message
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
-  // Custom Cursor Implementation with requestAnimationFrame (0.15 Easing)
-  const cursorRef = React.useRef<HTMLDivElement | null>(null);
-  const mousePos = React.useRef({ x: -100, y: -100 });
-  const currentPos = React.useRef({ x: -100, y: -100 });
-
-  const setIsHovered = (hovered: boolean) => {
-    if (cursorRef.current) {
-      if (hovered) {
-        cursorRef.current.classList.add('cursor-hover');
-      } else {
-        cursorRef.current.classList.remove('cursor-hover');
-      }
-    }
-  };
-
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      mousePos.current = { x: e.clientX, y: e.clientY };
-
-      const target = e.target as HTMLElement | null;
-      const isInteractive = Boolean(
-        target &&
-        target.closest('button, input, select, a, [role="button"], tr, label')
-      );
-
-      if (cursorRef.current) {
-        if (isInteractive) {
-          cursorRef.current.classList.add('cursor-hover');
-        } else {
-          cursorRef.current.classList.remove('cursor-hover');
-        }
-      }
-    };
-
-    window.addEventListener('mousemove', handleMouseMove, { passive: true });
-
-    let animationFrameId: number;
-    const updateCursor = () => {
-      // Smooth 0.15 easing movement following mouse coordinates
-      currentPos.current.x += (mousePos.current.x - currentPos.current.x) * 0.15;
-      currentPos.current.y += (mousePos.current.y - currentPos.current.y) * 0.15;
-
-      if (cursorRef.current) {
-        cursorRef.current.style.transform = `translate3d(${currentPos.current.x - 16}px, ${currentPos.current.y - 16}px, 0)`;
-      }
-
-      animationFrameId = requestAnimationFrame(updateCursor);
-    };
-
-    animationFrameId = requestAnimationFrame(updateCursor);
-
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      cancelAnimationFrame(animationFrameId);
-    };
-  }, []);
-
   // Web Audio chime
   const playSuccessChime = () => {
     try {
@@ -313,20 +256,6 @@ export default function EditorialBrokerDeskPage() {
 
   return (
     <div className="min-h-screen bg-[#FFFFFF] text-[#000000] font-sans antialiased selection:bg-[#0052CC] selection:text-white transition-colors duration-500 relative">
-      {/* ========================================================================= */}
-      {/* 1. CUSTOM INVERTING CURSOR (id="custom-cursor", rAF 0.15 EASING, 0.5s SCALE) */}
-      {/* ========================================================================= */}
-      <div
-        id="custom-cursor"
-        ref={cursorRef}
-        aria-hidden="true"
-        className="hidden md:block pointer-events-none fixed top-0 left-0 w-[32px] h-[32px] rounded-full z-[99999] will-change-transform"
-        style={{
-          mixBlendMode: 'difference',
-        }}
-      >
-        <div className="cursor-inner w-full h-full rounded-full bg-white transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]" />
-      </div>
 
       {/* ========================================================================= */}
       {/* 2. EDITORIAL TOP TICKER & METADATA BAR */}
@@ -356,8 +285,8 @@ export default function EditorialBrokerDeskPage() {
 
           <button
             onClick={fetchLedger}
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
+
+
             className="p-2 rounded-full border border-black/10 hover:border-black/30 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]"
             title="Refresh Ledger"
           >
@@ -367,8 +296,8 @@ export default function EditorialBrokerDeskPage() {
           <a
             href="/api/broker/export-excel"
             download
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
+
+
             className="px-5 py-2 rounded-full bg-[#0052CC] hover:bg-[#0747A6] text-white font-bold text-xs uppercase tracking-[0.15em] transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]"
           >
             EXPORT .XLSX
@@ -490,8 +419,8 @@ export default function EditorialBrokerDeskPage() {
                     value={buyerTeam}
                     onChange={(e) => setBuyerTeam(e.target.value)}
                     placeholder="ENTER BUYER TEAM..."
-                    onMouseEnter={() => setIsHovered(true)}
-                    onMouseLeave={() => setIsHovered(false)}
+
+
                     className="w-full text-2xl font-bold text-[#000000] bg-transparent border-none outline-none placeholder:text-black/20 focus:ring-0"
                     required
                   />
@@ -514,8 +443,8 @@ export default function EditorialBrokerDeskPage() {
                   <button
                     type="button"
                     onClick={() => setSellerTeam('Central Primary Pool')}
-                    onMouseEnter={() => setIsHovered(true)}
-                    onMouseLeave={() => setIsHovered(false)}
+
+
                     className="font-mono text-[11px] uppercase tracking-[0.1em] text-[#0052CC] font-bold hover:underline cursor-pointer"
                   >
                     [SET PRIMARY POOL]
@@ -529,8 +458,8 @@ export default function EditorialBrokerDeskPage() {
                     value={sellerTeam}
                     onChange={(e) => setSellerTeam(e.target.value)}
                     placeholder="ENTER SELLER TEAM..."
-                    onMouseEnter={() => setIsHovered(true)}
-                    onMouseLeave={() => setIsHovered(false)}
+
+
                     className="w-full text-2xl font-bold text-[#000000] bg-transparent border-none outline-none placeholder:text-black/20 focus:ring-0"
                     required
                   />
@@ -554,8 +483,8 @@ export default function EditorialBrokerDeskPage() {
                     <button
                       type="button"
                       onClick={() => setAgreedPrice(String(selectedStock.current_price))}
-                      onMouseEnter={() => setIsHovered(true)}
-                      onMouseLeave={() => setIsHovered(false)}
+
+
                       className="font-mono text-[11px] uppercase tracking-[0.1em] text-[#0052CC] font-bold hover:underline cursor-pointer"
                     >
                       [RESET LTP: ₹{selectedStock.current_price.toFixed(2)}]
@@ -567,8 +496,8 @@ export default function EditorialBrokerDeskPage() {
                   <select
                     value={selectedStockId}
                     onChange={(e) => handleStockChange(e.target.value)}
-                    onMouseEnter={() => setIsHovered(true)}
-                    onMouseLeave={() => setIsHovered(false)}
+
+
                     className="w-full text-base font-bold text-[#000000] bg-transparent border-b border-black/10 pb-1 outline-none cursor-pointer"
                   >
                     {(snapshot?.stocks || []).map((s) => (
@@ -586,8 +515,8 @@ export default function EditorialBrokerDeskPage() {
                       value={agreedPrice}
                       onChange={(e) => setAgreedPrice(e.target.value)}
                       placeholder="AGREED PRICE"
-                      onMouseEnter={() => setIsHovered(true)}
-                      onMouseLeave={() => setIsHovered(false)}
+
+
                       className="w-full text-2xl font-bold text-[#000000] bg-transparent border-none outline-none focus:ring-0 font-mono"
                       required
                     />
@@ -631,8 +560,8 @@ export default function EditorialBrokerDeskPage() {
                     value={quantity}
                     onChange={(e) => setQuantity(e.target.value)}
                     placeholder="QUANTITY"
-                    onMouseEnter={() => setIsHovered(true)}
-                    onMouseLeave={() => setIsHovered(false)}
+
+
                     className="w-full text-2xl font-bold text-[#000000] bg-transparent border-none outline-none focus:ring-0 font-mono"
                     required
                   />
@@ -739,8 +668,8 @@ export default function EditorialBrokerDeskPage() {
             <button
               type="submit"
               disabled={isSubmitting}
-              onMouseEnter={() => setIsHovered(true)}
-              onMouseLeave={() => setIsHovered(false)}
+
+
               className="w-full py-5 rounded-[24px] bg-[#0052CC] hover:bg-[#0747A6] text-white font-bold text-sm tracking-[0.2em] uppercase transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] shadow-sm active:scale-[0.99] disabled:opacity-50 cursor-pointer flex items-center justify-center gap-3"
             >
               {isSubmitting ? (
@@ -777,8 +706,8 @@ export default function EditorialBrokerDeskPage() {
               <button
                 type="button"
                 onClick={() => setActiveTab('purses')}
-                onMouseEnter={() => setIsHovered(true)}
-                onMouseLeave={() => setIsHovered(false)}
+
+
                 className={`px-4 py-2 rounded-full uppercase tracking-[0.15em] transition-all duration-300 cursor-pointer ${
                   activeTab === 'purses'
                     ? 'bg-[#000000] text-white font-bold'
@@ -791,8 +720,8 @@ export default function EditorialBrokerDeskPage() {
               <button
                 type="button"
                 onClick={() => setActiveTab('ledger')}
-                onMouseEnter={() => setIsHovered(true)}
-                onMouseLeave={() => setIsHovered(false)}
+
+
                 className={`px-4 py-2 rounded-full uppercase tracking-[0.15em] transition-all duration-300 cursor-pointer ${
                   activeTab === 'ledger'
                     ? 'bg-[#000000] text-white font-bold'
@@ -805,8 +734,8 @@ export default function EditorialBrokerDeskPage() {
               <button
                 type="button"
                 onClick={() => setActiveTab('matrix')}
-                onMouseEnter={() => setIsHovered(true)}
-                onMouseLeave={() => setIsHovered(false)}
+
+
                 className={`px-4 py-2 rounded-full uppercase tracking-[0.15em] transition-all duration-300 cursor-pointer ${
                   activeTab === 'matrix'
                     ? 'bg-[#000000] text-white font-bold'

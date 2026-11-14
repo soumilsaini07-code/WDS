@@ -2865,7 +2865,7 @@
       "stock_id": "s-novatech",
       "shares_count": 132,
       "avg_buy_price": 300,
-      "updated_at": "2026-11-14T21:15:45.450Z"
+      "updated_at": "2026-11-14T21:19:04.446Z"
     },
     {
       "id": "port-ew67d0l",
@@ -2873,7 +2873,7 @@
       "stock_id": "s-reliance",
       "shares_count": 250,
       "avg_buy_price": 1260.3,
-      "updated_at": "2026-11-14T21:15:45.453Z"
+      "updated_at": "2026-11-14T21:19:04.449Z"
     },
     {
       "id": "port-h1pj12e",
@@ -2897,7 +2897,7 @@
       "stock_id": "s-reliance",
       "shares_count": 150,
       "avg_buy_price": 1271.55,
-      "updated_at": "2026-11-14T21:15:45.463Z"
+      "updated_at": "2026-11-14T21:19:04.458Z"
     },
     {
       "id": "port-ldw3pjb",
@@ -2913,7 +2913,7 @@
       "stock_id": "s-reliance",
       "shares_count": 250,
       "avg_buy_price": 1260,
-      "updated_at": "2026-11-14T21:15:45.471Z"
+      "updated_at": "2026-11-14T21:19:04.466Z"
     },
     {
       "id": "port-gu2yc3p",
@@ -2921,7 +2921,7 @@
       "stock_id": "s-tcs",
       "shares_count": 150,
       "avg_buy_price": 2522.1,
-      "updated_at": "2026-11-14T21:15:45.474Z"
+      "updated_at": "2026-11-14T21:19:04.469Z"
     },
     {
       "id": "port-9l0i1o6",
@@ -2953,7 +2953,7 @@
       "stock_id": "s-tcs",
       "shares_count": 100,
       "avg_buy_price": 2601.9,
-      "updated_at": "2026-11-14T21:15:45.460Z"
+      "updated_at": "2026-11-14T21:19:04.456Z"
     },
     {
       "id": "port-u7wq3zp",
@@ -2961,7 +2961,7 @@
       "stock_id": "s-hdfcbank",
       "shares_count": 130,
       "avg_buy_price": 749.7,
-      "updated_at": "2026-11-14T21:15:45.485Z"
+      "updated_at": "2026-11-14T21:19:04.480Z"
     },
     {
       "id": "port-46cq11t",
@@ -2977,7 +2977,7 @@
       "stock_id": "s-swiggy",
       "shares_count": 1000,
       "avg_buy_price": 350,
-      "updated_at": "2026-11-14T21:15:45.453Z"
+      "updated_at": "2026-11-14T21:19:04.449Z"
     },
     {
       "id": "port-3qq5i26",
@@ -2985,7 +2985,7 @@
       "stock_id": "s-swiggy",
       "shares_count": 200,
       "avg_buy_price": 350,
-      "updated_at": "2026-11-14T21:15:45.485Z"
+      "updated_at": "2026-11-14T21:19:04.480Z"
     },
     {
       "id": "port-2csjvdb",
@@ -3001,7 +3001,7 @@
       "stock_id": "s-hindalco",
       "shares_count": 5,
       "avg_buy_price": 928.94,
-      "updated_at": "2026-11-14T21:15:45.467Z"
+      "updated_at": "2026-11-14T21:19:04.463Z"
     },
     {
       "id": "port-4r1cva9",
@@ -3017,7 +3017,7 @@
       "stock_id": "s-trident",
       "shares_count": 12,
       "avg_buy_price": 21,
-      "updated_at": "2026-11-14T21:15:45.497Z"
+      "updated_at": "2026-11-14T21:19:04.495Z"
     },
     {
       "id": "port-bi2wn2j",
@@ -3025,7 +3025,7 @@
       "stock_id": "s-trident",
       "shares_count": 10,
       "avg_buy_price": 23.1,
-      "updated_at": "2026-11-14T21:15:45.501Z"
+      "updated_at": "2026-11-14T21:19:04.498Z"
     },
     {
       "id": "port-lmqz0s8",
@@ -3041,7 +3041,7 @@
       "stock_id": "s-ntpc",
       "shares_count": 20,
       "avg_buy_price": 316,
-      "updated_at": "2026-11-14T21:15:45.505Z"
+      "updated_at": "2026-11-14T21:19:04.502Z"
     },
     {
       "id": "port-03ew1ca",
@@ -3057,7 +3057,7 @@
       "stock_id": "s-godrejprop",
       "shares_count": 20,
       "avg_buy_price": 1568,
-      "updated_at": "2026-11-14T21:15:45.505Z"
+      "updated_at": "2026-11-14T21:19:04.502Z"
     },
     {
       "id": "port-ujo8xv6",
@@ -3073,7 +3073,7 @@
       "stock_id": "s-zomato",
       "shares_count": 516,
       "avg_buy_price": 375.21,
-      "updated_at": "2026-11-14T21:15:45.505Z"
+      "updated_at": "2026-11-14T21:19:04.502Z"
     },
     {
       "id": "port-mli2xs2",
@@ -3113,7 +3113,7 @@
       "stock_id": "s-zomato",
       "shares_count": 180,
       "avg_buy_price": 372.85,
-      "updated_at": "2026-11-14T21:15:45.494Z"
+      "updated_at": "2026-11-14T21:19:04.492Z"
     }
   ],
   "transactions": [
@@ -5013,7 +5013,7 @@
     "remaining_seconds": 1800,
     "is_paused": true,
     "is_orders_locked": false,
-    "last_tick": 1794690924449
+    "last_tick": 1794691121457
   },
   "ipo_listings": [
     {
