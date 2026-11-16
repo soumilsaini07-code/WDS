@@ -788,7 +788,7 @@ export default function ParticipantMarketTerminal() {
 
                 <div className="min-w-0 flex-1">
                   <h4 className="text-sm font-bold text-white tracking-tight truncate sm:whitespace-normal">
-                    {latestNewsAlert.headline.replace(/^BREAKING:s*/i, '')}
+                    {latestNewsAlert.headline.replace(/^BREAKING:\s*/i, '')}
                   </h4>
                   {latestNewsAlert.body && latestNewsAlert.body !== 'Official market news flash released by exchange administration.' && (
                     <p className="text-[11px] text-zinc-300 line-clamp-1 mt-0.5">
@@ -799,6 +799,15 @@ export default function ParticipantMarketTerminal() {
               </div>
 
               <div className="flex items-center gap-2 shrink-0 justify-end">
+                {latestNewsAlert.published_at && (
+                  <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/[0.05] border border-white/10 font-mono text-[11px] text-zinc-300">
+                    <span className="material-symbols-outlined text-[13px] text-rose-400">schedule</span>
+                    <span>
+                      {new Date(latestNewsAlert.published_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}
+                    </span>
+                  </div>
+                )}
+
                 <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/[0.05] border border-white/10 font-mono text-[11px] text-zinc-300">
                   <span className="w-1.5 h-1.5 rounded-full bg-rose-400 animate-pulse" />
                   <span className="tabular-nums font-medium text-zinc-200">
@@ -2100,8 +2109,12 @@ export default function ParticipantMarketTerminal() {
                     <span className="font-bold uppercase tracking-wider text-amber-500 font-mono">
                       {(item as any).source || 'ECON DESK'}
                     </span>
-                    <span className={`font-mono ${isDark ? 'text-zinc-500' : 'text-zinc-400'}`}>
-                      {new Date((item as any).timestamp || (item as any).created_at || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    <span className={`font-mono text-[10px] ${isDark ? 'text-zinc-500' : 'text-zinc-400'}`}>
+                      {item.published_at
+                        ? new Date(item.published_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })
+                        : (item as any).created_at
+                        ? new Date((item as any).created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })
+                        : 'Just now'}
                     </span>
                   </div>
                   <h4 className={`text-xs font-bold leading-snug ${isDark ? 'text-white' : 'text-zinc-900'}`}>

@@ -3135,7 +3135,7 @@ export default function AdminPage() {
                       <span className="text-primary font-semibold">
                         {Object.keys(evt.impact_map || {}).length > 0 ? 'VECTOR SHOCK' : 'SYSTEM EVENT'}
                       </span>
-                      <span>{new Date(evt.created_at).toLocaleTimeString()}</span>
+                      <span>{new Date(evt.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}</span>
                     </div>
                     <div className="font-bold text-on-surface text-sm">{evt.headline}</div>
                     <div className="text-on-surface-variant">{evt.description}</div>
