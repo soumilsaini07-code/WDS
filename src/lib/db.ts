@@ -2173,45 +2173,57 @@ export async function getMarketEvents(): Promise<MarketEvent[]> {
 
 export async function injectMarketEvent(
   headline: string,
-  description: string,
-  impactMap: Record<string, number>
+  description?: string,
+  impactMap: Record<string, number> = {}
 ): Promise<MarketEvent> {
   const db = getLocalDB();
 
-  // Apply percentage deltas to affected stocks
-  for (const [ticker, deltaPercent] of Object.entries(impactMap)) {
-    const stock = db.stocks.find((s) => s.ticker.toUpperCase() === ticker.toUpperCase());
-    if (stock) {
-      const factor = 1 + deltaPercent / 100;
-      const newPrice = Number((stock.current_price * factor).toFixed(2));
-      stock.current_price = Math.max(1, newPrice);
-      stock.day_high = Math.max(stock.day_high, newPrice);
-      stock.day_low = Math.min(stock.day_low, newPrice);
+  // Apply percentage deltas to affected stocks if provided
+  if (impactMap && typeof impactMap === 'object') {
+    for (const [ticker, deltaPercent] of Object.entries(impactMap)) {
+      const stock = db.stocks.find((s) => s.ticker.toUpperCase() === ticker.toUpperCase());
+      if (stock) {
+        const factor = 1 + deltaPercent / 100;
+        const newPrice = Number((stock.current_price * factor).toFixed(2));
+        stock.current_price = Math.max(1, newPrice);
+        stock.day_high = Math.max(stock.day_high, newPrice);
+        stock.day_low = Math.min(stock.day_low, newPrice);
+      }
     }
   }
+
+  const finalDesc = description && description.trim()
+    ? description.trim()
+    : 'Official market news flash released by exchange administration.';
 
   const newEvent: MarketEvent = {
     id: 'evt-' + Math.random().toString(36).substring(2, 9),
     headline,
-    description,
-    impact_map: impactMap,
+    description: finalDesc,
+    impact_map: impactMap || {},
     created_at: new Date().toISOString(),
   };
 
   db.market_events.unshift(newEvent);
 
   // Broadcast as breaking news
-  const sentiment = Object.values(impactMap).reduce((a, b) => a + b, 0) > 0 ? 'BULLISH' : 'BEARISH';
+  const deltas = Object.values(impactMap || {});
+  const sumDelta = deltas.length > 0 ? deltas.reduce((a, b) => a + b, 0) : 0;
+  const sentiment = sumDelta > 0 ? 'BULLISH' : sumDelta < 0 ? 'BEARISH' : 'NEUTRAL';
   const newsItem: NewsArticle = {
     id: 'news-' + Math.random().toString(36).substring(2, 9),
-    headline: `BREAKING: ${headline}`,
-    body: description,
+    headline: headline.startsWith('BREAKING:') ? headline : `BREAKING: ${headline}`,
+    body: finalDesc,
     sentiment,
     published_at: new Date().toISOString(),
   };
   db.news_articles.unshift(newsItem);
 
   saveLocalDB(db);
+
+  // Broadcast real-time news alert across all connected terminals
+  broadcastRealtimeEvent('NEWS_PUBLISHED', { news: newsItem, event: newEvent });
+
   return newEvent;
 }
 

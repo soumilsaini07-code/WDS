@@ -103,6 +103,16 @@ export default function EditorialBrokerDeskPage() {
       .on('broadcast', { event: 'STOCK_PRICE_UPDATED' }, () => {
         fetchLedger();
       })
+      .on('broadcast', { event: 'NEWS_PUBLISHED' }, (payload) => {
+        const item = payload.payload?.news;
+        if (item?.headline) {
+          setFeedback({
+            type: 'error',
+            message: `🚨 BREAKING NEWS WIRE // ${item.headline.replace(/^BREAKING:\s*/i, '')}`,
+          });
+          playSuccessChime();
+        }
+      })
       .subscribe();
 
     return () => {

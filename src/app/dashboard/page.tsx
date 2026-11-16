@@ -46,6 +46,30 @@ function playTradeBell() {
   } catch {}
 }
 
+// Synthesize a high-urgency breaking news chime using Web Audio API
+function playNewsAlertChime() {
+  try {
+    const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+    if (!AudioCtx) return;
+    const ctx = new AudioCtx();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(523.25, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(783.99, ctx.currentTime + 0.12);
+    osc.frequency.setValueAtTime(1046.50, ctx.currentTime + 0.22);
+
+    gain.gain.setValueAtTime(0.25, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.7);
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + 0.7);
+  } catch {}
+}
+
 export default function ParticipantMarketTerminal() {
   // Theme State: 'dark' (Institutional Bloomberg Terminal) or 'light' (Financial Paper)
   const [theme, setTheme] = useState<'dark' | 'light'>('dark');
@@ -106,6 +130,22 @@ export default function ParticipantMarketTerminal() {
   // Live News
   const [news, setNews] = useState<NewsArticle[]>([]);
 
+  // Breaking News Alert Banner State
+  const [latestNewsAlert, setLatestNewsAlert] = useState<NewsArticle | null>(null);
+  const [newsAlertMsRemaining, setNewsAlertMsRemaining] = useState<number>(0);
+  const newsAlertExpireRef = useRef<number>(0);
+  const lastNewsIdRef = useRef<string>('');
+
+  const triggerBreakingNewsAlert = (item: NewsArticle) => {
+    if (!item) return;
+    setLatestNewsAlert(item);
+    newsAlertExpireRef.current = Date.now() + 15000;
+    setNewsAlertMsRemaining(15000);
+    if (soundEnabled) {
+      playNewsAlertChime();
+    }
+  };
+
   // Mobile Tab View State ('equities' | 'chart' | 'news')
   const [mobileTab, setMobileTab] = useState<'equities' | 'chart' | 'news'>('equities');
 
@@ -139,6 +179,23 @@ export default function ParticipantMarketTerminal() {
       }
     }, 100);
     return () => clearInterval(bannerTimer);
+  }, []);
+
+  // 2.2 High-Precision 15-Second Breaking News Alert Countdown
+  useEffect(() => {
+    const newsTimer = setInterval(() => {
+      if (newsAlertExpireRef.current > 0) {
+        const diff = newsAlertExpireRef.current - Date.now();
+        if (diff > 0) {
+          setNewsAlertMsRemaining(diff);
+        } else {
+          newsAlertExpireRef.current = 0;
+          setNewsAlertMsRemaining(0);
+          setLatestNewsAlert(null);
+        }
+      }
+    }, 100);
+    return () => clearInterval(newsTimer);
   }, []);
 
   // 2.5 Real-Time Supabase WebSocket Telemetry Engine (<50ms instantaneous update)
@@ -184,6 +241,12 @@ export default function ParticipantMarketTerminal() {
       })
       .on('broadcast', { event: 'IPO_ALLOTTED' }, () => {
         setActiveIPO(null);
+      })
+      .on('broadcast', { event: 'NEWS_PUBLISHED' }, (payload) => {
+        const item = payload.payload?.news as NewsArticle;
+        if (item) {
+          triggerBreakingNewsAlert(item);
+        }
       })
       .on('postgres_changes', { event: '*', schema: 'public', table: 'stocks' }, (payload) => {
         const newStock = payload.new as Stock;
@@ -288,9 +351,19 @@ export default function ParticipantMarketTerminal() {
           }
         }
 
-        // D. Update News
-        if (newsRes?.news) {
+        // D. Update News & Trigger Breaking News Alerts
+        if (newsRes?.news && Array.isArray(newsRes.news)) {
           setNews(newsRes.news);
+          if (newsRes.news.length > 0) {
+            const newestItem = newsRes.news[0];
+            if (lastNewsIdRef.current && lastNewsIdRef.current !== newestItem.id) {
+              const pubTime = new Date(newestItem.published_at).getTime();
+              if (Date.now() - pubTime < 120000) {
+                triggerBreakingNewsAlert(newestItem);
+              }
+            }
+            lastNewsIdRef.current = newestItem.id;
+          }
         }
       } catch (err) {
         // Background polling resilience
@@ -693,6 +766,70 @@ export default function ParticipantMarketTerminal() {
           })}
         </div>
       </div>
+
+      {/* ========================================================================= */}
+      {/* 2.8 BREAKING NEWS WIRE FLASH NOTIFICATION BANNER */}
+      {/* ========================================================================= */}
+      {latestNewsAlert && newsAlertMsRemaining > 0 && (() => {
+        const pctRemaining = Math.max(0, Math.min(100, (newsAlertMsRemaining / 15000) * 100));
+        return (
+          <div className="w-full relative z-40 transition-all duration-300 bg-[#160B0E]/95 border-b border-rose-500/30 shadow-[0_4px_24px_-4px_rgba(244,63,94,0.25)] backdrop-blur-xl text-white animate-in fade-in slide-in-from-top-2">
+            <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-rose-500/50 to-transparent" />
+
+            <div className="max-w-[1780px] mx-auto px-4 sm:px-6 py-2.5 flex flex-col md:flex-row md:items-center justify-between gap-3">
+              <div className="flex items-center gap-3 flex-1 min-w-0">
+                <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full font-mono text-[10px] font-bold tracking-[0.16em] uppercase shrink-0 bg-rose-500/15 border border-rose-500/40 text-rose-300">
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75" />
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-500 shadow-[0_0_8px_#f43f5e]" />
+                  </span>
+                  <span>BREAKING NEWS WIRE</span>
+                </div>
+
+                <div className="min-w-0 flex-1">
+                  <h4 className="text-sm font-bold text-white tracking-tight truncate sm:whitespace-normal">
+                    {latestNewsAlert.headline.replace(/^BREAKING:s*/i, '')}
+                  </h4>
+                  {latestNewsAlert.body && latestNewsAlert.body !== 'Official market news flash released by exchange administration.' && (
+                    <p className="text-[11px] text-zinc-300 line-clamp-1 mt-0.5">
+                      {latestNewsAlert.body}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 shrink-0 justify-end">
+                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/[0.05] border border-white/10 font-mono text-[11px] text-zinc-300">
+                  <span className="w-1.5 h-1.5 rounded-full bg-rose-400 animate-pulse" />
+                  <span className="tabular-nums font-medium text-zinc-200">
+                    {(newsAlertMsRemaining / 1000).toFixed(1)}s
+                  </span>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    newsAlertExpireRef.current = 0;
+                    setNewsAlertMsRemaining(0);
+                    setLatestNewsAlert(null);
+                  }}
+                  className="p-1 rounded-md text-zinc-400 hover:text-white hover:bg-white/10 transition cursor-pointer"
+                  title="Dismiss news banner"
+                >
+                  <span className="material-symbols-outlined text-[16px] block">close</span>
+                </button>
+              </div>
+            </div>
+
+            <div className="w-full bg-white/[0.03] h-[1.5px] relative overflow-hidden">
+              <div
+                className="h-full bg-gradient-to-r from-rose-500 via-pink-400 to-rose-300 transition-all duration-100 ease-linear shadow-[0_0_8px_#f43f5e]"
+                style={{ width: `${pctRemaining}%` }}
+              />
+            </div>
+          </div>
+        );
+      })()}
 
       {/* ========================================================================= */}
       {/* 3. SLEEK FINANCIAL HUD TRADE EXECUTION NOTIFICATION BANNER */}

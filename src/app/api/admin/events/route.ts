@@ -11,14 +11,18 @@ export async function POST(request: Request) {
 
     const { headline, description, impactMap } = await request.json();
 
-    if (!headline || !description || !impactMap || typeof impactMap !== 'object') {
+    if (!headline || !headline.trim()) {
       return NextResponse.json(
-        { error: 'Invalid event payload. Required: headline, description, impactMap (object)' },
+        { error: 'News headline is required.' },
         { status: 400 }
       );
     }
 
-    const event = await injectMarketEvent(headline, description, impactMap);
+    const event = await injectMarketEvent(
+      headline.trim(),
+      description,
+      impactMap && typeof impactMap === 'object' ? impactMap : {}
+    );
 
     return NextResponse.json({ success: true, event });
   } catch (err: any) {

@@ -117,17 +117,10 @@ export default function AdminPage() {
   // Telemetry & Halts
   const [globalHalt, setGlobalHalt] = useState(false);
 
-  // Shock Injector Form
-  const [newsHeadline, setNewsHeadline] = useState(
-    'Middle East diplomatic breakthrough reduces crude import duties by 15%'
-  );
-  const [eventCategory, setEventCategory] = useState('macro');
+  // Market News Bulletin Form
+  const [newsHeadline, setNewsHeadline] = useState('');
+  const [newsDescription, setNewsDescription] = useState('');
   const [execTiming, setExecTiming] = useState<'immediate' | 'delay'>('immediate');
-  const [shockAssets, setShockAssets] = useState<{ ticker: string; delta: string; vol: string }[]>([
-    { ticker: 'TATASTEEL', delta: '+3.5%', vol: '1.2x' },
-    { ticker: 'RELIANCE', delta: '-2.0%', vol: '1.5x' },
-    { ticker: 'HDFCBANK', delta: '+1.5%', vol: '1.0x' },
-  ]);
 
   // Asset Table State
   const [assetSearch, setAssetSearch] = useState('');
@@ -1009,48 +1002,36 @@ export default function AdminPage() {
     }
   };
 
-  // Add Asset Row to Shock Matrix
-  const addAssetRow = () => {
-    const available = stocks.find((s) => !shockAssets.some((a) => a.ticker === s.ticker));
-    const nextTicker = available ? available.ticker : (stocks[0]?.ticker || 'TCS');
-    setShockAssets([...shockAssets, { ticker: nextTicker, delta: '+2.0%', vol: '1.0x' }]);
+  // Synthesize positive confirmation audio chime
+  const playSuccessChime = () => {
+    try {
+      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = new AudioCtx();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(587.33, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.15);
+      gain.gain.setValueAtTime(0.2, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.4);
+    } catch {}
   };
 
-  const removeAssetRow = (index: number) => {
-    setShockAssets(shockAssets.filter((_, i) => i !== index));
-  };
-
-  const updateAssetRow = (index: number, field: 'ticker' | 'delta' | 'vol', value: string) => {
-    const updated = [...shockAssets];
-    updated[index] = { ...updated[index], [field]: value };
-    setShockAssets(updated);
-  };
-
-  // Inject Custom Shock
+  // Broadcast Breaking Market News Flash
   const injectCustomShock = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newsHeadline || shockAssets.length === 0) {
-      showToast('Please enter a news headline and at least one asset.');
+    if (!newsHeadline.trim()) {
+      showToast('Please enter a news headline to broadcast.');
       return;
     }
 
     setLoading(true);
-    const impactMap: Record<string, number> = {};
-    shockAssets.forEach((a) => {
-      const numVal = parseFloat(a.delta.replace('%', '').replace('+', '').trim());
-      if (!isNaN(numVal) && a.ticker) {
-        impactMap[a.ticker.toUpperCase()] = numVal;
-      }
-    });
-
     try {
-      const categoryLabels: Record<string, string> = {
-        macro: 'Macro Economic',
-        regulatory: 'Regulatory & RBI',
-        geopolitical: 'Geopolitical Event',
-        corporate: 'Corporate Earnings',
-      };
-
       const res = await fetch('/api/admin/events', {
         method: 'POST',
         headers: {
@@ -1058,19 +1039,21 @@ export default function AdminPage() {
           ...getAuthHeaders(),
         },
         body: JSON.stringify({
-          headline: `[${categoryLabels[eventCategory] || 'Market Shock'}] ${newsHeadline}`,
-          description: `Admin-injected shock (${execTiming === 'immediate' ? 'Immediate Execution' : '30s Lag'}). Volatility parameters updated.`,
-          impactMap,
+          headline: newsHeadline.trim(),
+          description: newsDescription.trim() || undefined,
         }),
       });
 
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Failed to inject shock');
+      if (!res.ok) throw new Error(data.error || 'Failed to broadcast news flash');
 
-      showToast('Market news broadcasted & asset shock applied live.');
+      playSuccessChime();
+      showToast('✓ Breaking news published & broadcast live to all screens!');
+      setNewsHeadline('');
+      setNewsDescription('');
       await fetchAdminData();
     } catch (err: any) {
-      showToast(err.message || 'Shock broadcast failed');
+      showToast(err.message || 'News broadcast failed');
     } finally {
       setLoading(false);
     }
@@ -2370,7 +2353,7 @@ export default function AdminPage() {
 
             {/* UPPER SPLIT SECTION: INJECT SHOCK vs PRESETS */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-              {/* INJECT MARKET NEWS & PRICE SHOCK (7 Cols on desktop) */}
+              {/* INJECT MARKET NEWS & FLASH BULLETIN (7 Cols on desktop) */}
               <section className="lg:col-span-7 bg-surface-container-lowest border border-outline-variant/70 rounded-xl p-4 sm:p-6 shadow-xs flex flex-col justify-between">
                 <div>
                   <div className="flex items-center justify-between pb-4 border-b border-outline-variant/40 mb-4 sm:mb-5 gap-2">
@@ -2380,169 +2363,87 @@ export default function AdminPage() {
                       </div>
                       <div>
                         <h2 className="font-headline font-semibold text-sm sm:text-base text-on-surface">
-                          Inject Market News &amp; Vector Shock
+                          Publish Breaking News &amp; Market Bulletin
                         </h2>
                         <p className="text-[11px] sm:text-xs text-on-surface-variant">
-                          Pushes breaking announcement ticker directly to all participant terminals
+                          Broadcasts an instant flash announcement banner directly across all participant terminals
                         </p>
                       </div>
                     </div>
                     <span className="text-[10px] sm:text-[11px] uppercase tracking-wider font-semibold px-2 py-0.5 rounded bg-surface-container text-on-surface-variant border border-outline-variant/50 shrink-0">
-                      Live Feed
+                      Live Wire
                     </span>
                   </div>
 
                   <form onSubmit={injectCustomShock} className="space-y-4">
                     <div>
                       <label className="block text-[11px] font-semibold uppercase tracking-wider text-on-surface-variant mb-1.5">
-                        News Headline &amp; Flash Bulletin
+                        News Headline / Flash Bulletin <span className="text-red-500">*</span>
                       </label>
                       <textarea
                         value={newsHeadline}
                         onChange={(e) => setNewsHeadline(e.target.value)}
-                        className="w-full text-xs sm:text-sm bg-surface rounded-lg border border-outline-variant/80 p-3 text-on-surface placeholder:text-outline focus:border-primary focus:ring-1 focus:ring-primary outline-none transition resize-none"
-                        rows={2}
-                        placeholder="Type breaking headline broadcast..."
+                        className="w-full text-xs sm:text-sm bg-surface rounded-lg border border-outline-variant/80 p-3 text-on-surface placeholder:text-outline focus:border-primary focus:ring-1 focus:ring-primary outline-none transition resize-none font-medium"
+                        rows={3}
+                        placeholder="e.g. RBI hikes repo rate by 50 bps amid surging inflation pressures..."
+                        required
                       />
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                      <div>
-                        <label className="block text-[11px] font-semibold uppercase tracking-wider text-on-surface-variant mb-1.5">
-                          Category &amp; Event Nature
-                        </label>
-                        <select
-                          value={eventCategory}
-                          onChange={(e) => setEventCategory(e.target.value)}
-                          className="w-full text-xs sm:text-sm bg-surface rounded-lg border border-outline-variant/80 px-3 py-2 text-on-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none"
-                        >
-                          <option value="macro">Macro Economic (High Beta)</option>
-                          <option value="regulatory">Regulatory &amp; RBI Circular</option>
-                          <option value="geopolitical">Geopolitical Event</option>
-                          <option value="corporate">Corporate Earnings Shock</option>
-                        </select>
-                      </div>
-
-                      <div>
-                        <label className="block text-[11px] font-semibold uppercase tracking-wider text-on-surface-variant mb-1.5">
-                          Execution Delay
-                        </label>
-                        <div className="grid grid-cols-2 gap-2">
-                          <button
-                            type="button"
-                            onClick={() => setExecTiming('immediate')}
-                            className={`py-2 px-2 text-xs font-semibold rounded-lg border transition-colors flex items-center justify-center gap-1.5 ${
-                              execTiming === 'immediate'
-                                ? 'border-primary bg-primary/10 text-primary'
-                                : 'border-outline-variant/70 text-on-surface-variant hover:bg-surface-container'
-                            }`}
-                          >
-                            <span className="w-1.5 h-1.5 rounded-full bg-primary"></span> Immediate
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => setExecTiming('delay')}
-                            className={`py-2 px-2 text-xs font-semibold rounded-lg border transition-colors flex items-center justify-center gap-1.5 ${
-                              execTiming === 'delay'
-                                ? 'border-primary bg-primary/10 text-primary'
-                                : 'border-outline-variant/70 text-on-surface-variant hover:bg-surface-container'
-                            }`}
-                          >
-                            30s Delay
-                          </button>
-                        </div>
-                      </div>
+                    <div>
+                      <label className="block text-[11px] font-semibold uppercase tracking-wider text-on-surface-variant mb-1.5">
+                        Detailed Context / Body <span className="text-on-surface-variant/60 font-normal">(Optional)</span>
+                      </label>
+                      <textarea
+                        value={newsDescription}
+                        onChange={(e) => setNewsDescription(e.target.value)}
+                        className="w-full text-xs sm:text-sm bg-surface rounded-lg border border-outline-variant/80 p-3 text-on-surface placeholder:text-outline focus:border-primary focus:ring-1 focus:ring-primary outline-none transition resize-none"
+                        rows={2}
+                        placeholder="Optional background notes, policy details, or sector implications..."
+                      />
                     </div>
 
-                    {/* Affected Equities Vector */}
-                    <div className="pt-2">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-[11px] font-semibold uppercase tracking-wider text-on-surface-variant">
-                          Asset Delta Multipliers
-                        </span>
+                    <div>
+                      <label className="block text-[11px] font-semibold uppercase tracking-wider text-on-surface-variant mb-1.5">
+                        Execution Delay
+                      </label>
+                      <div className="grid grid-cols-2 gap-2 max-w-xs">
                         <button
                           type="button"
-                          onClick={addAssetRow}
-                          className="text-xs font-semibold text-primary hover:text-primary-container flex items-center gap-1 active:scale-95"
+                          onClick={() => setExecTiming('immediate')}
+                          className={`py-2 px-3 text-xs font-semibold rounded-lg border transition-colors flex items-center justify-center gap-1.5 cursor-pointer ${
+                            execTiming === 'immediate'
+                              ? 'border-primary bg-primary/10 text-primary'
+                              : 'border-outline-variant/70 text-on-surface-variant hover:bg-surface-container'
+                          }`}
                         >
-                          <span className="material-symbols-outlined text-[15px]">add_circle</span> Add Asset
+                          <span className="w-1.5 h-1.5 rounded-full bg-primary"></span> Immediate
                         </button>
-                      </div>
-
-                      <div className="space-y-2.5">
-                        {shockAssets.map((asset, idx) => (
-                          <div
-                            key={idx}
-                            className="flex flex-wrap sm:flex-nowrap items-center gap-3 p-2.5 rounded-lg bg-surface-container-low/70 border border-outline-variant/50"
-                          >
-                            <div className="w-full sm:w-44 shrink-0 flex items-center justify-between">
-                              <select
-                                value={asset.ticker}
-                                onChange={(e) => updateAssetRow(idx, 'ticker', e.target.value)}
-                                className="w-full bg-white font-mono font-bold text-xs text-on-surface rounded-md border border-outline-variant/70 py-1.5 px-2 focus:border-primary focus:outline-none cursor-pointer"
-                              >
-                                {stocks.map((s) => (
-                                  <option key={s.id} value={s.ticker}>
-                                    {s.ticker} ({s.sector.split(' ')[0]})
-                                  </option>
-                                ))}
-                              </select>
-                              <button
-                                type="button"
-                                onClick={() => removeAssetRow(idx)}
-                                className="sm:hidden text-on-surface-variant/60 hover:text-error p-1 ml-1"
-                              >
-                                <span className="material-symbols-outlined text-[18px]">close</span>
-                              </button>
-                            </div>
-
-                            <div className="flex items-center gap-1.5 shrink-0">
-                              <span className="text-[11px] text-on-surface-variant whitespace-nowrap">Price Δ</span>
-                              <input
-                                type="text"
-                                value={asset.delta}
-                                onChange={(e) => updateAssetRow(idx, 'delta', e.target.value)}
-                                className={`w-20 bg-white text-xs font-mono font-medium text-right rounded-md border border-outline-variant/70 py-1.5 px-2 focus:border-primary focus:outline-none num-tabular ${
-                                  asset.delta.startsWith('-') ? 'text-error' : 'text-primary'
-                                }`}
-                              />
-                            </div>
-
-                            <div className="flex items-center gap-1.5 shrink-0">
-                              <span className="text-[11px] text-on-surface-variant whitespace-nowrap">Target Vol</span>
-                              <input
-                                type="text"
-                                value={asset.vol}
-                                onChange={(e) => updateAssetRow(idx, 'vol', e.target.value)}
-                                className="w-16 bg-white text-xs font-mono text-on-surface text-center rounded-md border border-outline-variant/70 py-1.5 px-2 focus:border-primary focus:outline-none num-tabular"
-                              />
-                            </div>
-
-                            <button
-                              type="button"
-                              onClick={() => removeAssetRow(idx)}
-                              className="hidden sm:inline-flex text-on-surface-variant/60 hover:text-error p-1 transition-colors shrink-0 ml-auto"
-                              title="Remove asset row"
-                            >
-                              <span className="material-symbols-outlined text-[16px]">close</span>
-                            </button>
-                          </div>
-                        ))}
+                        <button
+                          type="button"
+                          onClick={() => setExecTiming('delay')}
+                          className={`py-2 px-3 text-xs font-semibold rounded-lg border transition-colors flex items-center justify-center gap-1.5 cursor-pointer ${
+                            execTiming === 'delay'
+                              ? 'border-primary bg-primary/10 text-primary'
+                              : 'border-outline-variant/70 text-on-surface-variant hover:bg-surface-container'
+                          }`}
+                        >
+                          30s Delay
+                        </button>
                       </div>
                     </div>
 
                     <div className="pt-4 border-t border-outline-variant/40 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-                      <span className="text-xs text-on-surface-variant text-center sm:text-left">
-                        Order-book slippage estimate:{' '}
-                        <strong className="font-mono font-semibold text-on-surface num-tabular">~1.4%</strong>
+                      <span className="text-xs text-on-surface-variant">
+                        Asset N% impacts can be calibrated in the <strong>Pricing Formulas</strong> desk.
                       </span>
                       <button
                         type="submit"
                         disabled={loading}
-                        className="px-5 py-2.5 rounded-lg bg-primary hover:bg-primary/90 active:scale-98 text-on-primary font-semibold text-xs tracking-wide uppercase transition shadow-xs flex items-center justify-center gap-2 disabled:opacity-50"
+                        className="px-6 py-2.5 rounded-lg bg-primary hover:bg-primary/90 active:scale-98 text-on-primary font-semibold text-xs tracking-wide uppercase transition shadow-xs flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
                       >
-                        <span className="material-symbols-outlined text-[17px]">send</span>
-                        Broadcast &amp; Apply Shock
+                        <span className="material-symbols-outlined text-[17px]">campaign</span>
+                        Broadcast News Flash
                       </button>
                     </div>
                   </form>
