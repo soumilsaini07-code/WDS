@@ -4291,6 +4291,14 @@ export function applyRoundSettlement(
     stock.upper_circuit = Number((item.final_price * 1.10).toFixed(2));
     stock.day_high = Math.max(stock.day_high, item.final_price);
     stock.day_low = Math.min(stock.day_low, item.final_price);
+    if (!stock.historical_prices) {
+      stock.historical_prices = [stock.previous_close];
+    }
+    stock.historical_prices.push(item.final_price);
+    stock.change = Number((stock.current_price - stock.previous_close).toFixed(2));
+    stock.change_percent = stock.previous_close > 0
+      ? Number(((stock.change / stock.previous_close) * 100).toFixed(2))
+      : 0;
   });
 
   // Store in settlements ledger
@@ -4315,6 +4323,15 @@ export function applyRoundSettlement(
   });
 
   saveLocalDB(db);
+
+  // Broadcast updated stock prices to all screens
+  settlements.forEach((item) => {
+    const s = db.stocks.find((x) => x.id === item.stock_id);
+    if (s) {
+      broadcastRealtimeEvent('STOCK_PRICE_UPDATED', s);
+      syncStockToSupabase(s);
+    }
+  });
 
   logger.audit('ROUND_SETTLEMENT_APPLIED', adminEmail || 'Admin', {
     roundId,
@@ -4620,6 +4637,9 @@ export function allotIPOLots(
       beta: 1.25,
       pe_ratio: 24.5,
       market_cap: '₹4.2L Cr',
+      historical_prices: [baseP0, calculatedListingPrice],
+      change: Number((calculatedListingPrice - baseP0).toFixed(2)),
+      change_percent: Number((((calculatedListingPrice - baseP0) / baseP0) * 100).toFixed(2)),
     };
     db.stocks.push(listedStock);
   } else {
@@ -4627,6 +4647,12 @@ export function allotIPOLots(
     listedStock.previous_close = baseP0;
     listedStock.lower_circuit = Number((calculatedListingPrice * 0.90).toFixed(2));
     listedStock.upper_circuit = Number((calculatedListingPrice * 1.10).toFixed(2));
+    if (!listedStock.historical_prices) {
+      listedStock.historical_prices = [baseP0];
+    }
+    listedStock.historical_prices.push(calculatedListingPrice);
+    listedStock.change = Number((calculatedListingPrice - baseP0).toFixed(2));
+    listedStock.change_percent = Number((((calculatedListingPrice - baseP0) / baseP0) * 100).toFixed(2));
   }
 
   // Fair Randomized Lottery Allotment Engine:
