@@ -5,6 +5,7 @@ import {
   subscribeToIPO,
   allotIPOLots,
   createCustomIPO,
+  updateIPOStatus,
   getLocalDB,
 } from '@/lib/db';
 import { pushIpoBidToGoogleSheets } from '@/lib/google-sheets-sync';
@@ -108,6 +109,17 @@ export async function POST(request: Request) {
           });
 
           resolve(NextResponse.json(result, { status: result.success ? 201 : 400 }));
+          return;
+        }
+
+        if (action === 'SET_STATUS') {
+          const { ipo_id, status, reset_bids } = body;
+          if (!ipo_id || !status) {
+            resolve(NextResponse.json({ success: false, error: 'ipo_id and status are required' }, { status: 400 }));
+            return;
+          }
+          const result = updateIPOStatus({ ipo_id, status, reset_bids: Boolean(reset_bids) });
+          resolve(NextResponse.json(result, { status: result.success ? 200 : 400 }));
           return;
         }
 

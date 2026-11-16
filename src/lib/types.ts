@@ -357,7 +357,7 @@ export interface IPOListing {
   total_demanded_lots?: number; // D: Total lots requested by teams
   subscription_ratio?: number;  // S = D / L
   allotted_lots: number;
-  status: 'UPCOMING' | 'SUBSCRIPTION_OPEN' | 'ALLOTTED' | 'LISTED';
+  status: 'UPCOMING' | 'SUBSCRIPTION_OPEN' | 'ALLOTTED' | 'LISTED' | 'CLOSED';
   description: string;
   news_impact_percent?: number;
   news_headline?: string;

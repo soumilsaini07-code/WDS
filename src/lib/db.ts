@@ -3952,7 +3952,7 @@ export function advanceCompetitionRound(targetRoundId?: CompetitionRoundId): {
   // If entering an IPO round, ensure that IPO is marked SUBSCRIPTION_OPEN
   if (nextRound.type === 'IPO' && db.ipo_listings) {
     const ipo = db.ipo_listings.find((item) => item.round_id === nextRound!.id);
-    if (ipo && ipo.status === 'UPCOMING') {
+    if (ipo) {
       ipo.status = 'SUBSCRIPTION_OPEN';
     }
   }
@@ -4385,6 +4385,27 @@ export function getIPOSubscriptions(roundId?: string): IPOSubscription[] {
   const subs = db.ipo_subscriptions || [];
   if (roundId) return subs.filter((s) => s.round_id === roundId);
   return subs;
+}
+
+export function updateIPOStatus(params: {
+  ipo_id: string;
+  status: 'UPCOMING' | 'SUBSCRIPTION_OPEN' | 'ALLOTTED' | 'LISTED' | 'CLOSED';
+  reset_bids?: boolean;
+}): { success: boolean; error?: string; ipo?: IPOListing } {
+  const db = getLocalDB();
+  const ipo = (db.ipo_listings || []).find((i) => i.id === params.ipo_id);
+  if (!ipo) return { success: false, error: 'IPO Listing not found.' };
+
+  ipo.status = params.status;
+  if (params.reset_bids) {
+    db.ipo_subscriptions = (db.ipo_subscriptions || []).filter((s) => s.ipo_id !== params.ipo_id);
+    ipo.allotted_lots = 0;
+    ipo.total_demanded_lots = 0;
+    ipo.subscription_ratio = 0;
+  }
+  saveLocalDB(db);
+  broadcastRealtimeEvent('IPO_STATUS_UPDATED', ipo);
+  return { success: true, ipo };
 }
 
 export function subscribeToIPO(params: {
