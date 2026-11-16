@@ -802,7 +802,9 @@ export default function AdminPage() {
     const interval = setInterval(() => {
       fetchAdminSlips();
       fetchAdminRounds();
-    }, 6000);
+      fetchAdminTeams();
+      fetchAdminData();
+    }, 3000);
     return () => clearInterval(interval);
   }, [fetchAdminData, fetchAdminSlips, fetchAdminTeams, fetchAdminRounds, fetchIPOData]);
 

@@ -1680,12 +1680,14 @@ export default function ParticipantMarketTerminal() {
 
                 {(() => {
                   const history: number[] =
-                    selectedStock.historical_prices && selectedStock.historical_prices.length > 0
+                    selectedStock.historical_prices && selectedStock.historical_prices.length > 1
                       ? selectedStock.historical_prices
                       : [
-                          selectedStock.previous_close * 0.98,
-                          selectedStock.previous_close * 0.99,
-                          selectedStock.previous_close,
+                          selectedStock.previous_close * 0.985,
+                          selectedStock.previous_close * 0.992,
+                          selectedStock.previous_close * 1.008,
+                          selectedStock.previous_close * 0.997,
+                          selectedStock.previous_close * 1.003,
                           selectedStock.current_price,
                         ];
 
@@ -2180,12 +2182,14 @@ export default function ParticipantMarketTerminal() {
       {/* Fullscreen / Deep Dive Expanded Chart Modal */}
       {isChartExpanded && selectedStock && (() => {
         const history: number[] =
-          selectedStock.historical_prices && selectedStock.historical_prices.length > 0
+          selectedStock.historical_prices && selectedStock.historical_prices.length > 1
             ? selectedStock.historical_prices
             : [
-                selectedStock.previous_close * 0.98,
-                selectedStock.previous_close * 0.99,
-                selectedStock.previous_close,
+                selectedStock.previous_close * 0.985,
+                selectedStock.previous_close * 0.992,
+                selectedStock.previous_close * 1.008,
+                selectedStock.previous_close * 0.997,
+                selectedStock.previous_close * 1.003,
                 selectedStock.current_price,
               ];
 

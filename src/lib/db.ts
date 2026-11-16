@@ -3755,15 +3755,14 @@ export async function executeInterTeamTrade(
       t.round_id === currentRoundId
   );
   const dealsCount = roundStockTrades.length;
-  const isEligibleForUpdate = dealsCount >= 3;
 
   let priceUpdated = false;
   let rollingTradesCount = 0;
-  if (isEligibleForUpdate && !isPrimaryPool) {
-    const latest3Trades = roundStockTrades.slice(-3);
-    rollingTradesCount = latest3Trades.length;
-    const totalQ = latest3Trades.reduce((acc, t) => acc + t.quantity, 0);
-    const weightedSum = latest3Trades.reduce((acc, t) => acc + t.quantity * t.price_at_trade, 0);
+  if (!isPrimaryPool && dealsCount >= 1) {
+    const latestTrades = roundStockTrades.slice(-3);
+    rollingTradesCount = latestTrades.length;
+    const totalQ = latestTrades.reduce((acc, t) => acc + t.quantity, 0);
+    const weightedSum = latestTrades.reduce((acc, t) => acc + t.quantity * t.price_at_trade, 0);
     if (totalQ > 0) {
       stock.current_price = Number((weightedSum / totalQ).toFixed(2));
       stock.change = Number((stock.current_price - stock.previous_close).toFixed(2));
@@ -3778,6 +3777,12 @@ export async function executeInterTeamTrade(
       stock.historical_prices.push(stock.current_price);
       priceUpdated = true;
     }
+  } else if (isPrimaryPool) {
+    if (!stock.historical_prices) {
+      stock.historical_prices = [stock.previous_close];
+    }
+    stock.historical_prices.push(stock.current_price);
+    priceUpdated = true;
   }
 
   // 5. Synchronize both teams
