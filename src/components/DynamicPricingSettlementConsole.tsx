@@ -228,7 +228,7 @@ export function DynamicPricingSettlementConsole({
           <div className="flex items-center gap-2">
             <input
               type="number"
-              step="0.05"
+              step="any"
               value={overrideR}
               onChange={(e) => onOverrideRChange(e.target.value)}
               className="w-24 text-right py-2 px-3 rounded-lg bg-white border border-outline-variant/70 text-xs font-mono font-bold"

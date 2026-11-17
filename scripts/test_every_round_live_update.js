@@ -237,28 +237,7 @@ async function run() {
     `NOVATECH graph dynamically updated to ${novaStock3.historical_prices.length} points following floor trade`
   );
 
-  // STEP 6: IPO Round 2 (EcoPower Green Hydrogen)
-  console.log('\n[IPO ROUND 2] Testing Second Primary Market IPO Offering (ECOPOWER)...');
-  await request('/api/admin/rounds', {
-    method: 'POST',
-    body: JSON.stringify({ action: 'ADVANCE', targetRoundId: 'ipo-2' }),
-  });
-
-  const ipoGet2 = await request('/api/ipo');
-  const ecopowerIpo = ipoGet2.data.listings.find(i => i.ticker === 'ECOPOWER');
-  assert(ecopowerIpo && ecopowerIpo.status === 'SUBSCRIPTION_OPEN', 'ECOPOWER IPO subscription opened');
-
-  await request('/api/ipo', {
-    method: 'POST',
-    body: JSON.stringify({ action: 'SUBSCRIBE', ipo_id: ecopowerIpo.id, team_id: 'Zeta Holdings', lots: 5 }),
-  });
-  const allot2 = await request('/api/ipo', {
-    method: 'POST',
-    body: JSON.stringify({ action: 'ALLOT', ipo_id: ecopowerIpo.id }),
-  });
-  assert(allot2.status === 200 && allot2.data.success, `ECOPOWER IPO allotted @ ₹${allot2.data.listingPrice}`);
-
-  // STEP 7: Round 4 & Round 5 (High Beta Floor Trading & Closing Bell)
+  // STEP 6: Round 4 & Round 5 (High Beta Floor Trading & Closing Bell)
   console.log('\n[ROUND 4 & ROUND 5] Testing Final Rounds & Closing Bell Valuation...');
   await request('/api/admin/rounds', {
     method: 'POST',

@@ -449,7 +449,7 @@ export const DEFAULT_COMPETITION_ROUNDS: CompetitionRound[] = [
   {
     id: 'ipo-1',
     index: 3,
-    name: 'IPO Round 1: Tech Unicorn Primary Offering',
+    name: 'IPO Round: Tech Unicorn Primary Offering',
     type: 'IPO',
     status: 'UPCOMING',
     duration_minutes: 10, // ~10 minutes as per brief
@@ -463,22 +463,12 @@ export const DEFAULT_COMPETITION_ROUNDS: CompetitionRound[] = [
     type: 'P2P_TRADING',
     status: 'UPCOMING',
     duration_minutes: 20, // 20 minutes as per brief
-    description: 'Secondary floor trading resumes, now including newly listed IPO 1 stock.',
+    description: 'Secondary floor trading resumes, now including newly listed IPO stock.',
     rules_note: '5% dual brokerage on P2P trades. Quantity-weighted 3-trade rolling price rule active.',
   },
   {
-    id: 'ipo-2',
-    index: 5,
-    name: 'IPO Round 2: Green Energy Conglomerate Offering',
-    type: 'IPO',
-    status: 'UPCOMING',
-    duration_minutes: 10, // ~10 minutes as per brief
-    description: 'Second primary market IPO window. Teams submit lot applications.',
-    rules_note: 'Listing price determined by aggregate subscription ratio S = D / L.',
-  },
-  {
     id: 'round-4',
-    index: 6,
+    index: 5,
     name: 'Round 4: High Beta Floor Trading',
     type: 'P2P_TRADING',
     status: 'UPCOMING',
@@ -488,7 +478,7 @@ export const DEFAULT_COMPETITION_ROUNDS: CompetitionRound[] = [
   },
   {
     id: 'round-5',
-    index: 7,
+    index: 6,
     name: 'Round 5: Final Trading & Closing Bell',
     type: 'P2P_TRADING',
     status: 'UPCOMING',
@@ -516,24 +506,6 @@ export const DEFAULT_IPO_LISTINGS: IPOListing[] = [
     allotted_lots: 0,
     status: 'UPCOMING',
     description: 'Enterprise AI & Cloud Infrastructure provider. Smooth pricing: P_listing = P0 × (0.7 + 0.6S/(1+S)).',
-  },
-  {
-    id: 'ipo-item-2',
-    round_id: 'ipo-2',
-    company_name: 'EcoPower Green Hydrogen Ltd.',
-    ticker: 'ECOPOWER',
-    sector: 'Renewable Energy & ESG',
-    reference_price: 200.00, // P0 reference price
-    issue_price: 200.00,
-    lot_size: 12,            // 12 shares per lot as per brief
-    min_lots: 1,
-    max_lots: 30,
-    total_issue_lots: 120,   // L = 120 lots offered
-    total_demanded_lots: 0,
-    subscription_ratio: 0,
-    allotted_lots: 0,
-    status: 'UPCOMING',
-    description: 'Grid-scale green hydrogen & battery storage pioneer with sovereign power purchase agreements.',
   },
 ];
 

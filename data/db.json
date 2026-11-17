@@ -71,7 +71,7 @@
       "last_name": "mehta",
       "username": "Rohanmehta",
       "role": "participant",
-      "balance": 930919.8,
+      "balance": 1000000,
       "ecoin_balance": 0,
       "created_at": "2026-11-07T16:04:20.691Z",
       "assigned_admin_id": "usr-8ryunba",
@@ -100,7 +100,7 @@
       "email": "alphatra@thapar.edu",
       "role": "participant",
       "username": "Alpha Traders",
-      "balance": 969112.36,
+      "balance": 1000000,
       "ecoin_balance": 0,
       "team_id": "team-71v5u3",
       "team_name": "Alpha Traders",
@@ -114,7 +114,7 @@
       "email": "betacapi@thapar.edu",
       "role": "participant",
       "username": "Beta Capital",
-      "balance": 1027945.96,
+      "balance": 1000000,
       "ecoin_balance": 0,
       "team_id": "team-tumq2n",
       "team_name": "Beta Capital",
@@ -128,7 +128,7 @@
       "email": "gammabul@thapar.edu",
       "role": "participant",
       "username": "Gamma Bulls",
-      "balance": 964000,
+      "balance": 1000000,
       "ecoin_balance": 0,
       "team_id": "team-vc4p4l",
       "team_name": "Gamma Bulls",
@@ -142,7 +142,7 @@
       "email": "deltahed@thapar.edu",
       "role": "participant",
       "username": "Delta Hedge",
-      "balance": 993786.44,
+      "balance": 1000000,
       "ecoin_balance": 0,
       "team_id": "team-pztinz",
       "team_name": "Delta Hedge",
@@ -170,7 +170,7 @@
       "email": "zetahold@thapar.edu",
       "role": "participant",
       "username": "Zeta Holdings",
-      "balance": 985000,
+      "balance": 1000000,
       "ecoin_balance": 0,
       "team_id": "team-7nc14j",
       "team_name": "Zeta Holdings",
@@ -254,7 +254,7 @@
       "email": "centralp@thapar.edu",
       "role": "participant",
       "username": "Central Primary Pool",
-      "balance": 2404041,
+      "balance": 1000000,
       "ecoin_balance": 0,
       "team_id": "team-yfnz05",
       "team_name": "Central Primary Pool",
@@ -313,7 +313,7 @@
       "email": "team17@thapar.edu",
       "role": "participant",
       "username": "team17",
-      "balance": 969112.36,
+      "balance": 1000000,
       "ecoin_balance": 0,
       "team_id": "team-71v5u3",
       "team_name": "Alpha Traders",
@@ -328,7 +328,7 @@
       "email": "team20@thapar.edu",
       "role": "participant",
       "username": "team20",
-      "balance": 969112.36,
+      "balance": 1000000,
       "ecoin_balance": 0,
       "team_id": "team-71v5u3",
       "team_name": "Alpha Traders",
@@ -343,7 +343,7 @@
       "email": "team21@thapar.edu",
       "role": "participant",
       "username": "team21",
-      "balance": 969112.36,
+      "balance": 1000000,
       "ecoin_balance": 0,
       "team_id": "team-71v5u3",
       "team_name": "Alpha Traders",
@@ -358,7 +358,7 @@
       "email": "teambeta@thapar.edu",
       "role": "participant",
       "username": "Team Beta",
-      "balance": 930919.8,
+      "balance": 1000000,
       "ecoin_balance": 0,
       "team_id": "team-apex-01",
       "team_name": "Apex Alpha Syndicate",
@@ -373,7 +373,7 @@
       "email": "teamalph@thapar.edu",
       "role": "participant",
       "username": "Team Alpha",
-      "balance": 930919.8,
+      "balance": 1000000,
       "ecoin_balance": 0,
       "team_id": "team-apex-01",
       "team_name": "Apex Alpha Syndicate",
@@ -388,7 +388,7 @@
       "email": "concurre@thapar.edu",
       "role": "participant",
       "username": "Concurrent Seller 1",
-      "balance": 930919.8,
+      "balance": 1000000,
       "ecoin_balance": 0,
       "team_id": "team-apex-01",
       "team_name": "Apex Alpha Syndicate",
@@ -403,7 +403,7 @@
       "email": "teamhigh@thapar.edu",
       "role": "participant",
       "username": "Team HighRoller R0",
-      "balance": 930919.8,
+      "balance": 1000000,
       "ecoin_balance": 0,
       "team_id": "team-apex-01",
       "team_name": "Apex Alpha Syndicate",
@@ -418,7 +418,7 @@
       "email": "teamunde@thapar.edu",
       "role": "participant",
       "username": "Team Underinvestor R0",
-      "balance": 930919.8,
+      "balance": 1000000,
       "ecoin_balance": 0,
       "team_id": "team-apex-01",
       "team_name": "Apex Alpha Syndicate",
@@ -463,7 +463,7 @@
       "email": "teams@thapar.edu",
       "role": "participant",
       "username": "Team S",
-      "balance": 969112.36,
+      "balance": 1000000,
       "ecoin_balance": 0,
       "team_id": "team-71v5u3",
       "team_name": "Alpha Traders",
@@ -478,28 +478,30 @@
       "email": "team5@thapar.edu",
       "role": "participant",
       "username": "team 5",
-      "balance": 650046,
+      "balance": 1000000,
       "ecoin_balance": 0,
-      "team_id": "team-2b7g73",
-      "team_name": "team 5",
+      "team_id": "team-71v5u3",
+      "team_name": "Alpha Traders",
       "created_at": "2026-11-16T13:29:56.160Z",
       "assigned_admin_id": "usr-8ryunba",
       "assigned_admin_name": "Soumil Saini (Desk Lead)",
-      "group_name": "Group Alpha - Desk 1"
+      "group_name": "Group Alpha - Desk 1",
+      "is_team_leader": false
     },
     {
       "id": "usr-u2jyay",
       "email": "team6@thapar.edu",
       "role": "participant",
       "username": "TEAM 6",
-      "balance": 1060135,
+      "balance": 1000000,
       "ecoin_balance": 0,
-      "team_id": "team-3btgwu",
-      "team_name": "TEAM 6",
+      "team_id": "team-tumq2n",
+      "team_name": "Beta Capital",
       "created_at": "2026-11-16T13:37:43.838Z",
       "assigned_admin_id": "admin-ipr7h",
       "assigned_admin_name": "Vanshaj Jhuntra",
-      "group_name": "Group Beta - Desk 2"
+      "group_name": "Group Beta - Desk 2",
+      "is_team_leader": false
     }
   ],
   "stocks": [
@@ -508,12 +510,12 @@
       "ticker": "ZOMATO",
       "name": "Eternal (Zomato)",
       "sector": "Food tech / Quick Commerce",
-      "current_price": 350,
+      "current_price": 343.65,
       "previous_close": 339.53,
       "day_high": 346.5,
       "day_low": 212.6,
-      "change": 10.47,
-      "change_percent": 3.08,
+      "change": 4.12,
+      "change_percent": 1.21,
       "is_frozen": false,
       "lower_circuit": 309.28,
       "upper_circuit": 378.01,
@@ -526,8 +528,7 @@
         343.92,
         344.2,
         344.06,
-        343.65,
-        350
+        343.65
       ],
       "drifts": {
         "r1": 0.005,
@@ -3079,151 +3080,30 @@
       }
     }
   ],
-  "portfolios": [
-    {
-      "id": "port-apex-rel",
-      "user_id": "usr-9np9imt",
-      "stock_id": "s-reliance",
-      "shares_count": 150,
-      "avg_buy_price": 1164.9,
-      "updated_at": "2026-11-16T19:01:39.896Z"
-    },
-    {
-      "id": "port-titans-infy",
-      "user_id": "usr-40rj0tq",
-      "stock_id": "s-infy",
-      "shares_count": 120,
-      "avg_buy_price": 1185,
-      "updated_at": "2026-11-16T19:01:39.896Z"
-    },
-    {
-      "id": "port-alpha-zomato",
-      "user_id": "usr-lyykeh",
-      "stock_id": "s-zomato",
-      "shares_count": 100,
-      "avg_buy_price": 350,
-      "updated_at": "2026-11-16T19:01:39.896Z"
-    }
-  ],
-  "transactions": [
-    {
-      "id": "tx-init-01-s",
-      "user_id": "usr-9ukdfl",
-      "stock_id": "s-reliance",
-      "type": "SELL",
-      "quantity": 150,
-      "price_at_trade": 1164.9,
-      "gross_amount": 174735,
-      "brokerage": 0,
-      "net_amount": 174735,
-      "round_id": "round-0",
-      "timestamp": "2026-11-16T18:59:39.897Z"
-    },
-    {
-      "id": "tx-init-01-b",
-      "user_id": "usr-9np9imt",
-      "stock_id": "s-reliance",
-      "type": "BUY",
-      "quantity": 150,
-      "price_at_trade": 1164.9,
-      "gross_amount": 174735,
-      "brokerage": 0,
-      "net_amount": 174735,
-      "round_id": "round-0",
-      "timestamp": "2026-11-16T18:59:39.897Z"
-    },
-    {
-      "id": "tx-init-02-s",
-      "user_id": "usr-9ukdfl",
-      "stock_id": "s-infy",
-      "type": "SELL",
-      "quantity": 120,
-      "price_at_trade": 1185,
-      "gross_amount": 142200,
-      "brokerage": 0,
-      "net_amount": 142200,
-      "round_id": "round-0",
-      "timestamp": "2026-11-16T19:00:39.897Z"
-    },
-    {
-      "id": "tx-init-02-b",
-      "user_id": "usr-40rj0tq",
-      "stock_id": "s-infy",
-      "type": "BUY",
-      "quantity": 120,
-      "price_at_trade": 1185,
-      "gross_amount": 142200,
-      "brokerage": 0,
-      "net_amount": 142200,
-      "round_id": "round-0",
-      "timestamp": "2026-11-16T19:00:39.897Z"
-    },
-    {
-      "id": "tx-init-03-s",
-      "user_id": "usr-865cdg",
-      "stock_id": "s-zomato",
-      "type": "SELL",
-      "quantity": 100,
-      "price_at_trade": 350,
-      "gross_amount": 35000,
-      "brokerage": 1750,
-      "net_amount": 33250,
-      "round_id": "round-0",
-      "timestamp": "2026-11-16T19:01:39.897Z"
-    },
-    {
-      "id": "tx-init-03-b",
-      "user_id": "usr-lyykeh",
-      "stock_id": "s-zomato",
-      "type": "BUY",
-      "quantity": 100,
-      "price_at_trade": 350,
-      "gross_amount": 35000,
-      "brokerage": 1750,
-      "net_amount": 36750,
-      "round_id": "round-0",
-      "timestamp": "2026-11-16T19:01:39.897Z"
-    }
-  ],
-  "market_events": [
-    {
-      "id": "evt-8ow4skh",
-      "headline": "Tech Surge: IT & Digital Services Lead Dalal Street Rally",
-      "description": "Official market news flash released by exchange administration.",
-      "impact_map": {
-        "INFY": 4.5
-      },
-      "created_at": "2026-11-16T19:01:28.252Z"
-    }
-  ],
+  "portfolios": [],
+  "transactions": [],
+  "market_events": [],
   "news_articles": [
     {
-      "id": "news-shspvm2",
-      "headline": "BREAKING: Tech Surge: IT & Digital Services Lead Dalal Street Rally",
-      "body": "Official market news flash released by exchange administration.",
-      "sentiment": "BULLISH",
-      "published_at": "2026-11-16T19:01:28.253Z"
-    },
-    {
-      "id": "news-3",
-      "headline": "Foreign Institutional Inflows Cross ₹4,200 Cr in Weekly Trading",
-      "body": "Institutional appetite for Indian banking and auto blue-chips surges following robust quarterly margin disclosures.",
-      "sentiment": "BULLISH",
-      "published_at": "2026-11-16T08:51:11.417Z"
+      "id": "news-1",
+      "headline": "RBI Keeps Repo Rate Constant at 6.50% to Anchor Core Inflation",
+      "body": "The Monetary Policy Committee of the RBI reiterated its focus on withdrawal of accommodation, supporting sustained market stability on Dalal Street.",
+      "sentiment": "NEUTRAL",
+      "published_at": "2026-11-17T01:23:01.055Z"
     },
     {
       "id": "news-2",
       "headline": "Global Crude Oil Eases Near $78/bbl: Relief for Indian Refiners",
       "body": "Crude indices soften amid steady North American output, lowering raw material import pressures for Indian petrochemical and automotive players.",
       "sentiment": "BULLISH",
-      "published_at": "2026-11-16T08:21:11.417Z"
+      "published_at": "2026-11-17T02:23:01.055Z"
     },
     {
-      "id": "news-1",
-      "headline": "RBI Keeps Repo Rate Constant at 6.50% to Anchor Core Inflation",
-      "body": "The Monetary Policy Committee of the RBI reiterated its focus on withdrawal of accommodation, supporting sustained market stability on Dalal Street.",
-      "sentiment": "NEUTRAL",
-      "published_at": "2026-11-16T07:21:11.414Z"
+      "id": "news-3",
+      "headline": "Foreign Institutional Inflows Cross ₹4,200 Cr in Weekly Trading",
+      "body": "Institutional appetite for Indian banking and auto blue-chips surges following robust quarterly margin disclosures.",
+      "sentiment": "BULLISH",
+      "published_at": "2026-11-17T02:53:01.055Z"
     }
   ],
   "quizzes": [
@@ -3479,7 +3359,7 @@
       "leader_id": "usr-9np9imt",
       "leader_name": "Aaryan Verma",
       "leader_email": "1025150050@thapar.edu",
-      "balance": 825265,
+      "balance": 1000000,
       "members": [
         {
           "id": "usr-ntxl19z",
@@ -3533,7 +3413,7 @@
       "leader_id": "usr-40rj0tq",
       "leader_name": "Trader_102203001",
       "leader_email": "102203001@thapar.edu",
-      "balance": 857800,
+      "balance": 1000000,
       "members": [
         {
           "id": "usr-40rj0tq",
@@ -3584,7 +3464,7 @@
       "id": "team-71v5u3",
       "name": "Alpha Traders",
       "code": "ALPHATRA",
-      "balance": 963250,
+      "balance": 1000000,
       "leader_id": "usr-lyykeh",
       "leader_name": "Alpha Traders",
       "leader_email": "alphatra@thapar.edu",
@@ -3623,6 +3503,13 @@
           "email": "teams@thapar.edu",
           "roll": "teams",
           "is_leader": false
+        },
+        {
+          "id": "usr-gf2e3f",
+          "name": "team 5",
+          "email": "team5@thapar.edu",
+          "roll": "team5",
+          "is_leader": false
         }
       ],
       "created_at": "2026-11-11T15:31:27.979Z"
@@ -3642,6 +3529,13 @@
           "email": "betacapi@thapar.edu",
           "roll": "betacapi",
           "is_leader": true
+        },
+        {
+          "id": "usr-u2jyay",
+          "name": "TEAM 6",
+          "email": "team6@thapar.edu",
+          "roll": "team6",
+          "is_leader": false
         }
       ],
       "created_at": "2026-11-11T15:31:27.979Z"
@@ -3783,7 +3677,7 @@
       "id": "team-3ymt9k",
       "name": "Vortex Capital",
       "code": "VORTEXCA",
-      "balance": 1033250,
+      "balance": 1000000,
       "leader_id": "usr-865cdg",
       "leader_name": "Vortex Capital",
       "leader_email": "vortexca@thapar.edu",
@@ -3821,7 +3715,7 @@
       "id": "team-yfnz05",
       "name": "Central Primary Pool",
       "code": "CENTRALP",
-      "balance": 10316935,
+      "balance": 10000000,
       "leader_id": "usr-9ukdfl",
       "leader_name": "Central Primary Pool",
       "leader_email": "centralp@thapar.edu",
@@ -3844,7 +3738,7 @@
       "index": 0,
       "name": "Round 0: Initial Purchase Session",
       "type": "PRIMARY_DESK",
-      "status": "COMPLETED",
+      "status": "ACTIVE",
       "duration_minutes": 30,
       "description": "Initial stock purchase from predetermined universe of ~50 stocks. Unlimited supply from Econ desk.",
       "rules_note": "Mandatory 60% Deployment: Each team must invest at least ₹6,00,000 in this session. Unspent cash carries forward."
@@ -3854,7 +3748,7 @@
       "index": 1,
       "name": "Round 1: Inter-Team Trading",
       "type": "P2P_TRADING",
-      "status": "COMPLETED",
+      "status": "UPCOMING",
       "duration_minutes": 20,
       "description": "First floor trading session. Teams negotiate and execute trades mutually using physical signed trade slips.",
       "rules_note": "Live price uses quantity-weighted average of latest 3 trades. End-of-round cash check: minimum ₹1,00,000 required."
@@ -3864,7 +3758,7 @@
       "index": 2,
       "name": "Round 2: Inter-Team Trading",
       "type": "P2P_TRADING",
-      "status": "COMPLETED",
+      "status": "UPCOMING",
       "duration_minutes": 20,
       "description": "Trading continues under Round 2 opening prices after News 2 and R% adjustments.",
       "rules_note": "Trading via signed trade slips. Binding agreement once signed. End-of-round cash floor: ₹1,00,000."
@@ -3872,9 +3766,9 @@
     {
       "id": "ipo-1",
       "index": 3,
-      "name": "IPO Round 1: Tech Unicorn Primary Offering",
+      "name": "IPO Round: Tech Unicorn Primary Offering",
       "type": "IPO",
-      "status": "COMPLETED",
+      "status": "UPCOMING",
       "duration_minutes": 10,
       "description": "Primary market offering. Teams submit lot demand; smooth listing formula determines post-IPO price.",
       "rules_note": "Smooth Listing Formula: P_listing = P0 × (0.7 + 0.6S/(1+S)). Undersubscribed IPO gives every requesting team 1 lot."
@@ -3884,48 +3778,38 @@
       "index": 4,
       "name": "Round 3: Multi-Sector Expansion & IPO Trading",
       "type": "P2P_TRADING",
-      "status": "COMPLETED",
+      "status": "UPCOMING",
       "duration_minutes": 20,
-      "description": "Secondary floor trading resumes, now including newly listed IPO 1 stock.",
+      "description": "Secondary floor trading resumes, now including newly listed IPO stock.",
       "rules_note": "5% dual brokerage on P2P trades. Quantity-weighted 3-trade rolling price rule active."
     },
     {
-      "id": "ipo-2",
-      "index": 5,
-      "name": "IPO Round 2: Green Energy Conglomerate Offering",
-      "type": "IPO",
-      "status": "COMPLETED",
-      "duration_minutes": 10,
-      "description": "Second primary market IPO window. Teams submit lot applications.",
-      "rules_note": "Listing price determined by aggregate subscription ratio S = D / L."
-    },
-    {
       "id": "round-4",
-      "index": 6,
+      "index": 5,
       "name": "Round 4: High Beta Floor Trading",
       "type": "P2P_TRADING",
-      "status": "COMPLETED",
+      "status": "UPCOMING",
       "duration_minutes": 20,
       "description": "High volatility secondary trading session with breaking news adjustments.",
       "rules_note": "Valid slips received by round cutoff processed after close to establish next price base."
     },
     {
       "id": "round-5",
-      "index": 7,
+      "index": 6,
       "name": "Round 5: Final Trading & Closing Bell",
       "type": "P2P_TRADING",
-      "status": "ACTIVE",
+      "status": "UPCOMING",
       "duration_minutes": 20,
       "description": "Final Dalal Street trading window. Unexecuted slips discarded at close. Closing prices determine final winner.",
       "rules_note": "Final Portfolio Value = Cash + Σ(Holdings × Round 5 Close). Teams below ₹1,00,000 cash face round disqualification."
     }
   ],
-  "current_round_id": "round-5",
+  "current_round_id": "round-0",
   "round_clock": {
-    "remaining_seconds": 1200,
+    "remaining_seconds": 1776,
     "is_paused": false,
     "is_orders_locked": false,
-    "last_tick": 1794855689575
+    "last_tick": 1794885805055
   },
   "ipo_listings": [
     {
@@ -3935,49 +3819,18 @@
       "ticker": "NOVATECH",
       "sector": "Artificial Intelligence & Cloud",
       "reference_price": 300,
-      "issue_price": 234.83,
+      "issue_price": 300,
       "lot_size": 12,
       "min_lots": 1,
       "max_lots": 30,
       "total_issue_lots": 100,
-      "total_demanded_lots": 16,
-      "subscription_ratio": 0.16,
-      "allotted_lots": 16,
-      "status": "ALLOTTED",
-      "description": "Enterprise AI & Cloud Infrastructure provider. Smooth pricing: P_listing = P0 × (0.7 + 0.6S/(1+S)).",
-      "news_impact_percent": 0
-    },
-    {
-      "id": "ipo-item-2",
-      "round_id": "ipo-2",
-      "company_name": "EcoPower Green Hydrogen Ltd.",
-      "ticker": "ECOPOWER",
-      "sector": "Renewable Energy & ESG",
-      "reference_price": 200,
-      "issue_price": 144.62,
-      "lot_size": 15,
-      "min_lots": 1,
-      "max_lots": 25,
-      "total_issue_lots": 120,
-      "total_demanded_lots": 5,
-      "subscription_ratio": 0.04,
-      "allotted_lots": 5,
-      "status": "ALLOTTED",
-      "description": "Commercial green hydrogen & battery storage pioneer. High ESG compliance with national subsidies.",
-      "news_impact_percent": 0
+      "total_demanded_lots": 0,
+      "subscription_ratio": 0,
+      "allotted_lots": 0,
+      "status": "UPCOMING",
+      "description": "Enterprise AI & Cloud Infrastructure provider. Smooth pricing: P_listing = P0 × (0.7 + 0.6S/(1+S))."
     }
   ],
   "ipo_subscriptions": [],
-  "round_settlements": {},
-  "latest_trade": {
-    "id": "trade-1794855699897",
-    "seller_team": "Vortex Capital",
-    "buyer_team": "Alpha Traders",
-    "ticker": "ZOMATO",
-    "stock_name": "Eternal (Zomato)",
-    "quantity": 100,
-    "price": 350,
-    "total_amount": 35000,
-    "timestamp": 1794855699897
-  }
+  "round_settlements": {}
 }

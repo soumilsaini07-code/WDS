@@ -283,7 +283,6 @@ export type CompetitionRoundId =
   | 'round-2'
   | 'ipo-1'
   | 'round-3'
-  | 'ipo-2'
   | 'round-4'
   | 'round-5';
 
@@ -344,7 +343,7 @@ export interface RoundSettlementState {
 
 export interface IPOListing {
   id: string;
-  round_id: 'ipo-1' | 'ipo-2';
+  round_id: 'ipo-1';
   company_name: string;
   ticker: string;
   sector: string;
@@ -366,7 +365,7 @@ export interface IPOListing {
 export interface IPOSubscription {
   id: string;
   ipo_id: string;
-  round_id: 'ipo-1' | 'ipo-2';
+  round_id: 'ipo-1';
   team_id: string;
   team_name: string;
   user_id: string;

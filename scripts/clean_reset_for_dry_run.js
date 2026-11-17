@@ -39,17 +39,35 @@ for (let i = 0; i < Math.min(78, db.stocks.length); i++) {
   const low = typeof row['52 Week low'] === 'number' ? Number(row['52 Week low'].toFixed(2)) : Number((basePrice * 0.9).toFixed(2));
   const sector = (row['Sector'] || stock.sector || 'Equities').trim();
 
+  // Pseudo-random deterministic hash based on ticker characters for natural pre-market variance
+  const hash = stock.ticker.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0);
+  const trendSign = hash % 2 === 0 ? 1 : -1;
+  const variancePct = 0.008 + ((hash % 10) * 0.001); // 0.8% - 1.7% variance
+
+  const p0 = Number((basePrice * (1 - trendSign * variancePct)).toFixed(2));
+  const p1 = Number((basePrice * (1 - trendSign * variancePct * 0.6 + (hash % 3) * 0.002)).toFixed(2));
+  const p2 = Number((basePrice * (1 + trendSign * variancePct * 0.4 - (hash % 4) * 0.002)).toFixed(2));
+  const p3 = Number((basePrice * (1 - trendSign * variancePct * 0.2 + (hash % 5) * 0.001)).toFixed(2));
+  const p4 = Number((basePrice * (1 + trendSign * variancePct * 0.1)).toFixed(2));
+  const p5 = basePrice;
+
+  const history = [p0, p1, p2, p3, p4, p5];
+  const minPrice = Math.min(...history);
+  const maxPrice = Math.max(...history);
+  const change = Number((basePrice - p0).toFixed(2));
+  const changePercent = Number(((change / p0) * 100).toFixed(2));
+
   cleanStocks.push({
     ...stock,
     current_price: basePrice,
-    previous_close: basePrice,
-    day_high: basePrice,
-    day_low: basePrice,
+    previous_close: p0,
+    day_high: Math.max(maxPrice, typeof row['52 Week high'] === 'number' ? row['52 Week high'] : basePrice),
+    day_low: Math.min(minPrice, typeof row['52 Week low'] === 'number' ? row['52 Week low'] : basePrice),
     lower_circuit: Number((basePrice * 0.90).toFixed(2)),
     upper_circuit: Number((basePrice * 1.10).toFixed(2)),
-    historical_prices: [basePrice],
-    change: 0,
-    change_percent: 0,
+    historical_prices: history,
+    change,
+    change_percent: changePercent,
     is_frozen: false,
     sector,
   });
@@ -92,7 +110,7 @@ const cleanRounds = [
   {
     id: 'ipo-1',
     index: 3,
-    name: 'IPO Round 1: Tech Unicorn Primary Offering',
+    name: 'IPO Round: Tech Unicorn Primary Offering',
     type: 'IPO',
     status: 'UPCOMING',
     duration_minutes: 10,
@@ -106,22 +124,12 @@ const cleanRounds = [
     type: 'P2P_TRADING',
     status: 'UPCOMING',
     duration_minutes: 20,
-    description: 'Secondary floor trading resumes, now including newly listed IPO 1 stock.',
+    description: 'Secondary floor trading resumes, now including newly listed IPO stock.',
     rules_note: '5% dual brokerage on P2P trades. Quantity-weighted 3-trade rolling price rule active.',
   },
   {
-    id: 'ipo-2',
-    index: 5,
-    name: 'IPO Round 2: Green Energy Conglomerate Offering',
-    type: 'IPO',
-    status: 'UPCOMING',
-    duration_minutes: 10,
-    description: 'Second primary market IPO window. Teams submit lot applications.',
-    rules_note: 'Listing price determined by aggregate subscription ratio S = D / L.',
-  },
-  {
     id: 'round-4',
-    index: 6,
+    index: 5,
     name: 'Round 4: High Beta Floor Trading',
     type: 'P2P_TRADING',
     status: 'UPCOMING',
@@ -131,7 +139,7 @@ const cleanRounds = [
   },
   {
     id: 'round-5',
-    index: 7,
+    index: 6,
     name: 'Round 5: Final Trading & Closing Bell',
     type: 'P2P_TRADING',
     status: 'UPCOMING',
@@ -168,24 +176,6 @@ const cleanIpoListings = [
     allotted_lots: 0,
     status: 'UPCOMING',
     description: 'Enterprise AI & Cloud Infrastructure provider. Smooth pricing: P_listing = P0 × (0.7 + 0.6S/(1+S)).',
-  },
-  {
-    id: 'ipo-item-2',
-    round_id: 'ipo-2',
-    company_name: 'EcoPower Green Hydrogen Ltd.',
-    ticker: 'ECOPOWER',
-    sector: 'Renewable Energy & ESG',
-    reference_price: 200.00,
-    issue_price: 200.00,
-    lot_size: 15,
-    min_lots: 1,
-    max_lots: 25,
-    total_issue_lots: 120,
-    total_demanded_lots: 0,
-    subscription_ratio: 0,
-    allotted_lots: 0,
-    status: 'UPCOMING',
-    description: 'Commercial green hydrogen & battery storage pioneer. High ESG compliance with national subsidies.',
   },
 ];
 

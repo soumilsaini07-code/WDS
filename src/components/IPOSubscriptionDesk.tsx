@@ -793,7 +793,7 @@ Shares have been credited directly to portfolios. Trading for ${ipo.ticker} is n
                   </label>
                   <input
                     type="number"
-                    step="0.05"
+                    step="any"
                     required
                     placeholder="390.00"
                     value={issuePrice}
