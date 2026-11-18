@@ -75,6 +75,18 @@ function playNewsAlertChime() {
         .play()
         .then(() => {
           audioPlayed = true;
+          // Auto-stop after exactly 10 seconds with smooth fade out
+          setTimeout(() => {
+            const fadeInterval = setInterval(() => {
+              if (audio.volume > 0.1) {
+                audio.volume = Math.max(0, audio.volume - 0.1);
+              } else {
+                clearInterval(fadeInterval);
+                audio.pause();
+                audio.currentTime = 0;
+              }
+            }, 80);
+          }, 9200); // 9.2s full volume + 0.8s fade = 10s total
         })
         .catch(() => {
           tryPlayFile(index + 1);
