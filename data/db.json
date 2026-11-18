@@ -2645,25 +2645,25 @@
   "market_events": [],
   "news_articles": [
     {
-      "id": "news-3",
-      "headline": "Foreign Institutional Inflows Cross ₹4,200 Cr in Weekly Trading",
-      "body": "Institutional appetite for Indian banking and auto blue-chips surges following robust quarterly margin disclosures.",
-      "sentiment": "BULLISH",
-      "published_at": "2026-11-18T13:25:56.463Z"
+      "id": "news-1",
+      "headline": "RBI Keeps Repo Rate Constant at 6.50% to Anchor Core Inflation",
+      "body": "The Monetary Policy Committee of the RBI reiterated its focus on withdrawal of accommodation, supporting sustained market stability on Dalal Street.",
+      "sentiment": "NEUTRAL",
+      "published_at": "2026-11-18T12:11:51.056Z"
     },
     {
       "id": "news-2",
       "headline": "Global Crude Oil Eases Near $78/bbl: Relief for Indian Refiners",
       "body": "Crude indices soften amid steady North American output, lowering raw material import pressures for Indian petrochemical and automotive players.",
       "sentiment": "BULLISH",
-      "published_at": "2026-11-18T12:55:56.463Z"
+      "published_at": "2026-11-18T13:11:51.056Z"
     },
     {
-      "id": "news-1",
-      "headline": "RBI Keeps Repo Rate Constant at 6.50% to Anchor Core Inflation",
-      "body": "The Monetary Policy Committee of the RBI reiterated its focus on withdrawal of accommodation, supporting sustained market stability on Dalal Street.",
-      "sentiment": "NEUTRAL",
-      "published_at": "2026-11-18T11:55:56.463Z"
+      "id": "news-3",
+      "headline": "Foreign Institutional Inflows Cross ₹4,200 Cr in Weekly Trading",
+      "body": "Institutional appetite for Indian banking and auto blue-chips surges following robust quarterly margin disclosures.",
+      "sentiment": "BULLISH",
+      "published_at": "2026-11-18T13:41:51.056Z"
     }
   ],
   "quizzes": [
@@ -2997,10 +2997,10 @@
   ],
   "current_round_id": "round-0",
   "round_clock": {
-    "remaining_seconds": 1791,
-    "is_paused": true,
+    "remaining_seconds": 1800,
+    "is_paused": false,
     "is_orders_locked": false,
-    "last_tick": 1795010165805
+    "last_tick": 1795011111056
   },
   "ipo_listings": [
     {

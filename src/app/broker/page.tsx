@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { supabaseClient } from '@/lib/supabase-client';
+import { TradeBroadcastBanner } from '@/components/TradeBroadcastBanner';
 import {
   BrokerLedgerSnapshot,
   INITIAL_PURSE_PER_TEAM,
@@ -459,6 +460,9 @@ export default function EditorialBrokerDeskPage() {
           </a>
         </div>
       </header>
+
+      {/* 10-Second Real-Time Trade Broadcast Banner */}
+      <TradeBroadcastBanner />
 
       {/* ========================================================================= */}
       {/* 3. HERO TYPOGRAPHY: EDITORIAL HEADLINE WITH EXTREME WEIGHT */}

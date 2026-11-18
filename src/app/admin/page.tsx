@@ -17,6 +17,7 @@ import { MasterRoundControlBar } from '@/components/MasterRoundControlBar';
 import { DynamicPricingSettlementConsole } from '@/components/DynamicPricingSettlementConsole';
 import { IPOSubscriptionDesk } from '@/components/IPOSubscriptionDesk';
 import { supabaseClient } from '@/lib/supabase-client';
+import { TradeBroadcastBanner } from '@/components/TradeBroadcastBanner';
 
 export default function AdminPage() {
   const router = useRouter();
@@ -1610,6 +1611,9 @@ export default function AdminPage() {
 
       {/* MAIN CONTENT CONTAINER */}
       <main className="flex-1 max-w-[1536px] w-full mx-auto p-3 sm:p-6 lg:p-8 flex flex-col gap-5 sm:gap-6 lg:gap-8 overflow-x-hidden">
+        {/* 10-Second Floor Telemetry Trade Broadcast Banner */}
+        <TradeBroadcastBanner />
+
         {/* ===================================================================== */}
         {/* DYNAMIC 4-BRANCH PRICING SETTLEMENT ENGINE TAB */}
         {/* ===================================================================== */}

@@ -2119,6 +2119,7 @@ export async function executeTrade(
   };
 
   saveLocalDB(db);
+  broadcastRealtimeEvent('TRADE_EXECUTED', (db as any).latest_trade);
 
   return { success: true, transaction: { ...tx, stock } };
 }
@@ -3249,10 +3250,11 @@ export async function adminExecuteOrderSlip(
   }
 
   // Record Latest Broadcast Trade for Floor Telemetry (10s banner on all participant screens)
+  const effectiveOrderType = slip.order_type || slip.type;
   (db as any).latest_trade = {
     id: 'trade-' + Date.now(),
-    seller_team: slip.order_type === 'SELL' ? slip.team_name : 'Central Primary Pool',
-    buyer_team: slip.order_type === 'BUY' ? slip.team_name : 'Central Primary Pool',
+    seller_team: effectiveOrderType === 'SELL' ? slip.team_name : 'Central Primary Pool',
+    buyer_team: effectiveOrderType === 'BUY' ? slip.team_name : 'Central Primary Pool',
     ticker: slip.ticker,
     stock_name: slip.stock_name,
     quantity: slip.quantity,
@@ -3781,25 +3783,23 @@ export async function executeInterTeamTrade(
     fs.appendFileSync(CSV_FILE, buyerRow, 'utf8');
   } catch {}
 
-  // 7. Record Latest Broadcast Trade for Floor Telemetry (Only for secondary market trading, not Round 0)
-  if (!isRound0) {
-    (db as any).latest_trade = {
-      id: 'trade-' + Date.now(),
-      seller_team: sellerTeam.name,
-      buyer_team: buyerTeam.name,
-      ticker: stock.ticker,
-      stock_name: stock.name,
-      quantity,
-      price: effectivePrice,
-      total_amount: grossDealValue,
-      timestamp: Date.now(),
-    };
-  }
+  // 7. Record Latest Broadcast Trade for Floor Telemetry (Visible across all screens and rounds)
+  (db as any).latest_trade = {
+    id: 'trade-' + Date.now(),
+    seller_team: sellerTeam.name,
+    buyer_team: buyerTeam.name,
+    ticker: stock.ticker,
+    stock_name: stock.name,
+    quantity,
+    price: effectivePrice,
+    total_amount: grossDealValue,
+    timestamp: Date.now(),
+  };
 
   saveLocalDB(db);
 
   // Supabase Realtime Telemetry & Cloud Synchronization
-  if (!isRound0 && (db as any).latest_trade) {
+  if ((db as any).latest_trade) {
     broadcastRealtimeEvent('TRADE_EXECUTED', (db as any).latest_trade);
   }
   if (priceUpdated) {

@@ -340,13 +340,19 @@ export default function ParticipantMarketTerminal() {
         if (tradeRes?.latestTrade) {
           const trade = tradeRes.latestTrade as LatestTrade;
           if (trade.id && lastTradeIdRef.current !== trade.id) {
-            lastTradeIdRef.current = trade.id;
-            setLatestTrade(trade);
-            tradeExpireAtRef.current = Date.now() + 10000;
-            setTradeBannerMsRemaining(10000);
+            const ageMs = Date.now() - (trade.timestamp || 0);
+            if (ageMs < 30000) {
+              lastTradeIdRef.current = trade.id;
+              setLatestTrade(trade);
+              const remaining = Math.max(3000, 10000 - Math.max(0, ageMs));
+              tradeExpireAtRef.current = Date.now() + remaining;
+              setTradeBannerMsRemaining(remaining);
 
-            if (soundEnabled) {
-              playTradeBell();
+              if (soundEnabled) {
+                playTradeBell();
+              }
+            } else {
+              lastTradeIdRef.current = trade.id;
             }
           }
         }
