@@ -1047,11 +1047,13 @@ export default function EditorialBrokerDeskPage() {
             {/* Datalist */}
             <datalist id="editorial-team-list">
               <option value="Central Primary Pool">🏛️ Central Primary Pool (Round 0 Unlimited Issuance)</option>
-              {(snapshot?.teamsPurse || []).map((t) => (
-                <option key={t.teamId} value={t.teamName}>
-                  {t.teamCode} — Cash: ₹{t.currentCash.toLocaleString('en-IN', { maximumFractionDigits: 0 })}
-                </option>
-              ))}
+              {(snapshot?.teamsPurse || [])
+                .filter((t) => t.teamName !== 'Central Primary Pool')
+                .map((t) => (
+                  <option key={t.teamId} value={t.teamName}>
+                    {t.teamCode} — Cash: ₹{t.currentCash.toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+                  </option>
+                ))}
             </datalist>
 
             {/* EDITORIAL VOUCHER BREAKDOWN STRIP */}

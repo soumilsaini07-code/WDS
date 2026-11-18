@@ -1295,7 +1295,7 @@ export function getLocalDB(): LocalDBState {
   }
 }
 
-function saveLocalDB(data: LocalDBState) {
+export function saveLocalDB(data: LocalDBState) {
   // Update in-memory reference immediately (0ms reads for all incoming requests)
   _memoryDB = data;
   rebuildIndexes(data);

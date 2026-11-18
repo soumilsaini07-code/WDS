@@ -186,58 +186,32 @@ const cleanNews = [
 ];
 
 // 6. Clean Teams & Reset Balances to Starting Purse
-console.log('[5/7] Pruning test teams (including TEAM 1, 2, 4, 11) and resetting participant purses to ₹10,00,000...');
-const OFFICIAL_COHORT_TEAMS = [
-  'Apex Alpha Syndicate',
-  'Dalal Street Titans',
-  'Alpha Traders',
-  'Beta Capital',
-  'Gamma Bulls',
-  'Delta Hedge',
-  'Epsilon Syndicate',
-  'Zeta Holdings',
-  'Omega Quant',
-  'Sigma Assets',
-  'Theta Fund',
-  'Vortex Capital',
-  'Zenith Securities',
-  'Central Primary Pool',
-];
-
+console.log('[5/7] Clearing all old participant teams for fresh dry run cohort...');
 const cleanTeams = (db.teams || [])
-  .filter((t) => OFFICIAL_COHORT_TEAMS.includes(t.name))
-  .map((t) => {
-    const isPool = t.name.toLowerCase().includes('primary pool');
-    return {
-      ...t,
-      balance: isPool ? 10000000 : 1000000, // ₹1 Cr for Primary pool, ₹10L starting purse for teams
-    };
+  .filter((t) => t.name === 'Central Primary Pool' || t.name.toLowerCase().includes('primary pool'))
+  .map((t) => ({
+    ...t,
+    balance: 10000000, // ₹1 Cr for Central Primary Pool
+  }));
+
+if (cleanTeams.length === 0) {
+  cleanTeams.push({
+    id: 'team-primary-pool',
+    name: 'Central Primary Pool',
+    code: 'CENTRALP',
+    leader_id: 'usr-primary-pool',
+    leader_name: 'Central Primary Pool',
+    leader_email: 'centralp@thapar.edu',
+    balance: 10000000,
+    members: [],
+    created_at: new Date().toISOString(),
   });
-console.log(`  ✓ Retained exactly ${cleanTeams.length} official student cohort teams with reset ₹10,00,000 budget`);
+}
+console.log(`  ✓ Retained Central Primary Pool (0 participant teams - ready for fresh teams)`);
 
-// Retain only official team IDs and admin users
-const validTeamIds = new Set(cleanTeams.map((t) => t.id));
-const validTeamNames = new Set(cleanTeams.map((t) => t.name.toLowerCase()));
-
-// Reset student users cash balance to ₹10,00,000, and remove test users entered yesterday night
+// Retain only admin/superadmin users
 const cleanUsers = (db.users || [])
-  .filter((u) => {
-    if (u.role === 'admin' || u.role === 'superadmin') return true;
-    if (u.team_id && validTeamIds.has(u.team_id)) return true;
-    if (u.team_name && validTeamNames.has(u.team_name.toLowerCase())) return true;
-    return false;
-  })
-  .map((u) => {
-    if (u.role === 'participant') {
-      const isPool = u.team_name?.toLowerCase().includes('primary pool') || u.username?.toLowerCase().includes('primary pool');
-      return {
-        ...u,
-        balance: isPool ? 10000000 : 1000000,
-        ecoin_balance: 0,
-      };
-    }
-    return u;
-  });
+  .filter((u) => u.role === 'admin' || u.role === 'superadmin');
 console.log(`  ✓ Retained ${cleanUsers.length} clean users (removed ad-hoc test accounts)`);
 
 // 7. Clear all portfolios, transactions, order slips, settlements, and trade banners

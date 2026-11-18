@@ -79,6 +79,13 @@ export default function AdminPage() {
   const [verifyPassword, setVerifyPassword] = useState('');
   const [verifyLoading, setVerifyLoading] = useState(false);
 
+  // Create Team Modal State
+  const [isCreateTeamOpen, setIsCreateTeamOpen] = useState(false);
+  const [newTeamName, setNewTeamName] = useState('');
+  const [newTeamCode, setNewTeamCode] = useState('');
+  const [newTeamLeader, setNewTeamLeader] = useState('');
+  const [isCreatingTeam, setIsCreatingTeam] = useState(false);
+
   // Trading Desk Assisted Execution State
   const [selectedStudentId, setSelectedStudentId] = useState<string>('');
   const [studentSearch, setStudentSearch] = useState('');
@@ -504,6 +511,41 @@ export default function AdminPage() {
       showToast(err.message || 'Verification error');
     } finally {
       setVerifyLoading(false);
+    }
+  };
+
+  const handleCreateNewTeam = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newTeamName.trim()) {
+      showToast('Team name is required.');
+      return;
+    }
+    setIsCreatingTeam(true);
+    try {
+      const res = await fetch('/api/admin/teams/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+        body: JSON.stringify({
+          name: newTeamName.trim(),
+          code: newTeamCode.trim() || undefined,
+          leaderName: newTeamLeader.trim() || undefined,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        showToast(data.error || 'Failed to create team.');
+        return;
+      }
+      showToast(data.message || 'Team created successfully!');
+      setNewTeamName('');
+      setNewTeamCode('');
+      setNewTeamLeader('');
+      setIsCreateTeamOpen(false);
+      await fetchAdminTeams();
+    } catch (err: any) {
+      showToast(err.message || 'Network error creating team.');
+    } finally {
+      setIsCreatingTeam(false);
     }
   };
 
@@ -1630,6 +1672,15 @@ export default function AdminPage() {
               </div>
 
               <div className="flex items-center gap-2.5 flex-wrap">
+                <button
+                  type="button"
+                  onClick={() => setIsCreateTeamOpen(true)}
+                  className="px-3.5 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-sm cursor-pointer"
+                  title="Create and register a new team for the dry run"
+                >
+                  <span className="material-symbols-outlined text-[16px]">add_circle</span>
+                  <span>+ Add New Team</span>
+                </button>
                 <button
                   type="button"
                   onClick={() => handleModifyBudget('ALL', 'RESET_ALL_10L')}
@@ -3212,6 +3263,103 @@ export default function AdminPage() {
             <span className="material-symbols-outlined text-[16px]">info</span>
           </div>
           <span className="font-semibold">{toastMessage}</span>
+        </div>
+      )}
+
+      {/* CREATE NEW TEAM MODAL */}
+      {isCreateTeamOpen && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <form
+            onSubmit={handleCreateNewTeam}
+            className="bg-white w-full max-w-md rounded-2xl border border-outline-variant/70 shadow-2xl overflow-hidden animate-in fade-in zoom-in-95"
+          >
+            <div className="p-5 bg-gradient-to-r from-emerald-700 to-teal-800 text-white flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <span className="material-symbols-outlined text-[24px]">group_add</span>
+                <div>
+                  <h3 className="font-bold text-sm">Add New Team</h3>
+                  <p className="text-[11px] text-white/80">Register a team with ₹10 Lakhs purse</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsCreateTeamOpen(false)}
+                className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition cursor-pointer"
+              >
+                <span className="material-symbols-outlined text-[18px]">close</span>
+              </button>
+            </div>
+
+            <div className="p-5 space-y-4 text-xs">
+              <div>
+                <label className="block text-[11px] font-bold text-gray-700 uppercase tracking-wider mb-1">
+                  Team Name <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Dalal Bullies, Alpha 01, Falcon Squad"
+                  value={newTeamName}
+                  onChange={(e) => setNewTeamName(e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 font-medium text-black bg-white"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-bold text-gray-700 uppercase tracking-wider mb-1">
+                  Team Code (Optional)
+                </label>
+                <input
+                  type="text"
+                  placeholder="Auto-generated if blank (e.g. DALAL01)"
+                  value={newTeamCode}
+                  onChange={(e) => setNewTeamCode(e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 font-mono text-black bg-white uppercase"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-bold text-gray-700 uppercase tracking-wider mb-1">
+                  Leader Name (Optional)
+                </label>
+                <input
+                  type="text"
+                  placeholder="Defaults to Team Name"
+                  value={newTeamLeader}
+                  onChange={(e) => setNewTeamLeader(e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 font-medium text-black bg-white"
+                />
+              </div>
+
+              <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-[11px]">
+                <span className="font-bold">Starting Purse:</span> ₹10,00,000 (10 Lakhs) will be automatically credited to this team upon creation.
+              </div>
+            </div>
+
+            <div className="p-4 bg-gray-50 border-t border-gray-200 flex gap-2.5">
+              <button
+                type="button"
+                onClick={() => setIsCreateTeamOpen(false)}
+                className="flex-1 py-2.5 px-3 rounded-xl border border-gray-300 text-xs font-bold text-gray-700 hover:bg-gray-100 transition cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={isCreatingTeam}
+                className="flex-1 py-2.5 px-3 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-xs font-bold text-white transition flex items-center justify-center gap-1.5 shadow-sm cursor-pointer disabled:opacity-50"
+              >
+                {isCreatingTeam ? (
+                  <span>Creating...</span>
+                ) : (
+                  <>
+                    <span className="material-symbols-outlined text-[16px]">check</span>
+                    <span>Create Team</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </form>
         </div>
       )}
 
