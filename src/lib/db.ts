@@ -3625,18 +3625,46 @@ export async function executeInterTeamTrade(
   const totalSellerCredit = Number((grossDealValue - sellerBrokerage).toFixed(2));
   const totalEconCommission = Number((buyerBrokerage + sellerBrokerage).toFixed(2));
 
-  // Ensure buyer has sufficient cash so live event isn't blocked by website wallet balance
-  if (buyerLeader.balance < totalBuyerDebit + 100000) {
-    buyerLeader.balance = totalBuyerDebit + 250000;
+  const currentRoundId = db.current_round_id || 'round-0';
+
+  // 1. Strict cash balance verification: Buyer must possess sufficient cash to cover the trade
+  const buyerAvailableCash = Number((buyerLeader.balance ?? buyerTeam.balance ?? 0).toFixed(2));
+  if (buyerAvailableCash < totalBuyerDebit) {
+    return {
+      success: false,
+      error: `INSUFFICIENT FUNDS // ${buyerTeam.name} has only ₹${buyerAvailableCash.toLocaleString('en-IN')} available cash. Deal consideration requires ₹${totalBuyerDebit.toLocaleString('en-IN')}. Cannot execute trade beyond available purse.`,
+    };
   }
-  const buyerCash = buyerLeader.balance;
-  const resultingBuyerCash = Number((buyerCash - totalBuyerDebit).toFixed(2));
+
+  // 2. Strict Round 0 Budget Cap: No team can spend more than ₹10,00,000 in Round 0
+  if (currentRoundId === 'round-0') {
+    const priorRound0Spent = db.transactions
+      .filter(
+        (t) =>
+          t.type === 'BUY' &&
+          t.round_id === 'round-0' &&
+          (t.user_id === buyerLeader.id || t.user_id === buyerTeam.leader_id)
+      )
+      .reduce((acc, t) => acc + (t.gross_amount ?? (t.quantity * (t.price_at_trade || 0))), 0);
+
+    const maxRound0Limit = 1000000; // ₹10,00,000 (10 Lakhs max purse)
+    if (Number((priorRound0Spent + grossDealValue).toFixed(2)) > maxRound0Limit) {
+      const remainingAllowance = Math.max(0, maxRound0Limit - priorRound0Spent);
+      return {
+        success: false,
+        error: `EXCEEDS ROUND 0 PURSE LIMIT // ${buyerTeam.name} has already deployed ₹${priorRound0Spent.toLocaleString('en-IN')} in Round 0. Maximum allowed purse is ₹10,00,000 (Remaining budget: ₹${remainingAllowance.toLocaleString('en-IN')}). New order of ₹${grossDealValue.toLocaleString('en-IN')} exceeds this limit.`,
+      };
+    }
+  }
+
+  const resultingBuyerCash = Number((buyerAvailableCash - totalBuyerDebit).toFixed(2));
 
   // Execute transfer:
   // 1. Seller side
   sellerPort.shares_count -= quantity;
   sellerPort.updated_at = new Date().toISOString();
   sellerLeader.balance = Number((sellerLeader.balance + totalSellerCredit).toFixed(2));
+  sellerTeam.balance = sellerLeader.balance;
 
   // 2. Buyer side
   let buyerPort = db.portfolios.find((p) => p.user_id === buyerLeader.id && p.stock_id === stock.id);
@@ -3660,9 +3688,9 @@ export async function executeInterTeamTrade(
     buyerPort.updated_at = new Date().toISOString();
   }
   buyerLeader.balance = resultingBuyerCash;
+  buyerTeam.balance = resultingBuyerCash;
 
   // 3. Transactions logging
-  const currentRoundId = db.current_round_id || 'round-1';
   const txTime = new Date().toISOString();
   const sellTx: Transaction = {
     id: 'tx-' + Math.random().toString(36).substring(2, 9),

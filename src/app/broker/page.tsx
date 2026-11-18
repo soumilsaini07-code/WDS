@@ -34,6 +34,11 @@ export default function EditorialBrokerDeskPage() {
   const [agreedPrice, setAgreedPrice] = useState<string>('');
   const [allowCircuitBypass, setAllowCircuitBypass] = useState<boolean>(false);
 
+  // Stock Search & Combobox State
+  const [stockSearchQuery, setStockSearchQuery] = useState<string>('');
+  const [isStockDropdownOpen, setIsStockDropdownOpen] = useState<boolean>(false);
+  const stockComboboxRef = useRef<HTMLDivElement>(null);
+
   // Search
   const [teamSearch, setTeamSearch] = useState<string>('');
   const [ledgerSearch, setLedgerSearch] = useState<string>('');
@@ -132,6 +137,34 @@ export default function EditorialBrokerDeskPage() {
     if (stock) {
       setAgreedPrice(String(stock.current_price));
     }
+  };
+
+  // Close stock search dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (stockComboboxRef.current && !stockComboboxRef.current.contains(event.target as Node)) {
+        setIsStockDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // Filtered stock list for search combobox
+  const filteredStocks = (snapshot?.stocks || []).filter((s) => {
+    if (!stockSearchQuery.trim()) return true;
+    const q = stockSearchQuery.toLowerCase().trim();
+    return (
+      s.ticker.toLowerCase().includes(q) ||
+      s.name.toLowerCase().includes(q) ||
+      (s.sector && s.sector.toLowerCase().includes(q))
+    );
+  });
+
+  const handleStockSelect = (stockId: string) => {
+    handleStockChange(stockId);
+    setIsStockDropdownOpen(false);
+    setStockSearchQuery('');
   };
 
   // Calculations
@@ -278,6 +311,25 @@ export default function EditorialBrokerDeskPage() {
       setFeedback({
         type: 'error',
         message: `COLLAR BREACH: ₹${parsedPrice} EXCEEDS CIRCUIT LIMITS (LC: ₹${selectedStock?.lower_circuit?.toFixed(2)} - UC: ₹${selectedStock?.upper_circuit?.toFixed(2)}).`,
+      });
+      return;
+    }
+
+    // Pre-flight check 1: Buyer must have sufficient available cash
+    if (buyerRecord && totalBuyerDebit > buyerCurrentCash) {
+      setFeedback({
+        type: 'error',
+        message: `INSUFFICIENT FUNDS // ${buyerRecord.teamName} has only ₹${buyerCurrentCash.toLocaleString('en-IN')} available cash. Deal consideration requires ₹${totalBuyerDebit.toLocaleString('en-IN')}. Cannot exceed team purse.`,
+      });
+      return;
+    }
+
+    // Pre-flight check 2: Strict Round 0 Budget Cap (₹10,00,000 max total spend)
+    if (isRound0 && buyerRecord && (buyerRecord.round0Spent + grossDealValue > 1000000)) {
+      const remainingAllowance = Math.max(0, 1000000 - buyerRecord.round0Spent);
+      setFeedback({
+        type: 'error',
+        message: `ROUND 0 PURSE EXCEEDED // ${buyerRecord.teamName} has already spent ₹${buyerRecord.round0Spent.toLocaleString('en-IN')} in Round 0. Maximum allowed purse is ₹10,00,000 (Remaining allowance: ₹${remainingAllowance.toLocaleString('en-IN')}). Order of ₹${grossDealValue.toLocaleString('en-IN')} is not permitted.`,
       });
       return;
     }
@@ -739,8 +791,19 @@ export default function EditorialBrokerDeskPage() {
                   </span>
                 </div>
 
-                <div className="pt-2 border-t border-black/5 text-[11px] font-mono text-[#737373]">
-                  TOTAL BUDGET: ₹10,00,000 • TARGET: &ge;₹6,00,000 IN R0
+                <div className="pt-2 border-t border-black/5 text-[11px] font-mono text-[#737373] flex items-center justify-between">
+                  <span>
+                    {isRound0
+                      ? `R0 SPENT: ₹${(buyerRecord?.round0Spent || 0).toLocaleString('en-IN')} / ₹10,00,000`
+                      : 'PURSE: ₹10,00,000'}
+                  </span>
+                  {isRound0 && buyerRecord && (
+                    <span className={buyerRecord.round0Spent + grossDealValue > 1000000 ? 'text-red-600 font-bold' : 'text-emerald-700 font-bold'}>
+                      {buyerRecord.round0Spent + grossDealValue > 1000000
+                        ? '⚠️ EXCEEDS 10L MAX'
+                        : `REM: ₹${Math.max(0, 1000000 - buyerRecord.round0Spent).toLocaleString('en-IN')}`}
+                    </span>
+                  )}
                 </div>
               </div>
 
@@ -802,20 +865,112 @@ export default function EditorialBrokerDeskPage() {
                   )}
                 </div>
 
-                <div className="space-y-3">
-                  <select
-                    value={selectedStockId}
-                    onChange={(e) => handleStockChange(e.target.value)}
+                <div className="space-y-3 relative" ref={stockComboboxRef}>
+                  {/* SEARCHABLE COMBOBOX INPUT */}
+                  <div className="relative">
+                    <div className="flex items-center gap-2 border-b-2 border-black/20 focus-within:border-[#0052CC] transition-colors pb-1">
+                      <span className="text-black/40 text-sm">🔍</span>
+                      <input
+                        type="text"
+                        value={stockSearchQuery}
+                        onChange={(e) => {
+                          setStockSearchQuery(e.target.value);
+                          setIsStockDropdownOpen(true);
+                        }}
+                        onFocus={() => setIsStockDropdownOpen(true)}
+                        placeholder={
+                          selectedStock
+                            ? `${selectedStock.ticker} — ${selectedStock.name} (Type to search...)`
+                            : "Search 78 stocks by ticker, company, or sector..."
+                        }
+                        className="w-full text-base font-bold text-[#000000] bg-transparent outline-none placeholder:text-black/35 placeholder:font-normal"
+                      />
+                      {stockSearchQuery && (
+                        <button
+                          type="button"
+                          onClick={() => setStockSearchQuery('')}
+                          className="text-xs text-black/40 hover:text-black px-1.5 py-0.5 rounded cursor-pointer"
+                        >
+                          ✕
+                        </button>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => setIsStockDropdownOpen(!isStockDropdownOpen)}
+                        className="text-xs font-mono text-black/50 hover:text-black shrink-0 px-1 cursor-pointer"
+                        title="Toggle stock list"
+                      >
+                        {isStockDropdownOpen ? '▲' : '▼'}
+                      </button>
+                    </div>
 
+                    {/* SELECTED STOCK BADGE */}
+                    {selectedStock && (
+                      <div className="mt-1.5 flex items-center justify-between text-xs font-mono bg-white px-2.5 py-1.5 rounded-xl border border-black/10 shadow-xs">
+                        <div className="flex items-center gap-2 overflow-hidden">
+                          <span className="font-bold text-black bg-black/5 px-2 py-0.5 rounded text-[11px] shrink-0">
+                            {selectedStock.ticker}
+                          </span>
+                          <span className="truncate text-gray-800 font-medium">
+                            {selectedStock.name}
+                          </span>
+                        </div>
+                        <span className="font-bold text-emerald-700 shrink-0 ml-2">
+                          LTP: ₹{selectedStock.current_price.toFixed(2)}
+                        </span>
+                      </div>
+                    )}
 
-                    className="w-full text-base font-bold text-[#000000] bg-transparent border-b border-black/10 pb-1 outline-none cursor-pointer"
-                  >
-                    {(snapshot?.stocks || []).map((s) => (
-                      <option key={s.id} value={s.id}>
-                        {s.ticker} — {s.name} [₹{s.current_price.toFixed(2)}]
-                      </option>
-                    ))}
-                  </select>
+                    {/* FLOATING DROPDOWN LIST */}
+                    {isStockDropdownOpen && (
+                      <div className="absolute left-0 right-0 top-full mt-2 z-50 bg-white rounded-2xl border border-black/15 shadow-2xl overflow-hidden max-h-72 flex flex-col">
+                        <div className="px-3.5 py-2 bg-gray-50 border-b border-black/5 text-[10px] font-mono text-gray-500 uppercase flex items-center justify-between">
+                          <span>Security Master Universe ({filteredStocks.length} matching)</span>
+                          <span className="text-[9px] text-[#0052CC] font-bold">Click to select</span>
+                        </div>
+                        <div className="overflow-y-auto divide-y divide-gray-100 flex-1">
+                          {filteredStocks.length === 0 ? (
+                            <div className="p-4 text-center text-xs text-gray-500 font-mono">
+                              No stocks match &quot;{stockSearchQuery}&quot;.
+                            </div>
+                          ) : (
+                            filteredStocks.map((s) => {
+                              const isSelected = s.id === selectedStockId;
+                              return (
+                                <button
+                                  key={s.id}
+                                  type="button"
+                                  onClick={() => handleStockSelect(s.id)}
+                                  className={`w-full text-left px-3.5 py-2.5 flex items-center justify-between hover:bg-blue-50/80 transition-colors cursor-pointer ${
+                                    isSelected ? 'bg-blue-50/90 border-l-4 border-blue-600' : ''
+                                  }`}
+                                >
+                                  <div className="flex flex-col min-w-0 pr-2">
+                                    <div className="flex items-center gap-2">
+                                      <span className="font-mono font-bold text-xs text-black shrink-0">
+                                        {s.ticker}
+                                      </span>
+                                      <span className="text-xs text-gray-800 font-medium truncate">
+                                        {s.name}
+                                      </span>
+                                    </div>
+                                    <span className="text-[10px] text-gray-400 font-mono truncate">
+                                      {s.sector || 'Equities'} • LC ₹{s.lower_circuit?.toFixed(1)} / UC ₹{s.upper_circuit?.toFixed(1)}
+                                    </span>
+                                  </div>
+                                  <div className="text-right shrink-0">
+                                    <span className="font-mono font-bold text-xs text-emerald-700">
+                                      ₹{s.current_price.toFixed(2)}
+                                    </span>
+                                  </div>
+                                </button>
+                              );
+                            })
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
 
                   <div className="flex items-center gap-3">
                     <input
