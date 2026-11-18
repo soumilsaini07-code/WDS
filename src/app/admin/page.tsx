@@ -1067,6 +1067,17 @@ export default function AdminPage() {
     } catch {}
   };
 
+  // Play custom news audio alert (Money Heist / Bella Ciao)
+  const playNewsAudioAlert = () => {
+    try {
+      const audio = new Audio('/news.mp3');
+      audio.volume = 0.9;
+      audio.play().catch(() => playSuccessChime());
+    } catch {
+      playSuccessChime();
+    }
+  };
+
   // Broadcast Breaking Market News Flash
   const injectCustomShock = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -1092,7 +1103,7 @@ export default function AdminPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to broadcast news flash');
 
-      playSuccessChime();
+      playNewsAudioAlert();
       showToast('✓ Breaking news published & broadcast live to all screens!');
       setNewsHeadline('');
       setNewsDescription('');

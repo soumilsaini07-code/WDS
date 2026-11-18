@@ -87,6 +87,17 @@ export default function EditorialBrokerDeskPage() {
     } catch {}
   };
 
+  // Play custom news audio alert (Money Heist / Bella Ciao) with fallback
+  const playNewsAudioAlert = () => {
+    try {
+      const audio = new Audio('/news.mp3');
+      audio.volume = 0.9;
+      audio.play().catch(() => playSuccessChime());
+    } catch {
+      playSuccessChime();
+    }
+  };
+
   // Fetch Snapshot from Backend
   const fetchLedger = async () => {
     try {
@@ -138,7 +149,7 @@ export default function EditorialBrokerDeskPage() {
             type: 'error',
             message: `🚨 BREAKING NEWS WIRE // ${item.headline.replace(/^BREAKING:\s*/i, '')}`,
           });
-          playSuccessChime();
+          playNewsAudioAlert();
         }
       })
       .subscribe();
