@@ -3089,21 +3089,21 @@
       "headline": "RBI Keeps Repo Rate Constant at 6.50% to Anchor Core Inflation",
       "body": "The Monetary Policy Committee of the RBI reiterated its focus on withdrawal of accommodation, supporting sustained market stability on Dalal Street.",
       "sentiment": "NEUTRAL",
-      "published_at": "2026-11-18T02:26:51.261Z"
+      "published_at": "2026-11-18T04:23:44.918Z"
     },
     {
       "id": "news-2",
       "headline": "Global Crude Oil Eases Near $78/bbl: Relief for Indian Refiners",
       "body": "Crude indices soften amid steady North American output, lowering raw material import pressures for Indian petrochemical and automotive players.",
       "sentiment": "BULLISH",
-      "published_at": "2026-11-18T03:26:51.262Z"
+      "published_at": "2026-11-18T05:23:44.918Z"
     },
     {
       "id": "news-3",
       "headline": "Foreign Institutional Inflows Cross ₹4,200 Cr in Weekly Trading",
       "body": "Institutional appetite for Indian banking and auto blue-chips surges following robust quarterly margin disclosures.",
       "sentiment": "BULLISH",
-      "published_at": "2026-11-18T03:56:51.262Z"
+      "published_at": "2026-11-18T05:53:44.918Z"
     }
   ],
   "quizzes": [
@@ -3789,7 +3789,7 @@
     "remaining_seconds": 1800,
     "is_paused": false,
     "is_orders_locked": false,
-    "last_tick": 1794976011261
+    "last_tick": 1794983024918
   },
   "ipo_listings": [
     {

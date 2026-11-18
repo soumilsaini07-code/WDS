@@ -4088,17 +4088,19 @@ export function previewRoundSettlement(params: {
   const rStats = calculateMarketRFormula(currentId);
   const activeR = typeof params.overrideR === 'number' ? params.overrideR : rStats.calculated_r;
 
-  // Determine which stocks had orders
+  // Determine which stocks had orders in this specific round (filtering to BUY legs to avoid dual-counting)
   const stockOrdersMap: Record<string, { count: number; totalVol: number; valueSum: number }> = {};
-  (db.transactions || []).forEach((tx) => {
-    if (!stockOrdersMap[tx.stock_id]) {
-      stockOrdersMap[tx.stock_id] = { count: 0, totalVol: 0, valueSum: 0 };
-    }
-    const price = tx.price_at_trade || tx.price || 0;
-    stockOrdersMap[tx.stock_id].count += 1;
-    stockOrdersMap[tx.stock_id].totalVol += tx.quantity;
-    stockOrdersMap[tx.stock_id].valueSum += price * tx.quantity;
-  });
+  (db.transactions || [])
+    .filter((tx) => tx.type === 'BUY' && (!tx.round_id || tx.round_id === currentId))
+    .forEach((tx) => {
+      if (!stockOrdersMap[tx.stock_id]) {
+        stockOrdersMap[tx.stock_id] = { count: 0, totalVol: 0, valueSum: 0 };
+      }
+      const price = tx.price_at_trade || tx.price || 0;
+      stockOrdersMap[tx.stock_id].count += 1;
+      stockOrdersMap[tx.stock_id].totalVol += tx.quantity;
+      stockOrdersMap[tx.stock_id].valueSum += price * tx.quantity;
+    });
 
   const settlements: StockPriceSettlement[] = db.stocks.map((stock) => {
     const ordersData = stockOrdersMap[stock.id] || { count: 0, totalVol: 0, valueSum: 0 };
