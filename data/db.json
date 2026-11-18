@@ -2649,21 +2649,21 @@
       "headline": "Foreign Institutional Inflows Cross ₹4,200 Cr in Weekly Trading",
       "body": "Institutional appetite for Indian banking and auto blue-chips surges following robust quarterly margin disclosures.",
       "sentiment": "BULLISH",
-      "published_at": "2026-11-18T12:58:56.105Z"
+      "published_at": "2026-11-18T13:25:56.463Z"
     },
     {
       "id": "news-2",
       "headline": "Global Crude Oil Eases Near $78/bbl: Relief for Indian Refiners",
       "body": "Crude indices soften amid steady North American output, lowering raw material import pressures for Indian petrochemical and automotive players.",
       "sentiment": "BULLISH",
-      "published_at": "2026-11-18T12:28:56.105Z"
+      "published_at": "2026-11-18T12:55:56.463Z"
     },
     {
       "id": "news-1",
       "headline": "RBI Keeps Repo Rate Constant at 6.50% to Anchor Core Inflation",
       "body": "The Monetary Policy Committee of the RBI reiterated its focus on withdrawal of accommodation, supporting sustained market stability on Dalal Street.",
       "sentiment": "NEUTRAL",
-      "published_at": "2026-11-18T11:28:56.105Z"
+      "published_at": "2026-11-18T11:55:56.463Z"
     }
   ],
   "quizzes": [
@@ -2977,20 +2977,30 @@
     {
       "id": "round-3",
       "index": 4,
-      "name": "Round 3: Final Trading & Closing Bell",
+      "name": "Round 3: Inter-Team Trading",
       "type": "P2P_TRADING",
       "status": "UPCOMING",
       "duration_minutes": 20,
-      "description": "Final Dalal Street trading window including newly listed IPO stock. Unexecuted slips discarded at close. Closing prices determine final winner.",
-      "rules_note": "Final Portfolio Value = Cash + Σ(Holdings × Round 3 Close). Teams below ₹1,00,000 cash face round disqualification."
+      "description": "Trading continues across equities including the newly listed IPO stock under Round 3 prices.",
+      "rules_note": "Trading via signed trade slips. End-of-round cash floor: ₹1,00,000 required to avoid disqualification."
+    },
+    {
+      "id": "round-4",
+      "index": 5,
+      "name": "Round 4: Final Trading & Closing Bell",
+      "type": "P2P_TRADING",
+      "status": "UPCOMING",
+      "duration_minutes": 20,
+      "description": "Final Dalal Street trading window. Unexecuted slips discarded at close. Closing prices determine final winner.",
+      "rules_note": "Final Portfolio Value = Cash + Σ(Holdings × Round 4 Close). Teams below ₹1,00,000 cash face disqualification."
     }
   ],
   "current_round_id": "round-0",
   "round_clock": {
-    "remaining_seconds": 1800,
+    "remaining_seconds": 1791,
     "is_paused": true,
     "is_orders_locked": false,
-    "last_tick": 1795008568488
+    "last_tick": 1795010165805
   },
   "ipo_listings": [
     {

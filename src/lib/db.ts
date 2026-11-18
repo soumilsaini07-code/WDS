@@ -459,12 +459,22 @@ export const DEFAULT_COMPETITION_ROUNDS: CompetitionRound[] = [
   {
     id: 'round-3',
     index: 4,
-    name: 'Round 3: Final Trading & Closing Bell',
+    name: 'Round 3: Inter-Team Trading',
     type: 'P2P_TRADING',
     status: 'UPCOMING',
     duration_minutes: 20, // 20 minutes as per brief
-    description: 'Final Dalal Street trading window including newly listed IPO stock. Unexecuted slips discarded at close. Closing prices determine final winner.',
-    rules_note: 'Final Portfolio Value = Cash + Σ(Holdings × Round 3 Close). Teams below ₹1,00,000 cash face round disqualification.',
+    description: 'Trading continues across equities including the newly listed IPO stock under Round 3 prices.',
+    rules_note: 'Trading via signed trade slips. End-of-round cash floor: ₹1,00,000 required to avoid disqualification.',
+  },
+  {
+    id: 'round-4',
+    index: 5,
+    name: 'Round 4: Final Trading & Closing Bell',
+    type: 'P2P_TRADING',
+    status: 'UPCOMING',
+    duration_minutes: 20, // 20 minutes as per brief
+    description: 'Final Dalal Street trading window. Unexecuted slips discarded at close. Closing prices determine final winner.',
+    rules_note: 'Final Portfolio Value = Cash + Σ(Holdings × Round 4 Close). Teams below ₹1,00,000 cash face disqualification.',
   },
 ];
 
