@@ -533,33 +533,17 @@ export default function EditorialBrokerDeskPage() {
       <TradeBroadcastBanner />
 
       {/* ========================================================================= */}
-      {/* 3. HERO TYPOGRAPHY: EDITORIAL HEADLINE WITH EXTREME WEIGHT */}
+      {/* 3. STREAMLINED METRICS BAR (LESS ELEMENTS // ULTRA-FOCUSED FLOOR CONSOLE) */}
       {/* ========================================================================= */}
-      <section className={`px-6 sm:px-12 pt-12 pb-8 border-b ${
-        isDark ? 'border-[#1b261f]' : 'border-black/10'
+      <section className={`px-6 sm:px-12 py-5 border-b transition-colors ${
+        isDark ? 'border-[#1b261f] bg-[#090e0b]' : 'border-black/10 bg-[#FAFAFA]'
       }`}>
         <div className="max-w-[1400px] mx-auto">
-          <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#737373] block mb-3">
-            001 // TRANSACTION CLEARING &amp; COMPLIANCE
-          </span>
-          <h2 className={`text-4xl sm:text-6xl lg:text-7xl font-bold tracking-[-0.05em] leading-[0.9] ${
-            isDark ? 'text-white' : 'text-[#000000]'
-          }`}>
-            PHYSICAL SLIP<br />
-            SETTLEMENT.
-          </h2>
-          <p className={`mt-4 text-base sm:text-lg font-normal max-w-2xl leading-relaxed ${
-            isDark ? 'text-zinc-400' : 'text-[#525252]'
-          }`}>
-            Record physical trading slips brought by floor runners. Enforce 60% Round 0 deployment and 10% in-hand cash floor rules.
-          </p>
-
-          {/* Quick Metrics Bar */}
-          <div className={`grid grid-cols-2 md:grid-cols-4 gap-6 mt-10 pt-8 border-t ${
-            isDark ? 'border-[#1b261f]' : 'border-black/10'
-          }`}>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             <div>
-              <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#737373] block mb-1">
+              <span className={`font-mono text-[11px] uppercase tracking-[0.2em] block mb-1 ${
+                isDark ? 'text-zinc-500' : 'text-[#737373]'
+              }`}>
                 SLIPS SETTLED
               </span>
               <span className={`text-3xl font-bold tracking-tight ${isDark ? 'text-white' : 'text-[#000000]'}`}>
@@ -567,7 +551,9 @@ export default function EditorialBrokerDeskPage() {
               </span>
             </div>
             <div>
-              <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#737373] block mb-1">
+              <span className={`font-mono text-[11px] uppercase tracking-[0.2em] block mb-1 ${
+                isDark ? 'text-zinc-500' : 'text-[#737373]'
+              }`}>
                 SHARES CLEARED
               </span>
               <span className={`text-3xl font-bold tracking-tight ${isDark ? 'text-white' : 'text-[#000000]'}`}>
@@ -575,7 +561,9 @@ export default function EditorialBrokerDeskPage() {
               </span>
             </div>
             <div>
-              <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#737373] block mb-1">
+              <span className={`font-mono text-[11px] uppercase tracking-[0.2em] block mb-1 ${
+                isDark ? 'text-zinc-500' : 'text-[#737373]'
+              }`}>
                 GROSS VALUE
               </span>
               <span className={`text-3xl font-bold tracking-tight ${isDark ? 'text-white' : 'text-[#000000]'}`}>
@@ -583,10 +571,12 @@ export default function EditorialBrokerDeskPage() {
               </span>
             </div>
             <div>
-              <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#737373] block mb-1">
+              <span className={`font-mono text-[11px] uppercase tracking-[0.2em] block mb-1 ${
+                isDark ? 'text-zinc-500' : 'text-[#737373]'
+              }`}>
                 DESK COMM (FEE)
               </span>
-              <span className="text-3xl font-bold tracking-tight text-[#0052CC]">
+              <span className={`text-3xl font-bold tracking-tight ${isDark ? 'text-blue-400' : 'text-[#0052CC]'}`}>
                 ₹{(snapshot?.totalDeskCommission ?? 0).toLocaleString('en-IN', { maximumFractionDigits: 0 })}
               </span>
             </div>
@@ -597,7 +587,7 @@ export default function EditorialBrokerDeskPage() {
       {/* ========================================================================= */}
       {/* 4. MAIN WORKSPACE: 7-COLUMN CONTAINER WITH 2X2 INPUT CARDS GRID */}
       {/* ========================================================================= */}
-      <main className="px-6 sm:px-12 py-12 max-w-[1400px] mx-auto space-y-16">
+      <main className="px-6 sm:px-12 py-8 max-w-[1400px] mx-auto space-y-12">
         {feedback && (
           <div
             className={`p-5 rounded-[24px] border font-mono text-xs uppercase tracking-[0.1em] flex items-center justify-between gap-4 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${
