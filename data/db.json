@@ -62,6 +62,20 @@
       "ecoin_balance": 1000,
       "created_at": "2026-11-04T06:20:58.007Z",
       "password_hash": "$2b$10$72rnR1AZIdpqD2M5ozXDY.3LEAXepdMjMpQp6Wi5wgQI1TI4zrMAe"
+    },
+    {
+      "id": "usr-9ukdfl",
+      "email": "centralp@thapar.edu",
+      "role": "participant",
+      "username": "Central Primary Pool",
+      "balance": 10013910,
+      "ecoin_balance": 0,
+      "team_id": "team-yfnz05",
+      "team_name": "Central Primary Pool",
+      "created_at": "2026-11-18T14:13:37.323Z",
+      "assigned_admin_id": "usr-8ryunba",
+      "assigned_admin_name": "Soumil Saini (Desk Lead)",
+      "group_name": "Group Alpha - Desk 1"
     }
   ],
   "stocks": [
@@ -2640,16 +2654,25 @@
       }
     }
   ],
-  "portfolios": [],
+  "portfolios": [
+    {
+      "id": "port-sreq6mj",
+      "user_id": "usr-9ukdfl",
+      "stock_id": "s-ixigo",
+      "shares_count": 0,
+      "avg_buy_price": 139.1,
+      "updated_at": "2026-11-18T14:13:37.323Z"
+    }
+  ],
   "transactions": [],
   "market_events": [],
   "news_articles": [
     {
-      "id": "news-1",
-      "headline": "RBI Keeps Repo Rate Constant at 6.50% to Anchor Core Inflation",
-      "body": "The Monetary Policy Committee of the RBI reiterated its focus on withdrawal of accommodation, supporting sustained market stability on Dalal Street.",
-      "sentiment": "NEUTRAL",
-      "published_at": "2026-11-18T12:11:51.056Z"
+      "id": "news-3",
+      "headline": "Foreign Institutional Inflows Cross ₹4,200 Cr in Weekly Trading",
+      "body": "Institutional appetite for Indian banking and auto blue-chips surges following robust quarterly margin disclosures.",
+      "sentiment": "BULLISH",
+      "published_at": "2026-11-18T13:41:51.056Z"
     },
     {
       "id": "news-2",
@@ -2659,11 +2682,11 @@
       "published_at": "2026-11-18T13:11:51.056Z"
     },
     {
-      "id": "news-3",
-      "headline": "Foreign Institutional Inflows Cross ₹4,200 Cr in Weekly Trading",
-      "body": "Institutional appetite for Indian banking and auto blue-chips surges following robust quarterly margin disclosures.",
-      "sentiment": "BULLISH",
-      "published_at": "2026-11-18T13:41:51.056Z"
+      "id": "news-1",
+      "headline": "RBI Keeps Repo Rate Constant at 6.50% to Anchor Core Inflation",
+      "body": "The Monetary Policy Committee of the RBI reiterated its focus on withdrawal of accommodation, supporting sustained market stability on Dalal Street.",
+      "sentiment": "NEUTRAL",
+      "published_at": "2026-11-18T12:11:51.056Z"
     }
   ],
   "quizzes": [
@@ -2916,7 +2939,7 @@
       "id": "team-yfnz05",
       "name": "Central Primary Pool",
       "code": "CENTRALP",
-      "balance": 10000000,
+      "balance": 10013910,
       "leader_id": "usr-9ukdfl",
       "leader_name": "Central Primary Pool",
       "leader_email": "centralp@thapar.edu",
@@ -2939,7 +2962,7 @@
       "index": 0,
       "name": "Round 0: Initial Purchase Session",
       "type": "PRIMARY_DESK",
-      "status": "ACTIVE",
+      "status": "active",
       "duration_minutes": 30,
       "description": "Initial stock purchase from predetermined universe of ~50 stocks. Unlimited supply from Econ desk.",
       "rules_note": "Mandatory 60% Deployment: Each team must invest at least ₹6,00,000 in this session. Unspent cash carries forward."
@@ -2949,7 +2972,7 @@
       "index": 1,
       "name": "Round 1: Inter-Team Trading",
       "type": "P2P_TRADING",
-      "status": "UPCOMING",
+      "status": "upcoming",
       "duration_minutes": 20,
       "description": "First floor trading session. Teams negotiate and execute trades mutually using physical signed trade slips.",
       "rules_note": "Live price uses quantity-weighted average of latest 3 trades. End-of-round cash check: minimum ₹1,00,000 required."
@@ -2959,7 +2982,7 @@
       "index": 2,
       "name": "Round 2: Inter-Team Trading",
       "type": "P2P_TRADING",
-      "status": "UPCOMING",
+      "status": "upcoming",
       "duration_minutes": 20,
       "description": "Trading continues under Round 2 opening prices after News 2 and R% adjustments.",
       "rules_note": "Trading via signed trade slips. Binding agreement once signed. End-of-round cash floor: ₹1,00,000."
@@ -2969,7 +2992,7 @@
       "index": 3,
       "name": "IPO Round: Tech Unicorn Primary Offering",
       "type": "IPO",
-      "status": "UPCOMING",
+      "status": "upcoming",
       "duration_minutes": 10,
       "description": "Primary market offering. Teams submit lot demand; smooth listing formula determines post-IPO price.",
       "rules_note": "Smooth Listing Formula: P_listing = P0 × (0.7 + 0.6S/(1+S)). Undersubscribed IPO gives every requesting team 1 lot."
@@ -2979,7 +3002,7 @@
       "index": 4,
       "name": "Round 3: Inter-Team Trading",
       "type": "P2P_TRADING",
-      "status": "UPCOMING",
+      "status": "upcoming",
       "duration_minutes": 20,
       "description": "Trading continues across equities including the newly listed IPO stock under Round 3 prices.",
       "rules_note": "Trading via signed trade slips. End-of-round cash floor: ₹1,00,000 required to avoid disqualification."
@@ -2989,7 +3012,7 @@
       "index": 5,
       "name": "Round 4: Final Trading & Closing Bell",
       "type": "P2P_TRADING",
-      "status": "UPCOMING",
+      "status": "upcoming",
       "duration_minutes": 20,
       "description": "Final Dalal Street trading window. Unexecuted slips discarded at close. Closing prices determine final winner.",
       "rules_note": "Final Portfolio Value = Cash + Σ(Holdings × Round 4 Close). Teams below ₹1,00,000 cash face disqualification."
@@ -2997,10 +3020,10 @@
   ],
   "current_round_id": "round-0",
   "round_clock": {
-    "remaining_seconds": 1800,
+    "remaining_seconds": 692,
     "is_paused": false,
     "is_orders_locked": false,
-    "last_tick": 1795011111056
+    "last_tick": 1795012219056
   },
   "ipo_listings": [
     {
@@ -3023,5 +3046,6 @@
     }
   ],
   "ipo_subscriptions": [],
-  "round_settlements": {}
+  "round_settlements": {},
+  "latest_trade": null
 }

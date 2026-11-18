@@ -46,27 +46,65 @@ function playTradeBell() {
   } catch {}
 }
 
-// Synthesize a high-urgency breaking news chime using Web Audio API
+// Play custom audio file whenever news is published, with synthetic Web Audio API fallback
 function playNewsAlertChime() {
   try {
-    const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
-    if (!AudioCtx) return;
-    const ctx = new AudioCtx();
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
+    const candidateUrls = [
+      '/news.mp3',
+      '/breaking-news.mp3',
+      '/news-alert.mp3',
+      '/alert.mp3',
+      '/audio.mp3',
+      '/news.wav',
+      '/breaking-news.wav',
+      '/sound.mp3',
+    ];
 
-    osc.type = 'triangle';
-    osc.frequency.setValueAtTime(523.25, ctx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(783.99, ctx.currentTime + 0.12);
-    osc.frequency.setValueAtTime(1046.50, ctx.currentTime + 0.22);
+    let audioPlayed = false;
 
-    gain.gain.setValueAtTime(0.25, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.7);
+    // Attempt HTML5 Audio element for custom user audio files
+    const tryPlayFile = (index: number) => {
+      if (index >= candidateUrls.length) {
+        playSyntheticChime();
+        return;
+      }
+      const url = candidateUrls[index];
+      const audio = new Audio(url);
+      audio.volume = 0.9;
+      audio
+        .play()
+        .then(() => {
+          audioPlayed = true;
+        })
+        .catch(() => {
+          tryPlayFile(index + 1);
+        });
+    };
 
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    osc.start(ctx.currentTime);
-    osc.stop(ctx.currentTime + 0.7);
+    const playSyntheticChime = () => {
+      try {
+        const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+        if (!AudioCtx) return;
+        const ctx = new AudioCtx();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(523.25, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(783.99, ctx.currentTime + 0.12);
+        osc.frequency.setValueAtTime(1046.50, ctx.currentTime + 0.22);
+
+        gain.gain.setValueAtTime(0.3, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.7);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(ctx.currentTime);
+        osc.stop(ctx.currentTime + 0.7);
+      } catch {}
+    };
+
+    tryPlayFile(0);
   } catch {}
 }
 

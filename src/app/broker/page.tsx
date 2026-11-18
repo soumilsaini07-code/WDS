@@ -846,7 +846,7 @@ export default function EditorialBrokerDeskPage() {
                 </div>
 
                 <div className="pt-2 border-t border-black/5 text-[11px] font-mono text-[#737373]">
-                  0% FEE ON CENTRAL PRIMARY POOL • 5% DUAL ON INTER-TEAM
+                  0% FEE ON CENTRAL PRIMARY POOL • 1% DUAL ON INTER-TEAM
                 </div>
               </div>
 

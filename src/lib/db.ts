@@ -1133,35 +1133,6 @@ export function getLocalDB(): LocalDBState {
       dirty = true;
     }
 
-    // Default Seed Teams if empty
-    if (parsed.teams.length === 0) {
-      parsed.teams = [
-        {
-          id: 'team-apex-01',
-          name: 'Apex Alpha Syndicate',
-          code: 'APEX-01',
-          leader_id: 'usr-9np9imt',
-          leader_name: 'Aaryan Verma',
-          leader_email: '1025150050@thapar.edu',
-          balance: 1000000,
-          members: [],
-          created_at: new Date().toISOString(),
-        },
-        {
-          id: 'team-bull-02',
-          name: 'Dalal Street Titans',
-          code: 'TITAN-02',
-          leader_id: 'usr-40rj0tq',
-          leader_name: 'Trader_102203001',
-          leader_email: '102203001@thapar.edu',
-          balance: 1000000,
-          members: [],
-          created_at: new Date().toISOString(),
-        },
-      ];
-      dirty = true;
-    }
-
     // Bind students to teams (max 6 members per team)
     const allStudents = parsed.users.filter((u) => u.role !== 'admin' && u.role !== 'superadmin');
     allStudents.forEach((student) => {
