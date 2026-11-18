@@ -42,12 +42,12 @@ export async function GET() {
       'Quantity (Shares)': row.quantity,
       'Agreed Price (INR)': row.price,
       'Gross Consideration (INR)': row.grossAmount,
-      'Buyer 5% Brokerage (INR)': row.buyerBrokerage,
-      'Seller 5% Brokerage (INR)': row.sellerBrokerage,
+      'Buyer 1% Brokerage (INR)': row.buyerBrokerage,
+      'Seller 1% Brokerage (INR)': row.sellerBrokerage,
       'Total Buyer Outflow (INR)': row.buyerTotalDebit,
       'Total Seller Proceeds (INR)': row.sellerNetCredit,
-      'Econ Desk 10% Fee (INR)': row.deskCommission,
-      'Round 0 Exemption': row.isRound0Exempt ? 'YES (Waived)' : 'NO (5% Applied)',
+      'Econ Desk 2% Fee (INR)': row.deskCommission,
+      'Round 0 Exemption': row.isRound0Exempt ? 'YES (Waived)' : 'NO (1% Applied)',
       'Status': row.status,
     }));
 

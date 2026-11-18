@@ -17,6 +17,28 @@ export default function EditorialBrokerDeskPage() {
   const [activeTab, setActiveTab] = useState<'purses' | 'ledger' | 'matrix' | 'ipo'>('purses');
   const [slipMode, setSlipMode] = useState<'trade' | 'ipo'>('trade');
 
+  // Theme State: 'dark' (Institutional Terminal) or 'light' (Financial Paper)
+  const [theme, setTheme] = useState<'dark' | 'light'>('dark');
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('wds_theme') as 'dark' | 'light';
+      if (saved === 'dark' || saved === 'light') {
+        setTheme(saved);
+      }
+    } catch {}
+  }, []);
+
+  const toggleTheme = () => {
+    const next = theme === 'dark' ? 'light' : 'dark';
+    setTheme(next);
+    try {
+      localStorage.setItem('wds_theme', next);
+    } catch {}
+  };
+
+  const isDark = theme === 'dark';
+
   // Form State for IPO Slip Entry
   const [ipoSelectedId, setIpoSelectedId] = useState<string>('');
   const [ipoTeamName, setIpoTeamName] = useState<string>('');
@@ -406,28 +428,42 @@ export default function EditorialBrokerDeskPage() {
   const eliminatedCount = (snapshot?.teamsPurse || []).filter((t) => t.status === 'ELIMINATED').length;
 
   return (
-    <div className="min-h-screen bg-[#FFFFFF] text-[#000000] font-sans antialiased selection:bg-[#0052CC] selection:text-white transition-colors duration-500 relative">
+    <div className={`min-h-screen font-sans antialiased selection:bg-[#0052CC] selection:text-white transition-colors duration-300 relative ${
+      isDark ? 'bg-[#080d0a] text-[#e2e8e3]' : 'bg-[#FFFFFF] text-[#000000]'
+    }`}>
 
       {/* ========================================================================= */}
       {/* 2. EDITORIAL TOP TICKER & METADATA BAR */}
       {/* ========================================================================= */}
-      <header className="border-b border-black/10 px-6 sm:px-12 py-6 flex flex-wrap items-center justify-between gap-6">
+      <header className={`px-6 sm:px-12 py-6 flex flex-wrap items-center justify-between gap-6 border-b transition-colors ${
+        isDark ? 'border-[#1b261f] bg-[#0b110e]/95' : 'border-black/10 bg-white'
+      }`}>
         <div>
           <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#737373] block mb-1">
             THAPAR ECONOMICS DESK // CONSOLE 02
           </span>
           <div className="flex items-baseline gap-4">
-            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-[#000000]">
+            <h1 className={`text-xl sm:text-2xl font-bold tracking-tight ${
+              isDark ? 'text-white' : 'text-[#000000]'
+            }`}>
               FLOOR DESK
             </h1>
-            <span className="font-mono text-xs px-2.5 py-0.5 rounded-full border border-black/10 bg-[#F8F9FA] text-[#000000] font-semibold">
+            <span className={`font-mono text-xs px-2.5 py-0.5 rounded-full border font-semibold ${
+              isDark
+                ? 'border-[#233327] bg-[#121c15] text-emerald-300'
+                : 'border-black/10 bg-[#F8F9FA] text-[#000000]'
+            }`}>
               {snapshot?.currentRoundName || 'ROUND 0 // PRE-MARKET'}
             </span>
           </div>
         </div>
 
         <div className="flex items-center gap-4 font-mono text-xs">
-          <div className="flex items-center gap-2 px-3 py-1 rounded-full border border-black/10 bg-[#F8F9FA]">
+          <div className={`flex items-center gap-2 px-3 py-1 rounded-full border ${
+            isDark
+              ? 'border-[#233327] bg-[#121c15] text-[#e2e8e3]'
+              : 'border-black/10 bg-[#F8F9FA] text-[#000000]'
+          }`}>
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
             <span className="text-[11px] tracking-[0.1em] uppercase text-[#000000]">
               TELEMETRY LIVE
@@ -436,15 +472,36 @@ export default function EditorialBrokerDeskPage() {
 
           <button
             onClick={fetchLedger}
-
-
-            className="p-2 rounded-full border border-black/10 hover:border-black/30 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]"
+            className={`p-2 rounded-full border transition-all duration-300 cursor-pointer ${
+              isDark
+                ? 'border-[#233327] text-zinc-300 hover:border-emerald-500 hover:text-white bg-[#121c15]'
+                : 'border-black/10 hover:border-black/30'
+            }`}
             title="Refresh Ledger"
           >
             ↻
           </button>
 
-          <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-[11px] font-mono">
+          {/* Theme Toggle Button */}
+          <button
+            type="button"
+            onClick={toggleTheme}
+            className={`px-3.5 py-1.5 rounded-full border flex items-center gap-2 font-mono text-xs transition-all duration-300 cursor-pointer ${
+              isDark
+                ? 'bg-[#16221a] text-emerald-300 border-[#2a3d2e] hover:bg-[#1e2f24]'
+                : 'bg-[#F8F9FA] text-[#000000] border-black/10 hover:border-black/30'
+            }`}
+            title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+          >
+            <span>{isDark ? '☀️' : '🌙'}</span>
+            <span className="font-bold uppercase tracking-wider">{isDark ? 'LIGHT' : 'DARK'}</span>
+          </button>
+
+          <div className={`hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full border text-[11px] font-mono ${
+            isDark
+              ? 'bg-[#152219] border-emerald-800 text-emerald-300'
+              : 'bg-emerald-50 border-emerald-200 text-emerald-800'
+          }`}>
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
             <span className="font-bold tracking-tight">SHEET AUTO-SYNC ACTIVE</span>
           </div>
@@ -467,26 +524,34 @@ export default function EditorialBrokerDeskPage() {
       {/* ========================================================================= */}
       {/* 3. HERO TYPOGRAPHY: EDITORIAL HEADLINE WITH EXTREME WEIGHT */}
       {/* ========================================================================= */}
-      <section className="px-6 sm:px-12 pt-12 pb-8 border-b border-black/10">
+      <section className={`px-6 sm:px-12 pt-12 pb-8 border-b ${
+        isDark ? 'border-[#1b261f]' : 'border-black/10'
+      }`}>
         <div className="max-w-[1400px] mx-auto">
           <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#737373] block mb-3">
             001 // TRANSACTION CLEARING &amp; COMPLIANCE
           </span>
-          <h2 className="text-4xl sm:text-6xl lg:text-7xl font-bold tracking-[-0.05em] leading-[0.9] text-[#000000]">
+          <h2 className={`text-4xl sm:text-6xl lg:text-7xl font-bold tracking-[-0.05em] leading-[0.9] ${
+            isDark ? 'text-white' : 'text-[#000000]'
+          }`}>
             PHYSICAL SLIP<br />
             SETTLEMENT.
           </h2>
-          <p className="mt-4 text-base sm:text-lg font-normal text-[#525252] max-w-2xl leading-relaxed">
+          <p className={`mt-4 text-base sm:text-lg font-normal max-w-2xl leading-relaxed ${
+            isDark ? 'text-zinc-400' : 'text-[#525252]'
+          }`}>
             Record physical trading slips brought by floor runners. Enforce 60% Round 0 deployment and 10% in-hand cash floor rules.
           </p>
 
           {/* Quick Metrics Bar */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-10 pt-8 border-t border-black/10">
+          <div className={`grid grid-cols-2 md:grid-cols-4 gap-6 mt-10 pt-8 border-t ${
+            isDark ? 'border-[#1b261f]' : 'border-black/10'
+          }`}>
             <div>
               <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#737373] block mb-1">
                 SLIPS SETTLED
               </span>
-              <span className="text-3xl font-bold tracking-tight text-[#000000]">
+              <span className={`text-3xl font-bold tracking-tight ${isDark ? 'text-white' : 'text-[#000000]'}`}>
                 {snapshot?.totalDealsSettled ?? 0}
               </span>
             </div>
@@ -494,7 +559,7 @@ export default function EditorialBrokerDeskPage() {
               <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#737373] block mb-1">
                 SHARES CLEARED
               </span>
-              <span className="text-3xl font-bold tracking-tight text-[#000000]">
+              <span className={`text-3xl font-bold tracking-tight ${isDark ? 'text-white' : 'text-[#000000]'}`}>
                 {(snapshot?.totalVolumeShares ?? 0).toLocaleString('en-IN')}
               </span>
             </div>
@@ -502,7 +567,7 @@ export default function EditorialBrokerDeskPage() {
               <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#737373] block mb-1">
                 GROSS VALUE
               </span>
-              <span className="text-3xl font-bold tracking-tight text-[#000000]">
+              <span className={`text-3xl font-bold tracking-tight ${isDark ? 'text-white' : 'text-[#000000]'}`}>
                 ₹{(snapshot?.totalGrossConsideration ?? 0).toLocaleString('en-IN', { maximumFractionDigits: 0 })}
               </span>
             </div>
@@ -541,7 +606,9 @@ export default function EditorialBrokerDeskPage() {
         )}
 
         <div className="space-y-6">
-          <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-4 pb-4 border-b border-black/10">
+          <div className={`flex flex-col sm:flex-row sm:items-baseline justify-between gap-4 pb-4 border-b ${
+            isDark ? 'border-[#1b261f]' : 'border-black/10'
+          }`}>
             <div>
               <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#737373] block">
                 INPUT MATRIX // PHYSICAL SLIP ENTRY
@@ -552,7 +619,11 @@ export default function EditorialBrokerDeskPage() {
                   onClick={() => setSlipMode('trade')}
                   className={`px-4 py-1.5 rounded-full font-mono text-xs uppercase tracking-[0.15em] transition-all duration-200 cursor-pointer ${
                     slipMode === 'trade'
-                      ? 'bg-[#000000] text-white font-bold shadow-sm'
+                      ? isDark
+                        ? 'bg-white text-black font-bold shadow-sm'
+                        : 'bg-[#000000] text-white font-bold shadow-sm'
+                      : isDark
+                      ? 'bg-[#101712] text-zinc-400 hover:text-white border border-[#1e2b20]'
                       : 'bg-[#F8F9FA] text-[#737373] hover:text-[#000000] border border-black/10'
                   }`}
                 >
@@ -564,6 +635,8 @@ export default function EditorialBrokerDeskPage() {
                   className={`px-4 py-1.5 rounded-full font-mono text-xs uppercase tracking-[0.15em] transition-all duration-200 cursor-pointer flex items-center gap-2 ${
                     slipMode === 'ipo'
                       ? 'bg-[#0052CC] text-white font-bold shadow-sm'
+                      : isDark
+                      ? 'bg-[#101712] text-zinc-400 hover:text-blue-400 border border-[#1e2b20]'
                       : 'bg-[#F8F9FA] text-[#737373] hover:text-[#0052CC] border border-black/10'
                   }`}
                 >
@@ -588,7 +661,9 @@ export default function EditorialBrokerDeskPage() {
               {/* 2X2 GRID FOR IPO APPLICATION SLIP */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* CARD 01: IPO LISTING */}
-                <div className="p-6 rounded-[24px] bg-[#F8F9FA] border border-black/10 flex flex-col justify-between space-y-4">
+                <div className={`p-6 rounded-[24px] border flex flex-col justify-between space-y-4 ${
+                  isDark ? 'bg-[#0d1410] border-[#1e2c21]' : 'bg-[#F8F9FA] border-black/10'
+                }`}>
                   <div className="flex items-center justify-between">
                     <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#737373]">
                       01 // IPO LISTING
@@ -766,13 +841,15 @@ export default function EditorialBrokerDeskPage() {
             {/* 2X2 GRID OF INPUT CARDS */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* CARD 01: BUYER TEAM */}
-              <div className="p-6 rounded-[24px] bg-[#F8F9FA] border border-black/10 flex flex-col justify-between space-y-4">
+              <div className={`p-6 rounded-[24px] border flex flex-col justify-between space-y-4 ${
+                isDark ? 'bg-[#0d1410] border-[#1e2c21]' : 'bg-[#F8F9FA] border-black/10'
+              }`}>
                 <div className="flex items-center justify-between">
                   <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#737373]">
                     01 // BUYING TEAM (PURCHASER)
                   </span>
                   {buyerRecord && (
-                    <span className="font-mono text-[11px] text-[#000000] font-bold">
+                    <span className={`font-mono text-[11px] font-bold ${isDark ? 'text-white' : 'text-[#000000]'}`}>
                       CASH: ₹{(buyerRecord.currentCash).toLocaleString('en-IN', { maximumFractionDigits: 0 })}
                     </span>
                   )}
@@ -787,15 +864,21 @@ export default function EditorialBrokerDeskPage() {
                     placeholder="ENTER BUYER TEAM..."
 
 
-                    className="w-full text-2xl font-bold text-[#000000] bg-transparent border-none outline-none placeholder:text-black/20 focus:ring-0"
+                    className={`w-full text-2xl font-bold bg-transparent border-none outline-none focus:ring-0 ${
+                      isDark ? 'text-white placeholder:text-zinc-600' : 'text-[#000000] placeholder:text-black/20'
+                    }`}
                     required
                   />
-                  <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#737373] shrink-0">
+                  <span className={`font-mono text-[11px] uppercase tracking-[0.2em] shrink-0 ${
+                    isDark ? 'text-zinc-500' : 'text-[#737373]'
+                  }`}>
                     BUYER
                   </span>
                 </div>
 
-                <div className="pt-2 border-t border-black/5 text-[11px] font-mono text-[#737373] flex items-center justify-between">
+                <div className={`pt-2 border-t text-[11px] font-mono flex items-center justify-between ${
+                    isDark ? 'border-[#1b271e] text-zinc-400' : 'border-black/5 text-[#737373]'
+                  }`}>
                   <span>
                     {isRound0
                       ? `R0 SPENT: ₹${(buyerRecord?.round0Spent || 0).toLocaleString('en-IN')} / ₹10,00,000`
@@ -812,7 +895,9 @@ export default function EditorialBrokerDeskPage() {
               </div>
 
               {/* CARD 02: SELLER TEAM */}
-              <div className="p-6 rounded-[24px] bg-[#F8F9FA] border border-black/10 flex flex-col justify-between space-y-4">
+              <div className={`p-6 rounded-[24px] border flex flex-col justify-between space-y-4 ${
+                isDark ? 'bg-[#0d1410] border-[#1e2c21]' : 'bg-[#F8F9FA] border-black/10'
+              }`}>
                 <div className="flex items-center justify-between">
                   <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#737373]">
                     02 // SELLING TEAM (OR CENTRAL PRIMARY POOL)
@@ -822,7 +907,9 @@ export default function EditorialBrokerDeskPage() {
                     onClick={() => setSellerTeam('Central Primary Pool')}
 
 
-                    className="font-mono text-[11px] uppercase tracking-[0.1em] text-[#0052CC] font-bold hover:underline cursor-pointer"
+                    className={`font-mono text-[11px] uppercase tracking-[0.1em] font-bold hover:underline cursor-pointer ${
+                      isDark ? 'text-blue-400' : 'text-[#0052CC]'
+                    }`}
                   >
                     [SET PRIMARY POOL]
                   </button>
@@ -837,21 +924,29 @@ export default function EditorialBrokerDeskPage() {
                     placeholder="ENTER SELLER TEAM..."
 
 
-                    className="w-full text-2xl font-bold text-[#000000] bg-transparent border-none outline-none placeholder:text-black/20 focus:ring-0"
+                    className={`w-full text-2xl font-bold bg-transparent border-none outline-none focus:ring-0 ${
+                      isDark ? 'text-white placeholder:text-zinc-600' : 'text-[#000000] placeholder:text-black/20'
+                    }`}
                     required
                   />
-                  <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#737373] shrink-0">
+                  <span className={`font-mono text-[11px] uppercase tracking-[0.2em] shrink-0 ${
+                    isDark ? 'text-zinc-500' : 'text-[#737373]'
+                  }`}>
                     SELLER
                   </span>
                 </div>
 
-                <div className="pt-2 border-t border-black/5 text-[11px] font-mono text-[#737373]">
+                <div className={`pt-2 border-t text-[11px] font-mono ${
+                    isDark ? 'border-[#1b271e] text-zinc-400' : 'border-black/5 text-[#737373]'
+                  }`}>
                   0% FEE ON CENTRAL PRIMARY POOL • 1% DUAL ON INTER-TEAM
                 </div>
               </div>
 
               {/* CARD 03: TRADED SECURITY & PRICE */}
-              <div className="p-6 rounded-[24px] bg-[#F8F9FA] border border-black/10 flex flex-col justify-between space-y-4">
+              <div className={`p-6 rounded-[24px] border flex flex-col justify-between space-y-4 ${
+                isDark ? 'bg-[#0d1410] border-[#1e2c21]' : 'bg-[#F8F9FA] border-black/10'
+              }`}>
                 <div className="flex items-center justify-between">
                   <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#737373]">
                     03 // STOCK &amp; AGREED PRICE
@@ -872,7 +967,9 @@ export default function EditorialBrokerDeskPage() {
                 <div className="space-y-3 relative" ref={stockComboboxRef}>
                   {/* SEARCHABLE COMBOBOX INPUT */}
                   <div className="relative">
-                    <div className="flex items-center gap-2 border-b-2 border-black/20 focus-within:border-[#0052CC] transition-colors pb-1">
+                    <div className={`flex items-center gap-2 border-b-2 transition-colors pb-1 ${
+                        isDark ? 'border-[#233327] focus-within:border-emerald-500' : 'border-black/20 focus-within:border-[#0052CC]'
+                      }`}>
                       <span className="text-black/40 text-sm">🔍</span>
                       <input
                         type="text"
@@ -887,7 +984,9 @@ export default function EditorialBrokerDeskPage() {
                             ? `${selectedStock.ticker} — ${selectedStock.name} (Type to search...)`
                             : "Search 78 stocks by ticker, company, or sector..."
                         }
-                        className="w-full text-base font-bold text-[#000000] bg-transparent outline-none placeholder:text-black/35 placeholder:font-normal"
+                        className={`w-full text-base font-bold bg-transparent outline-none placeholder:font-normal ${
+                          isDark ? 'text-white placeholder:text-zinc-600' : 'text-[#000000] placeholder:text-black/35'
+                        }`}
                       />
                       {stockSearchQuery && (
                         <button
@@ -927,12 +1026,18 @@ export default function EditorialBrokerDeskPage() {
 
                     {/* FLOATING DROPDOWN LIST */}
                     {isStockDropdownOpen && (
-                      <div className="absolute left-0 right-0 top-full mt-2 z-50 bg-white rounded-2xl border border-black/15 shadow-2xl overflow-hidden max-h-72 flex flex-col">
-                        <div className="px-3.5 py-2 bg-gray-50 border-b border-black/5 text-[10px] font-mono text-gray-500 uppercase flex items-center justify-between">
+                      <div className={`absolute left-0 right-0 top-full mt-2 z-50 rounded-2xl border shadow-2xl overflow-hidden max-h-72 flex flex-col ${
+                        isDark ? 'bg-[#0d1410] border-[#1e2c21] shadow-black/80' : 'bg-white border-black/15'
+                      }`}>
+                        <div className={`px-3.5 py-2 border-b text-[10px] font-mono uppercase flex items-center justify-between ${
+                          isDark ? 'bg-[#101712] border-[#1e2c21] text-zinc-400' : 'bg-gray-50 border-black/5 text-gray-500'
+                        }`}>
                           <span>Security Master Universe ({filteredStocks.length} matching)</span>
                           <span className="text-[9px] text-[#0052CC] font-bold">Click to select</span>
                         </div>
-                        <div className="overflow-y-auto divide-y divide-gray-100 flex-1">
+                        <div className={`overflow-y-auto divide-y flex-1 ${
+                          isDark ? 'divide-[#18231c]' : 'divide-gray-100'
+                        }`}>
                           {filteredStocks.length === 0 ? (
                             <div className="p-4 text-center text-xs text-gray-500 font-mono">
                               No stocks match &quot;{stockSearchQuery}&quot;.
@@ -945,16 +1050,18 @@ export default function EditorialBrokerDeskPage() {
                                   key={s.id}
                                   type="button"
                                   onClick={() => handleStockSelect(s.id)}
-                                  className={`w-full text-left px-3.5 py-2.5 flex items-center justify-between hover:bg-blue-50/80 transition-colors cursor-pointer ${
-                                    isSelected ? 'bg-blue-50/90 border-l-4 border-blue-600' : ''
+                                  className={`w-full text-left px-3.5 py-2.5 flex items-center justify-between transition-colors cursor-pointer ${
+                                    isSelected
+                                      ? isDark ? 'bg-[#152219] border-l-4 border-emerald-500' : 'bg-blue-50/90 border-l-4 border-blue-600'
+                                      : isDark ? 'hover:bg-[#152219]' : 'hover:bg-blue-50/80'
                                   }`}
                                 >
                                   <div className="flex flex-col min-w-0 pr-2">
                                     <div className="flex items-center gap-2">
-                                      <span className="font-mono font-bold text-xs text-black shrink-0">
+                                      <span className={`font-mono font-bold text-xs shrink-0 ${isDark ? 'text-white' : 'text-black'}`}>
                                         {s.ticker}
                                       </span>
-                                      <span className="text-xs text-gray-800 font-medium truncate">
+                                      <span className={`text-xs font-medium truncate ${isDark ? 'text-zinc-300' : 'text-gray-800'}`}>
                                         {s.name}
                                       </span>
                                     </div>
@@ -986,7 +1093,9 @@ export default function EditorialBrokerDeskPage() {
                       placeholder="AGREED PRICE"
 
 
-                      className="w-full text-2xl font-bold text-[#000000] bg-transparent border-none outline-none focus:ring-0 font-mono"
+                      className={`w-full text-2xl font-bold bg-transparent border-none outline-none focus:ring-0 font-mono ${
+                        isDark ? 'text-white placeholder:text-zinc-600' : 'text-[#000000] placeholder:text-black/20'
+                      }`}
                       required
                     />
                     <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#737373] shrink-0">
@@ -1011,12 +1120,14 @@ export default function EditorialBrokerDeskPage() {
               </div>
 
               {/* CARD 04: QUANTITY & EXECUTION */}
-              <div className="p-6 rounded-[24px] bg-[#F8F9FA] border border-black/10 flex flex-col justify-between space-y-4">
+              <div className={`p-6 rounded-[24px] border flex flex-col justify-between space-y-4 ${
+                isDark ? 'bg-[#0d1410] border-[#1e2c21]' : 'bg-[#F8F9FA] border-black/10'
+              }`}>
                 <div className="flex items-center justify-between">
                   <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#737373]">
                     04 // SHARE QUANTITY (VOLUME)
                   </span>
-                  <span className="font-mono text-[11px] text-[#000000] font-bold">
+                  <span className={`font-mono text-[11px] font-bold ${isDark ? 'text-white' : 'text-[#000000]'}`}>
                     GROSS: ₹{grossDealValue.toLocaleString('en-IN', { maximumFractionDigits: 2 })}
                   </span>
                 </div>
@@ -1031,17 +1142,21 @@ export default function EditorialBrokerDeskPage() {
                     placeholder="QUANTITY"
 
 
-                    className="w-full text-2xl font-bold text-[#000000] bg-transparent border-none outline-none focus:ring-0 font-mono"
+                    className={`w-full text-2xl font-bold bg-transparent border-none outline-none focus:ring-0 font-mono ${
+                      isDark ? 'text-white placeholder:text-zinc-600' : 'text-[#000000] placeholder:text-black/20'
+                    }`}
                     required
                   />
-                  <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#737373] shrink-0">
+                  <span className={`font-mono text-[11px] uppercase tracking-[0.2em] shrink-0 ${
+                    isDark ? 'text-zinc-500' : 'text-[#737373]'
+                  }`}>
                     SHARES
                   </span>
                 </div>
 
                 <div className="pt-2 border-t border-black/5 text-[11px] font-mono text-[#737373] flex items-center justify-between">
                   <span>DEAL CONSIDERATION</span>
-                  <span className="font-bold text-[#000000]">
+                  <span className={`font-bold ${isDark ? 'text-white' : 'text-[#000000]'}`}>
                     {parsedQty} × ₹{parsedPrice.toFixed(2)}
                   </span>
                 </div>
@@ -1061,13 +1176,17 @@ export default function EditorialBrokerDeskPage() {
             </datalist>
 
             {/* EDITORIAL VOUCHER BREAKDOWN STRIP */}
-            <div className="p-6 rounded-[24px] border border-black/10 bg-[#FFFFFF] space-y-4">
-              <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-black/10 font-mono text-xs">
+            <div className={`p-6 rounded-[24px] border space-y-4 ${
+              isDark ? 'bg-[#0d1410] border-[#1e2c21]' : 'bg-[#FFFFFF] border-black/10'
+            }`}>
+              <div className={`flex flex-wrap items-center justify-between gap-4 pb-4 border-b font-mono text-xs ${
+                isDark ? 'border-[#1b271e]' : 'border-black/10'
+              }`}>
                 <div>
                   <span className="text-[#737373] uppercase tracking-[0.15em] block text-[10px]">
                     GROSS DEAL VALUE
                   </span>
-                  <span className="text-xl font-bold text-[#000000]">
+                  <span className={`text-xl font-bold ${isDark ? 'text-white' : 'text-[#000000]'}`}>
                     ₹{grossDealValue.toLocaleString('en-IN', { maximumFractionDigits: 2 })}
                   </span>
                 </div>
@@ -1075,7 +1194,7 @@ export default function EditorialBrokerDeskPage() {
                   <span className="text-[#737373] uppercase tracking-[0.15em] block text-[10px]">
                     BROKERAGE (1%)
                   </span>
-                  <span className="text-xl font-bold text-[#000000]">
+                  <span className={`text-xl font-bold ${isDark ? 'text-emerald-400' : 'text-[#000000]'}`}>
                     {isBrokerageWaived ? '₹0.00 (WAIVED)' : `+₹${buyerBrokerage.toLocaleString('en-IN')}`}
                   </span>
                 </div>
@@ -1099,7 +1218,7 @@ export default function EditorialBrokerDeskPage() {
                   <span className="text-[#737373] uppercase tracking-[0.15em] block text-[10px]">
                     DESK COMMISSION
                   </span>
-                  <span className="text-xl font-bold text-[#0052CC]">
+                  <span className={`text-xl font-bold ${isDark ? 'text-blue-400' : 'text-[#0052CC]'}`}>
                     ₹{totalDeskFee.toLocaleString('en-IN', { maximumFractionDigits: 2 })}
                   </span>
                 </div>
@@ -1162,13 +1281,13 @@ export default function EditorialBrokerDeskPage() {
         {/* ===================================================================== */}
         {/* 5. MASTER EVENT SPREADSHEET LEDGER & ELIMINATION AUDIT */}
         {/* ===================================================================== */}
-        <section className="space-y-6 pt-12 border-t border-black/10">
-          <div className="flex flex-wrap items-baseline justify-between gap-4 pb-4 border-b border-black/10">
+        <section className={`space-y-6 pt-12 border-t ${isDark ? 'border-[#1b261f]' : 'border-black/10'}`}>
+          <div className={`flex flex-wrap items-baseline justify-between gap-4 pb-4 border-b ${isDark ? 'border-[#1b261f]' : 'border-black/10'}`}>
             <div>
               <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#737373] block">
                 002 // EVENT RECORDS
               </span>
-              <h3 className="text-3xl font-bold tracking-[-0.04em] text-[#000000] mt-1">
+              <h3 className={`text-3xl font-bold tracking-[-0.04em] mt-1 ${isDark ? 'text-white' : 'text-[#000000]'}`}>
                 MASTER LEDGER.
               </h3>
             </div>
@@ -1182,7 +1301,11 @@ export default function EditorialBrokerDeskPage() {
 
                 className={`px-4 py-2 rounded-full uppercase tracking-[0.15em] transition-all duration-300 cursor-pointer ${
                   activeTab === 'purses'
-                    ? 'bg-[#000000] text-white font-bold'
+                    ? isDark
+                      ? 'bg-white text-black font-bold'
+                      : 'bg-[#000000] text-white font-bold'
+                    : isDark
+                    ? 'bg-[#101712] text-zinc-400 hover:text-white border border-[#1e2b20]'
                     : 'bg-[#F8F9FA] text-[#737373] hover:text-[#000000]'
                 }`}
               >
@@ -1196,7 +1319,11 @@ export default function EditorialBrokerDeskPage() {
 
                 className={`px-4 py-2 rounded-full uppercase tracking-[0.15em] transition-all duration-300 cursor-pointer ${
                   activeTab === 'ledger'
-                    ? 'bg-[#000000] text-white font-bold'
+                    ? isDark
+                      ? 'bg-white text-black font-bold'
+                      : 'bg-[#000000] text-white font-bold'
+                    : isDark
+                    ? 'bg-[#101712] text-zinc-400 hover:text-white border border-[#1e2b20]'
                     : 'bg-[#F8F9FA] text-[#737373] hover:text-[#000000]'
                 }`}
               >
@@ -1210,7 +1337,11 @@ export default function EditorialBrokerDeskPage() {
 
                 className={`px-4 py-2 rounded-full uppercase tracking-[0.15em] transition-all duration-300 cursor-pointer ${
                   activeTab === 'matrix'
-                    ? 'bg-[#000000] text-white font-bold'
+                    ? isDark
+                      ? 'bg-white text-black font-bold'
+                      : 'bg-[#000000] text-white font-bold'
+                    : isDark
+                    ? 'bg-[#101712] text-zinc-400 hover:text-white border border-[#1e2b20]'
                     : 'bg-[#F8F9FA] text-[#737373] hover:text-[#000000]'
                 }`}
               >
@@ -1223,6 +1354,8 @@ export default function EditorialBrokerDeskPage() {
                 className={`px-4 py-2 rounded-full uppercase tracking-[0.15em] transition-all duration-300 cursor-pointer flex items-center gap-1.5 ${
                   activeTab === 'ipo'
                     ? 'bg-[#0052CC] text-white font-bold'
+                    : isDark
+                    ? 'bg-[#101712] text-zinc-400 hover:text-blue-400 border border-[#1e2b20]'
                     : 'bg-[#F8F9FA] text-[#737373] hover:text-[#0052CC]'
                 }`}
               >
@@ -1241,7 +1374,11 @@ export default function EditorialBrokerDeskPage() {
                   value={teamSearch}
                   onChange={(e) => setTeamSearch(e.target.value)}
                   placeholder="SEARCH TEAM OR CODE..."
-                  className="py-2 px-4 rounded-full bg-[#F8F9FA] border border-black/10 text-xs text-[#000000] outline-none w-72 uppercase tracking-[0.1em]"
+                  className={`py-2 px-4 rounded-full border text-xs outline-none w-72 uppercase tracking-[0.1em] ${
+                    isDark
+                      ? 'bg-[#101712] border-[#1e2c21] text-white placeholder:text-zinc-600'
+                      : 'bg-[#F8F9FA] border-black/10 text-[#000000]'
+                  }`}
                 />
                 <div className="flex items-center gap-4 text-[11px] uppercase tracking-[0.15em] text-[#737373]">
                   <span>TOTAL: {snapshot?.teamsPurse?.length ?? 0}</span>
@@ -1250,9 +1387,13 @@ export default function EditorialBrokerDeskPage() {
                 </div>
               </div>
 
-              <div className="overflow-x-auto border border-black/10 rounded-[24px]">
+              <div className={`overflow-x-auto border rounded-[24px] ${
+                isDark ? 'border-[#1e2c21] bg-[#0d1410]' : 'border-black/10 bg-white'
+              }`}>
                 <table className="w-full text-left text-xs font-mono">
-                  <thead className="bg-[#F8F9FA] text-[#737373] text-[11px] uppercase tracking-[0.2em] border-b border-black/10">
+                  <thead className={`text-[11px] uppercase tracking-[0.2em] border-b ${
+                    isDark ? 'bg-[#101712] text-zinc-400 border-[#1e2c21]' : 'bg-[#F8F9FA] text-[#737373] border-black/10'
+                  }`}>
                     <tr>
                       <th className="py-3 px-4">PARTICIPANT TEAM</th>
                       <th className="py-3 px-4">CURRENT CASH IN-HAND</th>
@@ -1265,18 +1406,22 @@ export default function EditorialBrokerDeskPage() {
                       <th className="py-3 px-4 text-right">QUICK SLIP FILL</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-black/5 text-[#000000]">
+                  <tbody className={`divide-y ${
+                    isDark ? 'divide-[#18231c] text-zinc-200' : 'divide-black/5 text-[#000000]'
+                  }`}>
                     {filteredTeams.map((tp) => {
                       const isEliminated = tp.status === 'ELIMINATED';
                       return (
                         <tr
                           key={tp.teamId}
-                          className={`hover:bg-[#F8F9FA] transition-colors duration-150 ${
-                            isEliminated ? 'bg-red-50/40' : ''
+                          className={`transition-colors duration-150 ${
+                            isEliminated
+                              ? isDark ? 'bg-rose-950/30 hover:bg-rose-950/50' : 'bg-red-50/40 hover:bg-red-50/70'
+                              : isDark ? 'hover:bg-[#121c15]' : 'hover:bg-[#F8F9FA]'
                           }`}
                         >
                           <td className="py-3 px-4 font-sans">
-                            <div className="font-bold text-[#000000]">{tp.teamName}</div>
+                            <div className={`font-bold ${isDark ? 'text-white' : 'text-[#000000]'}`}>{tp.teamName}</div>
                             <div className="text-[10px] text-[#737373] font-mono">{tp.teamCode}</div>
                           </td>
 
@@ -1367,12 +1512,20 @@ export default function EditorialBrokerDeskPage() {
                 value={ledgerSearch}
                 onChange={(e) => setLedgerSearch(e.target.value)}
                 placeholder="SEARCH SLIP ID, BUYER, SELLER, TICKER..."
-                className="py-2 px-4 rounded-full bg-[#F8F9FA] border border-black/10 text-xs text-[#000000] outline-none w-80 uppercase tracking-[0.1em] font-mono"
+                className={`py-2 px-4 rounded-full border text-xs outline-none w-80 uppercase tracking-[0.1em] font-mono ${
+                  isDark
+                    ? 'bg-[#101712] border-[#1e2c21] text-white placeholder:text-zinc-600'
+                    : 'bg-[#F8F9FA] border-black/10 text-[#000000]'
+                }`}
               />
 
-              <div className="overflow-x-auto border border-black/10 rounded-[24px]">
+              <div className={`overflow-x-auto border rounded-[24px] ${
+                isDark ? 'border-[#1e2c21] bg-[#0d1410]' : 'border-black/10 bg-white'
+              }`}>
                 <table className="w-full text-left text-xs font-mono">
-                  <thead className="bg-[#F8F9FA] text-[#737373] text-[11px] uppercase tracking-[0.2em] border-b border-black/10">
+                  <thead className={`text-[11px] uppercase tracking-[0.2em] border-b ${
+                    isDark ? 'bg-[#101712] text-zinc-400 border-[#1e2c21]' : 'bg-[#F8F9FA] text-[#737373] border-black/10'
+                  }`}>
                     <tr>
                       <th className="py-3 px-4">SLIP ID</th>
                       <th className="py-3 px-4">EXECUTION TIME</th>
@@ -1389,8 +1542,8 @@ export default function EditorialBrokerDeskPage() {
                   </thead>
                   <tbody className="divide-y divide-black/5 text-[#000000]">
                     {filteredTrades.map((t) => (
-                      <tr key={t.slipId} className="hover:bg-[#F8F9FA] transition">
-                        <td className="py-3 px-4 font-bold text-[#0052CC]">{t.slipId}</td>
+                      <tr key={t.slipId} className={`transition ${isDark ? 'hover:bg-[#121c15]' : 'hover:bg-[#F8F9FA]'}`}>
+                        <td className={`py-3 px-4 font-bold ${isDark ? 'text-blue-400' : 'text-[#0052CC]'}`}>{t.slipId}</td>
                         <td className="py-3 px-4 text-[#737373] text-[10px]">
                           {new Date(t.timestamp).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
                         </td>
@@ -1423,11 +1576,15 @@ export default function EditorialBrokerDeskPage() {
 
           {/* TAB 3: HOLDINGS MATRIX */}
           {activeTab === 'matrix' && (
-            <div className="overflow-x-auto border border-black/10 rounded-[24px]">
+            <div className={`overflow-x-auto border rounded-[24px] ${
+              isDark ? 'border-[#1e2c21] bg-[#0d1410]' : 'border-black/10 bg-white'
+            }`}>
               <table className="w-full text-left text-xs font-mono">
-                <thead className="bg-[#F8F9FA] text-[#737373] text-[11px] uppercase tracking-[0.2em] border-b border-black/10">
+                <thead className={`text-[11px] uppercase tracking-[0.2em] border-b ${
+                  isDark ? 'bg-[#101712] text-zinc-400 border-[#1e2c21]' : 'bg-[#F8F9FA] text-[#737373] border-black/10'
+                }`}>
                   <tr>
-                    <th className="py-3 px-4 sticky left-0 bg-[#F8F9FA] z-10">TEAM</th>
+                    <th className={`py-3 px-4 sticky left-0 z-10 ${isDark ? 'bg-[#101712]' : 'bg-[#F8F9FA]'}`}>TEAM</th>
                     {(snapshot?.holdingsMatrix.stocks || []).map((s) => (
                       <th key={s.id} className="py-3 px-4 text-center">
                         <div>{s.ticker}</div>
@@ -1440,7 +1597,9 @@ export default function EditorialBrokerDeskPage() {
                 <tbody className="divide-y divide-black/5 text-[#000000]">
                   {(snapshot?.holdingsMatrix.teams || []).map((team) => (
                     <tr key={team.teamId} className="hover:bg-[#F8F9FA] transition">
-                      <td className="py-3 px-4 font-sans font-bold text-[#000000] sticky left-0 bg-white z-10 border-r border-black/10">
+                      <td className={`py-3 px-4 font-sans font-bold sticky left-0 z-10 border-r ${
+                        isDark ? 'bg-[#0d1410] text-white border-[#1e2c21]' : 'bg-white text-[#000000] border-black/10'
+                      }`}>
                         {team.teamName}
                       </td>
                       {(snapshot?.holdingsMatrix.stocks || []).map((s) => {
@@ -1478,9 +1637,13 @@ export default function EditorialBrokerDeskPage() {
                 </span>
               </div>
 
-              <div className="overflow-x-auto border border-black/10 rounded-[24px]">
+              <div className={`overflow-x-auto border rounded-[24px] ${
+                isDark ? 'border-[#1e2c21] bg-[#0d1410]' : 'border-black/10 bg-white'
+              }`}>
                 <table className="w-full text-left text-xs font-mono">
-                  <thead className="bg-[#F8F9FA] text-[#737373] text-[11px] uppercase tracking-[0.2em] border-b border-black/10">
+                  <thead className={`text-[11px] uppercase tracking-[0.2em] border-b ${
+                    isDark ? 'bg-[#101712] text-zinc-400 border-[#1e2c21]' : 'bg-[#F8F9FA] text-[#737373] border-black/10'
+                  }`}>
                     <tr>
                       <th className="py-3 px-4">APPLICATION SLIP ID</th>
                       <th className="py-3 px-4">TIMESTAMP</th>
@@ -1496,7 +1659,7 @@ export default function EditorialBrokerDeskPage() {
                     {(snapshot?.ipoSubscriptions || []).map((sub) => {
                       const listing = (snapshot?.ipoListings || []).find((l) => l.id === sub.ipo_id);
                       return (
-                        <tr key={sub.id} className="hover:bg-[#F8F9FA] transition">
+                        <tr key={sub.id} className={`transition ${isDark ? 'hover:bg-[#121c15]' : 'hover:bg-[#F8F9FA]'}`}>
                           <td className="py-3 px-4 font-bold text-[#0052CC]">{sub.id.slice(-8).toUpperCase()}</td>
                           <td className="py-3 px-4 text-[#737373]">
                             {new Date(sub.created_at).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}

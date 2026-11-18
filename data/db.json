@@ -3020,10 +3020,10 @@
   ],
   "current_round_id": "round-0",
   "round_clock": {
-    "remaining_seconds": 692,
+    "remaining_seconds": 212,
     "is_paused": false,
     "is_orders_locked": false,
-    "last_tick": 1795012219056
+    "last_tick": 1795012699056
   },
   "ipo_listings": [
     {
