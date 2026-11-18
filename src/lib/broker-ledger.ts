@@ -73,8 +73,8 @@ export function computeBrokerLedgerSnapshot(): BrokerLedgerSnapshot {
       sellerTeam === 'Central Primary Pool' ||
       sellerTeam.toLowerCase().includes('primary pool');
 
-    const buyerBrokerage = isRound0Exempt ? 0 : (buyTx.brokerage ?? Number((gross * 0.05).toFixed(2)));
-    const sellerBrokerage = isRound0Exempt ? 0 : (matchingSell?.brokerage ?? Number((gross * 0.05).toFixed(2)));
+    const buyerBrokerage = isRound0Exempt ? 0 : (buyTx.brokerage ?? Number((gross * 0.01).toFixed(2)));
+    const sellerBrokerage = isRound0Exempt ? 0 : (matchingSell?.brokerage ?? Number((gross * 0.01).toFixed(2)));
     const buyerTotalDebit = Number((gross + buyerBrokerage).toFixed(2));
     const sellerNetCredit = Number((gross - sellerBrokerage).toFixed(2));
     const deskCommission = Number((buyerBrokerage + sellerBrokerage).toFixed(2));

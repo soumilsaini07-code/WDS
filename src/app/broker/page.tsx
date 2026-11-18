@@ -181,8 +181,8 @@ export default function EditorialBrokerDeskPage() {
 
   // 0th Round Exemption: Brokerage is waived (0%) on Round 0 / Primary Pool
   const isBrokerageWaived = isRound0 || isPrimaryPool;
-  const buyerBrokerage = isBrokerageWaived ? 0 : Number((grossDealValue * 0.05).toFixed(2));
-  const sellerBrokerage = isBrokerageWaived ? 0 : Number((grossDealValue * 0.05).toFixed(2));
+  const buyerBrokerage = isBrokerageWaived ? 0 : Number((grossDealValue * 0.01).toFixed(2));
+  const sellerBrokerage = isBrokerageWaived ? 0 : Number((grossDealValue * 0.01).toFixed(2));
   const totalBuyerDebit = Number((grossDealValue + buyerBrokerage).toFixed(2));
   const totalSellerCredit = Number((grossDealValue - sellerBrokerage).toFixed(2));
   const totalDeskFee = Number((buyerBrokerage + sellerBrokerage).toFixed(2));
@@ -575,7 +575,7 @@ export default function EditorialBrokerDeskPage() {
                 ? 'PRIMARY ALLOTMENT // 0% BROKERAGE'
                 : isRound0
                 ? '0% BROKERAGE // R0 EXEMPT'
-                : '5% DUAL BROKERAGE'}
+                : '1% DUAL BROKERAGE'}
             </span>
           </div>
 
@@ -1067,7 +1067,7 @@ export default function EditorialBrokerDeskPage() {
                 </div>
                 <div>
                   <span className="text-[#737373] uppercase tracking-[0.15em] block text-[10px]">
-                    BROKERAGE (5%)
+                    BROKERAGE (1%)
                   </span>
                   <span className="text-xl font-bold text-[#000000]">
                     {isBrokerageWaived ? '₹0.00 (WAIVED)' : `+₹${buyerBrokerage.toLocaleString('en-IN')}`}
@@ -1376,7 +1376,7 @@ export default function EditorialBrokerDeskPage() {
                       <th className="py-3 px-4">SHARES (QTY)</th>
                       <th className="py-3 px-4">PRICE / SHARE (₹)</th>
                       <th className="py-3 px-4">GROSS DEAL VALUE (₹)</th>
-                      <th className="py-3 px-4">5% BROKERAGE (₹)</th>
+                      <th className="py-3 px-4">1% BROKERAGE (₹)</th>
                       <th className="py-3 px-4">BUYER TOTAL PAID (₹)</th>
                       <th className="py-3 px-4">SETTLEMENT STATUS</th>
                     </tr>

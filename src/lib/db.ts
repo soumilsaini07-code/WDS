@@ -1954,7 +1954,7 @@ export async function executeTrade(
   }
 
   const grossTradeValue = Number((stock.current_price * quantity).toFixed(2));
-  const brokerage = Number((grossTradeValue * 0.05).toFixed(2)); // 5% Econ Brokerage Fee
+  const brokerage = Number((grossTradeValue * 0.01).toFixed(2)); // 1% Econ Brokerage Fee
 
   let userPortfolio = db.portfolios.find(
     (p) => p.user_id === userId && p.stock_id === stock.id
@@ -1965,7 +1965,7 @@ export async function executeTrade(
     if (user.balance < totalRequired) {
       return {
         success: false,
-        error: `Insufficient virtual cash. Required: ₹${totalRequired.toLocaleString('en-IN')} (incl. 5% Econ Brokerage of ₹${brokerage.toLocaleString('en-IN')}), Available: ₹${user.balance.toLocaleString('en-IN')}`,
+        error: `Insufficient virtual cash. Required: ₹${totalRequired.toLocaleString('en-IN')} (incl. 1% Econ Brokerage of ₹${brokerage.toLocaleString('en-IN')}), Available: ₹${user.balance.toLocaleString('en-IN')}`,
       };
     }
 
@@ -2764,13 +2764,13 @@ export function appendTradeToCSV(slip: OrderSlip, adminEmail: string) {
     if (!fs.existsSync(DATA_DIR)) {
       fs.mkdirSync(DATA_DIR, { recursive: true });
     }
-    const header = 'Slip ID,Timestamp,Team Name,Participant Name,Email,Stock Ticker,Stock Name,Order Type,Quantity,Price (INR),Gross Consideration (INR),Brokerage 5% (INR),Net Consideration (INR),Executed By Admin,Status\n';
+    const header = 'Slip ID,Timestamp,Team Name,Participant Name,Email,Stock Ticker,Stock Name,Order Type,Quantity,Price (INR),Gross Consideration (INR),Brokerage 1% (INR),Net Consideration (INR),Executed By Admin,Status\n';
     if (!fs.existsSync(CSV_FILE)) {
       fs.writeFileSync(CSV_FILE, header, 'utf8');
     }
     const safe = sanitizeCSVField;
     const gross = slip.gross_amount ?? Number((slip.price * slip.quantity).toFixed(2));
-    const brok = slip.brokerage ?? Number((gross * 0.05).toFixed(2));
+    const brok = slip.brokerage ?? Number((gross * 0.01).toFixed(2));
     const net = slip.total_amount;
     const row = `${safe(slip.slip_id)},${safe(new Date().toISOString())},${safe(slip.team_name)},${safe(slip.student_name)},${safe(slip.student_email)},${safe(slip.ticker)},${safe(slip.stock_name)},${safe(slip.type)},${slip.quantity},${slip.price},${gross},${brok},${net},${safe(adminEmail)},"EXECUTED"\n`;
     fs.appendFileSync(CSV_FILE, row, 'utf8');
@@ -2785,7 +2785,7 @@ export function getLiveTradesCSVContent(): string {
       return fs.readFileSync(CSV_FILE, 'utf8');
     }
   } catch {}
-  return 'Slip ID,Timestamp,Team Name,Participant Name,Email,Stock Ticker,Stock Name,Order Type,Quantity,Price (INR),Gross Consideration (INR),Brokerage 5% (INR),Net Consideration (INR),Executed By Admin,Status\n';
+  return 'Slip ID,Timestamp,Team Name,Participant Name,Email,Stock Ticker,Stock Name,Order Type,Quantity,Price (INR),Gross Consideration (INR),Brokerage 1% (INR),Net Consideration (INR),Executed By Admin,Status\n';
 }
 
 export async function getTeams(): Promise<Team[]> {
@@ -3108,7 +3108,7 @@ export async function createOrderSlip(
   }
 
   const grossCost = Number((stock.current_price * quantity).toFixed(2));
-  const brokerage = Number((grossCost * 0.05).toFixed(2));
+  const brokerage = Number((grossCost * 0.01).toFixed(2));
   const totalCost = type === 'BUY' ? Number((grossCost + brokerage).toFixed(2)) : Number((grossCost - brokerage).toFixed(2));
 
   const team = db.teams?.find((t) => t.id === user.team_id || t.members.some((m) => m.id === user.id));
@@ -3119,7 +3119,7 @@ export async function createOrderSlip(
     if (user.balance < totalCost) {
       return {
         success: false,
-        error: `Insufficient virtual cash balance. Required: ₹${totalCost.toLocaleString('en-IN')} (incl. 5% Econ Brokerage of ₹${brokerage.toLocaleString('en-IN')}), Available: ₹${user.balance.toLocaleString('en-IN')}`,
+        error: `Insufficient virtual cash balance. Required: ₹${totalCost.toLocaleString('en-IN')} (incl. 1% Econ Brokerage of ₹${brokerage.toLocaleString('en-IN')}), Available: ₹${user.balance.toLocaleString('en-IN')}`,
       };
     }
     // 10% Cash Floor Enforcement (₹1,00,000 minimum cash)
@@ -3535,7 +3535,7 @@ export async function executeInterTeamTrade(
     return { success: false, error: `Trading circuit breaker is active for ${stock.ticker}. Orders suspended.` };
   }
 
-  // Dual 5% Brokerage & Base Price Calculations (Waived on Primary Pool Issuances in Round 0)
+  // Dual 1% Brokerage & Base Price Calculations (Waived on Primary Pool Issuances in Round 0)
   const isPrimaryPool =
     sellerTeam.name === 'Central Primary Pool' ||
     sellerTeam.name.toLowerCase().includes('primary pool') ||
@@ -3617,10 +3617,10 @@ export async function executeInterTeamTrade(
     sellerPort.shares_count = quantity;
   }
 
-  // Dual 5% Brokerage Calculations (Waived on Primary Pool Issuances in Round 0)
+  // Dual 1% Brokerage Calculations (Waived on Primary Pool Issuances in Round 0)
   const grossDealValue = Number((effectivePrice * quantity).toFixed(2));
-  const buyerBrokerage = isPrimaryPool ? 0 : Number((grossDealValue * 0.05).toFixed(2));
-  const sellerBrokerage = isPrimaryPool ? 0 : Number((grossDealValue * 0.05).toFixed(2));
+  const buyerBrokerage = isPrimaryPool ? 0 : Number((grossDealValue * 0.01).toFixed(2));
+  const sellerBrokerage = isPrimaryPool ? 0 : Number((grossDealValue * 0.01).toFixed(2));
   const totalBuyerDebit = Number((grossDealValue + buyerBrokerage).toFixed(2));
   const totalSellerCredit = Number((grossDealValue - sellerBrokerage).toFixed(2));
   const totalEconCommission = Number((buyerBrokerage + sellerBrokerage).toFixed(2));

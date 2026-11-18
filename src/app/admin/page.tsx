@@ -393,7 +393,7 @@ export default function AdminPage() {
     }
   };
 
-  // Inter-Team P2P Execution Handler (Rulebook §2: Rounds 2-7 with Dual 5% Brokerage)
+  // Inter-Team P2P Execution Handler (Rulebook §2: Rounds 2-7 with Dual 1% Brokerage)
   const handleExecuteP2P = async () => {
     if (!p2pSellerTeamId.trim() || !p2pBuyerTeamId.trim()) {
       showToast('Both Seller and Buyer teams must be entered.');

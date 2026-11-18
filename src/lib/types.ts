@@ -113,7 +113,7 @@ export interface Transaction {
   quantity: number;
   price_at_trade: number;
   gross_amount?: number;
-  brokerage?: number;
+  brokerage?: number; // 1% brokerage fee
   net_amount?: number;
   timestamp: string;
   // Optional convenience aliases
