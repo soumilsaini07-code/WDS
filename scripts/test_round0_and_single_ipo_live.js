@@ -79,38 +79,49 @@ async function request(path, options = {}) {
 
 async function run() {
   console.log('======================================================================');
-  console.log('VERIFYING ROUND 0 LIVE UPDATES, SINGLE IPO CONFIGURATION & ROUNDS 1-5');
+  console.log('VERIFYING: NO LIVE UPDATION IN ROUND 0, EXACTLY 1 ROUND AFTER IPO');
   console.log('======================================================================\n');
 
   // STEP 1: Verify Initial Clean State in Round 0
-  console.log('[STEP 1] Verifying Round 0 Platform State...');
+  console.log('[STEP 1] Verifying Clean Platform State & Round Sequence...');
   const roundsRes = await request('/api/admin/rounds');
   assert(roundsRes.status === 200 && roundsRes.data.success, 'Fetched admin rounds data');
   assert(roundsRes.data.currentRound?.id === 'round-0', `Current round is round-0 (${roundsRes.data.currentRound?.name})`);
-  assert(roundsRes.data.rounds?.length === 7, `Strictly 7 rounds configured: ${roundsRes.data.rounds.map(r => r.id).join(' -> ')}`);
+  assert(roundsRes.data.rounds?.length === 5, `Strictly 5 rounds configured: ${roundsRes.data.rounds.map(r => r.id).join(' -> ')}`);
   
   const ipoRounds = roundsRes.data.rounds.filter(r => r.type === 'IPO');
   assert(ipoRounds.length === 1 && ipoRounds[0].id === 'ipo-1', 'Strictly ONLY 1 IPO round exists in competition structure');
 
-  // Check 14 cohort teams
+  // Verify there is strictly ONLY ONE round after the IPO round
+  const ipoRoundIndex = roundsRes.data.rounds.findIndex(r => r.id === 'ipo-1');
+  const roundsAfterIPO = roundsRes.data.rounds.slice(ipoRoundIndex + 1);
+  assert(
+    roundsAfterIPO.length === 1 && roundsAfterIPO[0].id === 'round-3',
+    `Strictly ONLY ONE round after IPO round: ${roundsAfterIPO.map(r => r.id).join(', ')} (${roundsAfterIPO[0]?.name})`
+  );
+
+  // Check 14 official cohort teams and ZERO test teams
   const ledgerSnapshot = await request('/api/broker/ledger');
   assert(ledgerSnapshot.status === 200, 'Broker ledger accessible');
   const teams = ledgerSnapshot.data.snapshot?.teamsPurse || [];
-  assert(teams.length === 14, `14 authentic student teams loaded: ${teams.length} teams`);
+  assert(teams.length === 14, `Exactly 14 authentic student teams loaded: ${teams.length} teams`);
   
+  const hasAdHocTeams = teams.some(t => t.teamName.startsWith('TEAM '));
+  assert(!hasAdHocTeams, 'Zero ad-hoc test teams (TEAM 1, 2, 4, 11 pruned)');
+
   const primaryPoolTeam = teams.find(t => t.teamName.toLowerCase().includes('primary pool'));
   assert(primaryPoolTeam !== undefined, 'Central Primary Pool exists for Round 0 initial purchases');
 
-  // STEP 2: Execute Round 0 Primary Desk Purchase & Verify Live Updates
-  console.log('\n[STEP 2] Executing Round 0 Primary Desk Purchase & Verifying Live Telemetry...');
+  // STEP 2: Execute Round 0 Primary Desk Purchase & Verify NO Live Price Updation
+  console.log('\n[STEP 2] Executing Round 0 Primary Desk Purchase & Verifying NO Live Updation...');
   const stocksRes = await request('/api/stocks');
   const reliance = stocksRes.data.stocks.find(s => s.ticker === 'RELIANCE') || stocksRes.data.stocks[0];
   const initialHistoryLen = reliance.historical_prices?.length || 0;
-  console.log(`  Initial RELIANCE price: ₹${reliance.current_price}, historical points: ${initialHistoryLen}`);
+  const initialPrice = reliance.current_price;
+  console.log(`  Initial RELIANCE price: ₹${initialPrice}, historical points: ${initialHistoryLen}`);
 
   const tradeQty = 550; // 550 * ~1164 = ~6.4 Lakhs (surpasses 60% / ₹6L mandatory threshold)
   const tradePrice = reliance.current_price;
-  const grossValue = Number((tradeQty * tradePrice).toFixed(2));
 
   // Submit physical trade slip via /api/broker/settle
   const r0SlipRes = await request('/api/broker/settle', {
@@ -126,6 +137,7 @@ async function run() {
 
   assert(r0SlipRes.status === 200 && r0SlipRes.data.success, `Round 0 primary issuance slip executed successfully (Deals count: ${r0SlipRes.data.summary?.dealsCount})`);
   assert(r0SlipRes.data.summary?.buyerBrokerage === 0 && r0SlipRes.data.summary?.sellerBrokerage === 0, 'Zero brokerage charged on Central Primary Pool issuance (0% Round 0 exemption)');
+  assert(r0SlipRes.data.summary?.priceUpdated === false, 'Confirmed: priceUpdated flag is FALSE in Round 0 (no price recalculation)');
 
   // Verify Broker Ledger reflects the trade, cash, and 60% deployment status
   const postR0Ledger = await request('/api/broker/ledger');
@@ -136,20 +148,27 @@ async function run() {
   assert(apexPurse && apexPurse.round0Spent >= 600000, `Apex Alpha Syndicate deployed ₹${apexPurse.round0Spent.toLocaleString('en-IN')} (Target ₹6,00,000 satisfied)`);
   assert(apexPurse.round0DeployedPercent >= 60, `Apex deployment progress: ${apexPurse.round0DeployedPercent.toFixed(1)}% (Qualified for floor trading)`);
 
-  // Verify Dashboard Graph & HUD Banner received trade
+  // Verify Dashboard Stock Graph DID NOT change or append in Round 0
   const postR0Stocks = await request('/api/stocks');
   const updatedReliance = postR0Stocks.data.stocks.find(s => s.id === reliance.id);
   assert(
-    updatedReliance.historical_prices?.length === initialHistoryLen + 1,
-    `Stock historical graph dynamically updated: ${initialHistoryLen} -> ${updatedReliance.historical_prices.length} points`
+    updatedReliance.historical_prices?.length === initialHistoryLen,
+    `Stock historical graph was NOT updated in Round 0: retained exact ${initialHistoryLen} points`
+  );
+  assert(
+    updatedReliance.current_price === initialPrice,
+    `Stock price remained fixed at base reference LTP: ₹${updatedReliance.current_price} (No fluctuation in Round 0)`
   );
 
+  // Verify NO live HUD trade banner broadcast in Round 0
   const latestTradeRes = await request('/api/trades/latest');
-  assert(latestTradeRes.status === 200 && latestTradeRes.data.latestTrade !== null, 'Live HUD trade banner broadcast active');
-  assert(latestTradeRes.data.latestTrade?.ticker === reliance.ticker, `HUD banner displaying latest executed deal: ${latestTradeRes.data.latestTrade?.ticker}`);
+  assert(
+    latestTradeRes.data.latestTrade === null || latestTradeRes.data.latestTrade === undefined,
+    'No HUD trade ticker banner broadcast in Round 0 (floor displays remain calm during desk onboarding)'
+  );
 
-  // STEP 3: Advance to Round 1 (P2P Floor Trading) & Test VWAP & Price Updates
-  console.log('\n[STEP 3] Advancing to Round 1 (P2P Trading) & Testing Rolling VWAP...');
+  // STEP 3: Advance to Round 1 (P2P Floor Trading) & Test that Live VWAP Updation DOES Activate
+  console.log('\n[STEP 3] Advancing to Round 1 (P2P Trading) & Testing Live VWAP Activation...');
   const advR1 = await request('/api/admin/rounds', {
     method: 'POST',
     body: JSON.stringify({ action: 'ADVANCE', targetRoundId: 'round-1' }),
@@ -169,6 +188,15 @@ async function run() {
   });
   assert(r1SlipRes.status === 200 && r1SlipRes.data.success, 'Round 1 P2P trade executed with 5% dual brokerage');
   assert(r1SlipRes.data.summary?.buyerBrokerage > 0 && r1SlipRes.data.summary?.sellerBrokerage > 0, 'Dual 5% brokerage applied to both teams on secondary floor');
+  assert(r1SlipRes.data.summary?.priceUpdated === true, 'Confirmed: priceUpdated flag is TRUE in Round 1 (live price updating active)');
+
+  // Verify Reliance graph updated in Round 1
+  const postR1Stocks = await request('/api/stocks');
+  const r1Reliance = postR1Stocks.data.stocks.find(s => s.id === reliance.id);
+  assert(
+    r1Reliance.historical_prices?.length === initialHistoryLen + 1,
+    `Stock historical graph dynamically updated in Round 1: ${initialHistoryLen} -> ${r1Reliance.historical_prices.length} points`
+  );
 
   // STEP 4: Advance through Round 2 to Single IPO Round (ipo-1)
   console.log('\n[STEP 4] Advancing to Round 2 and then Single IPO Round (ipo-1)...');
@@ -219,13 +247,14 @@ async function run() {
   assert(listedNova !== undefined, `NOVATECH is now listed in stock universe at ₹${listedNova?.current_price}`);
   assert(listedNova?.historical_prices?.length >= 2, `NOVATECH price history initialized with base P0 and listing price: [${listedNova?.historical_prices?.join(', ')}]`);
 
-  // STEP 5: Advance from ipo-1 straight to Round 3 (No ipo-2!)
-  console.log('\n[STEP 5] Advancing from IPO Round directly to Round 3 (Secondary Trading)...');
+  // STEP 5: Advance from ipo-1 to Round 3 (The ONLY round after IPO round)
+  console.log('\n[STEP 5] Advancing from IPO Round directly to Round 3 (Final Trading & Closing Bell)...');
   const advR3 = await request('/api/admin/rounds', {
     method: 'POST',
     body: JSON.stringify({ action: 'ADVANCE', targetRoundId: 'round-3' }),
   });
-  assert(advR3.status === 200 && advR3.data.success, 'Advanced directly from ipo-1 to round-3 (Zero redundant IPO rounds)');
+  assert(advR3.status === 200 && advR3.data.success, 'Advanced directly from ipo-1 to round-3');
+  assert(advR3.data.currentRound?.name.includes('Closing Bell'), `Round 3 is the Final Closing Bell Round: "${advR3.data.currentRound?.name}"`);
 
   // Trade NOVATECH in Round 3
   const novaTradeRes = await request('/api/broker/settle', {
@@ -240,22 +269,8 @@ async function run() {
   });
   assert(novaTradeRes.status === 200 && novaTradeRes.data.success, 'NOVATECH traded on secondary floor in Round 3');
 
-  // STEP 6: Advance through Round 4 and Round 5 (Closing Bell)
-  console.log('\n[STEP 6] Advancing through Round 4 to Round 5 (Closing Bell)...');
-  const advR4 = await request('/api/admin/rounds', {
-    method: 'POST',
-    body: JSON.stringify({ action: 'ADVANCE', targetRoundId: 'round-4' }),
-  });
-  assert(advR4.status === 200 && advR4.data.success, 'Advanced to Round 4');
-
-  const advR5 = await request('/api/admin/rounds', {
-    method: 'POST',
-    body: JSON.stringify({ action: 'ADVANCE', targetRoundId: 'round-5' }),
-  });
-  assert(advR5.status === 200 && advR5.data.success, 'Advanced to Round 5 (Closing Bell)');
-
-  // Verify Final Platform Health & Zero Corrupt Valuations
-  console.log('\n[STEP 7] Final Integrity Check & Valuation Health...');
+  // STEP 6: Final Platform Health & Valuation Integrity
+  console.log('\n[STEP 6] Final Integrity Check & Valuation Health...');
   const finalLedger = await request('/api/broker/ledger');
   const allPurses = finalLedger.data.snapshot?.teamsPurse || [];
   const invalidPurses = allPurses.filter(p => Number.isNaN(p.currentCash) || Number.isNaN(p.totalNetWorth) || p.currentCash < 0);

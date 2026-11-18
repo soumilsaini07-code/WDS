@@ -414,7 +414,7 @@ async function run() {
   // STEP 9: Full Round Progression Simulation (Round 0 -> Round 5)
   console.log('\n[STAGE 9] Testing End-to-End Multi-Round Progression & Transition State...');
 
-  const roundsSequence = ['round-1', 'round-2', 'ipo-1', 'round-3', 'round-4', 'round-5'];
+  const roundsSequence = ['round-1', 'round-2', 'ipo-1', 'round-3'];
   for (const rId of roundsSequence) {
     const advRes = await request('/api/admin/rounds', {
       method: 'POST',

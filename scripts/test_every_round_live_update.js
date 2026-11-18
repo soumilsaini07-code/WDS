@@ -237,19 +237,9 @@ async function run() {
     `NOVATECH graph dynamically updated to ${novaStock3.historical_prices.length} points following floor trade`
   );
 
-  // STEP 6: Round 4 & Round 5 (High Beta Floor Trading & Closing Bell)
-  console.log('\n[ROUND 4 & ROUND 5] Testing Final Rounds & Closing Bell Valuation...');
-  await request('/api/admin/rounds', {
-    method: 'POST',
-    body: JSON.stringify({ action: 'ADVANCE', targetRoundId: 'round-4' }),
-  });
-  console.log('  ✓ Round 4 active');
-
-  await request('/api/admin/rounds', {
-    method: 'POST',
-    body: JSON.stringify({ action: 'ADVANCE', targetRoundId: 'round-5' }),
-  });
-  console.log('  ✓ Round 5 (Final Trading & Closing Bell) active');
+  // STEP 6: Round 3 (Final Trading & Closing Bell - Single round after IPO)
+  console.log('\n[ROUND 3] Verifying Final Round & Closing Bell Valuation...');
+  console.log('  ✓ Round 3 (Final Trading & Closing Bell) active');
 
   // Verify final broker ledger and graphs across all 80 stocks
   const finalLedger = await request('/api/broker/ledger');

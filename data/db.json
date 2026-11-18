@@ -254,7 +254,7 @@
       "email": "centralp@thapar.edu",
       "role": "participant",
       "username": "Central Primary Pool",
-      "balance": 1000000,
+      "balance": 10000000,
       "ecoin_balance": 0,
       "team_id": "team-yfnz05",
       "team_name": "Central Primary Pool",
@@ -3089,21 +3089,21 @@
       "headline": "RBI Keeps Repo Rate Constant at 6.50% to Anchor Core Inflation",
       "body": "The Monetary Policy Committee of the RBI reiterated its focus on withdrawal of accommodation, supporting sustained market stability on Dalal Street.",
       "sentiment": "NEUTRAL",
-      "published_at": "2026-11-17T01:23:01.055Z"
+      "published_at": "2026-11-18T02:18:12.825Z"
     },
     {
       "id": "news-2",
       "headline": "Global Crude Oil Eases Near $78/bbl: Relief for Indian Refiners",
       "body": "Crude indices soften amid steady North American output, lowering raw material import pressures for Indian petrochemical and automotive players.",
       "sentiment": "BULLISH",
-      "published_at": "2026-11-17T02:23:01.055Z"
+      "published_at": "2026-11-18T03:18:12.826Z"
     },
     {
       "id": "news-3",
       "headline": "Foreign Institutional Inflows Cross ₹4,200 Cr in Weekly Trading",
       "body": "Institutional appetite for Indian banking and auto blue-chips surges following robust quarterly margin disclosures.",
       "sentiment": "BULLISH",
-      "published_at": "2026-11-17T02:53:01.055Z"
+      "published_at": "2026-11-18T03:48:12.826Z"
     }
   ],
   "quizzes": [
@@ -3776,40 +3776,20 @@
     {
       "id": "round-3",
       "index": 4,
-      "name": "Round 3: Multi-Sector Expansion & IPO Trading",
+      "name": "Round 3: Final Trading & Closing Bell",
       "type": "P2P_TRADING",
       "status": "UPCOMING",
       "duration_minutes": 20,
-      "description": "Secondary floor trading resumes, now including newly listed IPO stock.",
-      "rules_note": "5% dual brokerage on P2P trades. Quantity-weighted 3-trade rolling price rule active."
-    },
-    {
-      "id": "round-4",
-      "index": 5,
-      "name": "Round 4: High Beta Floor Trading",
-      "type": "P2P_TRADING",
-      "status": "UPCOMING",
-      "duration_minutes": 20,
-      "description": "High volatility secondary trading session with breaking news adjustments.",
-      "rules_note": "Valid slips received by round cutoff processed after close to establish next price base."
-    },
-    {
-      "id": "round-5",
-      "index": 6,
-      "name": "Round 5: Final Trading & Closing Bell",
-      "type": "P2P_TRADING",
-      "status": "UPCOMING",
-      "duration_minutes": 20,
-      "description": "Final Dalal Street trading window. Unexecuted slips discarded at close. Closing prices determine final winner.",
-      "rules_note": "Final Portfolio Value = Cash + Σ(Holdings × Round 5 Close). Teams below ₹1,00,000 cash face round disqualification."
+      "description": "Final Dalal Street trading window including newly listed IPO stock. Unexecuted slips discarded at close. Closing prices determine final winner.",
+      "rules_note": "Final Portfolio Value = Cash + Σ(Holdings × Round 3 Close). Teams below ₹1,00,000 cash face round disqualification."
     }
   ],
   "current_round_id": "round-0",
   "round_clock": {
-    "remaining_seconds": 1776,
+    "remaining_seconds": 1795,
     "is_paused": false,
     "is_orders_locked": false,
-    "last_tick": 1794885805055
+    "last_tick": 1794975497825
   },
   "ipo_listings": [
     {

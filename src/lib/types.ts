@@ -282,9 +282,7 @@ export type CompetitionRoundId =
   | 'round-1'
   | 'round-2'
   | 'ipo-1'
-  | 'round-3'
-  | 'round-4'
-  | 'round-5';
+  | 'round-3';
 
 export type RoundStageType = 'PRE_MARKET' | 'PRIMARY_DESK' | 'P2P_TRADING' | 'IPO';
 

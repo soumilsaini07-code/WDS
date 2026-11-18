@@ -120,32 +120,12 @@ const cleanRounds = [
   {
     id: 'round-3',
     index: 4,
-    name: 'Round 3: Multi-Sector Expansion & IPO Trading',
+    name: 'Round 3: Final Trading & Closing Bell',
     type: 'P2P_TRADING',
     status: 'UPCOMING',
     duration_minutes: 20,
-    description: 'Secondary floor trading resumes, now including newly listed IPO stock.',
-    rules_note: '5% dual brokerage on P2P trades. Quantity-weighted 3-trade rolling price rule active.',
-  },
-  {
-    id: 'round-4',
-    index: 5,
-    name: 'Round 4: High Beta Floor Trading',
-    type: 'P2P_TRADING',
-    status: 'UPCOMING',
-    duration_minutes: 20,
-    description: 'High volatility secondary trading session with breaking news adjustments.',
-    rules_note: 'Valid slips received by round cutoff processed after close to establish next price base.',
-  },
-  {
-    id: 'round-5',
-    index: 6,
-    name: 'Round 5: Final Trading & Closing Bell',
-    type: 'P2P_TRADING',
-    status: 'UPCOMING',
-    duration_minutes: 20,
-    description: 'Final Dalal Street trading window. Unexecuted slips discarded at close. Closing prices determine final winner.',
-    rules_note: 'Final Portfolio Value = Cash + Σ(Holdings × Round 5 Close). Teams below ₹1,00,000 cash face round disqualification.',
+    description: 'Final Dalal Street trading window including newly listed IPO stock. Unexecuted slips discarded at close. Closing prices determine final winner.',
+    rules_note: 'Final Portfolio Value = Cash + Σ(Holdings × Round 3 Close). Teams below ₹1,00,000 cash face round disqualification.',
   },
 ];
 
@@ -205,26 +185,27 @@ const cleanNews = [
   },
 ];
 
-// 6. Clean Teams & Reset Balances to ₹10,00,000 Starting Purse
-console.log('[5/7] Pruning test teams and resetting participant purses to ₹10,00,000 starting cash...');
-const isTestTeam = (name) => {
-  const n = (name || '').toLowerCase();
-  return (
-    n.startsWith('concurrent') ||
-    n.startsWith('team p2p') ||
-    n.startsWith('ipo bidder') ||
-    n.includes('highroller') ||
-    n.includes('underinvestor') ||
-    n === 'bulls capital' ||
-    n === 'team a' ||
-    n === 'team b' ||
-    n === 'team alpha' ||
-    n === 'team beta'
-  );
-};
+// 6. Clean Teams & Reset Balances to Starting Purse
+console.log('[5/7] Pruning test teams (including TEAM 1, 2, 4, 11) and resetting participant purses to ₹10,00,000...');
+const OFFICIAL_COHORT_TEAMS = [
+  'Apex Alpha Syndicate',
+  'Dalal Street Titans',
+  'Alpha Traders',
+  'Beta Capital',
+  'Gamma Bulls',
+  'Delta Hedge',
+  'Epsilon Syndicate',
+  'Zeta Holdings',
+  'Omega Quant',
+  'Sigma Assets',
+  'Theta Fund',
+  'Vortex Capital',
+  'Zenith Securities',
+  'Central Primary Pool',
+];
 
 const cleanTeams = (db.teams || [])
-  .filter((t) => !isTestTeam(t.name))
+  .filter((t) => OFFICIAL_COHORT_TEAMS.includes(t.name))
   .map((t) => {
     const isPool = t.name.toLowerCase().includes('primary pool');
     return {
@@ -232,19 +213,32 @@ const cleanTeams = (db.teams || [])
       balance: isPool ? 10000000 : 1000000, // ₹1 Cr for Primary pool, ₹10L starting purse for teams
     };
   });
-console.log(`  ✓ Retained ${cleanTeams.length} authentic student cohort teams with reset ₹10,00,000 budget`);
+console.log(`  ✓ Retained exactly ${cleanTeams.length} official student cohort teams with reset ₹10,00,000 budget`);
 
-// Reset student users cash balance to ₹10,00,000
-const cleanUsers = (db.users || []).map((u) => {
-  if (u.role === 'participant') {
-    return {
-      ...u,
-      balance: 1000000,
-      ecoin_balance: 0,
-    };
-  }
-  return u;
-});
+// Retain only official team IDs and admin users
+const validTeamIds = new Set(cleanTeams.map((t) => t.id));
+const validTeamNames = new Set(cleanTeams.map((t) => t.name.toLowerCase()));
+
+// Reset student users cash balance to ₹10,00,000, and remove test users entered yesterday night
+const cleanUsers = (db.users || [])
+  .filter((u) => {
+    if (u.role === 'admin' || u.role === 'superadmin') return true;
+    if (u.team_id && validTeamIds.has(u.team_id)) return true;
+    if (u.team_name && validTeamNames.has(u.team_name.toLowerCase())) return true;
+    return false;
+  })
+  .map((u) => {
+    if (u.role === 'participant') {
+      const isPool = u.team_name?.toLowerCase().includes('primary pool') || u.username?.toLowerCase().includes('primary pool');
+      return {
+        ...u,
+        balance: isPool ? 10000000 : 1000000,
+        ecoin_balance: 0,
+      };
+    }
+    return u;
+  });
+console.log(`  ✓ Retained ${cleanUsers.length} clean users (removed ad-hoc test accounts)`);
 
 // 7. Clear all portfolios, transactions, order slips, settlements, and trade banners
 console.log('[6/7] Purging all portfolios, transactions, order slips, and trade banners...');

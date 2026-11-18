@@ -459,32 +459,12 @@ export const DEFAULT_COMPETITION_ROUNDS: CompetitionRound[] = [
   {
     id: 'round-3',
     index: 4,
-    name: 'Round 3: Multi-Sector Expansion & IPO Trading',
+    name: 'Round 3: Final Trading & Closing Bell',
     type: 'P2P_TRADING',
     status: 'UPCOMING',
     duration_minutes: 20, // 20 minutes as per brief
-    description: 'Secondary floor trading resumes, now including newly listed IPO stock.',
-    rules_note: '5% dual brokerage on P2P trades. Quantity-weighted 3-trade rolling price rule active.',
-  },
-  {
-    id: 'round-4',
-    index: 5,
-    name: 'Round 4: High Beta Floor Trading',
-    type: 'P2P_TRADING',
-    status: 'UPCOMING',
-    duration_minutes: 20, // 20 minutes as per brief
-    description: 'High volatility secondary trading session with breaking news adjustments.',
-    rules_note: 'Valid slips received by round cutoff processed after close to establish next price base.',
-  },
-  {
-    id: 'round-5',
-    index: 6,
-    name: 'Round 5: Final Trading & Closing Bell',
-    type: 'P2P_TRADING',
-    status: 'UPCOMING',
-    duration_minutes: 20, // 20 minutes as per brief
-    description: 'Final Dalal Street trading window. Unexecuted slips discarded at close. Closing prices determine final winner.',
-    rules_note: 'Final Portfolio Value = Cash + Σ(Holdings × Round 5 Close). Teams below ₹1,00,000 cash face round disqualification.',
+    description: 'Final Dalal Street trading window including newly listed IPO stock. Unexecuted slips discarded at close. Closing prices determine final winner.',
+    rules_note: 'Final Portfolio Value = Cash + Σ(Holdings × Round 3 Close). Teams below ₹1,00,000 cash face round disqualification.',
   },
 ];
 
@@ -3713,12 +3693,10 @@ export async function executeInterTeamTrade(
   db.transactions.push(sellTx, buyTx);
 
   // 4. Update stock live price: Rolling Latest-3-Deals VWAP Rule
-  // Price updates starting from the 3rd deal, and continuously on EVERY subsequent deal:
-  // - Deal 1 & 2: Awaiting 3rd deal to form valid initial 3-deal sample
-  // - Deal 3: VWAP of (Deal 1 + Deal 2 + Deal 3) / Total Quantity
-  // - Deal 4: VWAP of (Deal 2 + Deal 3 + Deal 4) / Total Quantity (Deal 1 drops out)
-  // - Deal N (N >= 3): Rolling VWAP of the latest 3 deals (slice(-3))
-  // (Primary desk allocations in Round 0 from Central Primary Pool are fixed reference issuance and do not fluctuate secondary market prices)
+  // Round 0 (Primary Desk) is the initial portfolio build session from Central Primary Pool at fixed base LTP.
+  // There is NO live price updating or graph updating in Round 0; live price discovery only begins in Round 1 (P2P Floor Trading).
+  const isRound0 = currentRoundId === 'round-0';
+
   const roundStockTrades = db.transactions.filter(
     (t) =>
       t.stock_id === stock.id &&
@@ -3730,7 +3708,7 @@ export async function executeInterTeamTrade(
 
   let priceUpdated = false;
   let rollingTradesCount = 0;
-  if (!isPrimaryPool && dealsCount >= 1) {
+  if (!isRound0 && !isPrimaryPool && dealsCount >= 1) {
     const latestTrades = roundStockTrades.slice(-3);
     rollingTradesCount = latestTrades.length;
     const totalQ = latestTrades.reduce((acc, t) => acc + t.quantity, 0);
@@ -3749,12 +3727,6 @@ export async function executeInterTeamTrade(
       stock.historical_prices.push(stock.current_price);
       priceUpdated = true;
     }
-  } else if (isPrimaryPool) {
-    if (!stock.historical_prices) {
-      stock.historical_prices = [stock.previous_close];
-    }
-    stock.historical_prices.push(stock.current_price);
-    priceUpdated = true;
   }
 
   // 5. Synchronize both teams
@@ -3771,24 +3743,27 @@ export async function executeInterTeamTrade(
     fs.appendFileSync(CSV_FILE, buyerRow, 'utf8');
   } catch {}
 
-  // 7. Record Latest Broadcast Trade for Floor Telemetry (10s banner on all participant screens)
-  (db as any).latest_trade = {
-    id: 'trade-' + Date.now(),
-    seller_team: sellerTeam.name,
-    buyer_team: buyerTeam.name,
-    ticker: stock.ticker,
-    stock_name: stock.name,
-    quantity,
-    price: effectivePrice,
-    total_amount: grossDealValue,
-    timestamp: Date.now(),
-  };
+  // 7. Record Latest Broadcast Trade for Floor Telemetry (Only for secondary market trading, not Round 0)
+  if (!isRound0) {
+    (db as any).latest_trade = {
+      id: 'trade-' + Date.now(),
+      seller_team: sellerTeam.name,
+      buyer_team: buyerTeam.name,
+      ticker: stock.ticker,
+      stock_name: stock.name,
+      quantity,
+      price: effectivePrice,
+      total_amount: grossDealValue,
+      timestamp: Date.now(),
+    };
+  }
 
   saveLocalDB(db);
 
   // Supabase Realtime Telemetry & Cloud Synchronization
-  const latestTradePayload = (db as any).latest_trade;
-  broadcastRealtimeEvent('TRADE_EXECUTED', latestTradePayload);
+  if (!isRound0 && (db as any).latest_trade) {
+    broadcastRealtimeEvent('TRADE_EXECUTED', (db as any).latest_trade);
+  }
   if (priceUpdated) {
     broadcastRealtimeEvent('STOCK_PRICE_UPDATED', stock);
     syncStockToSupabase(stock);
