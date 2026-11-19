@@ -35,8 +35,8 @@ function stopTradeBellAudio() {
   }
   if (activeTradeAudioContext) {
     try {
-      activeTradeAudioContext.close().catch(() => {});
-    } catch {}
+      activeTradeAudioContext.close().catch(() => { });
+    } catch { }
     activeTradeAudioContext = null;
   }
 }
@@ -50,7 +50,7 @@ function playTradeBell() {
     const ctx = new AudioCtx();
     activeTradeAudioContext = ctx;
     if (ctx.state === 'suspended') {
-      ctx.resume().catch(() => {});
+      ctx.resume().catch(() => { });
     }
 
     const strikeBell = (offsetSec: number, volumeScale: number) => {
@@ -91,7 +91,7 @@ function playTradeBell() {
     activeTradeAudioTimer = setTimeout(() => {
       stopTradeBellAudio();
     }, 10000);
-  } catch {}
+  } catch { }
 }
 
 let activeNewsAudioContext: AudioContext | null = null;
@@ -104,8 +104,8 @@ function stopNewsAlertAudio() {
   }
   if (activeNewsAudioContext) {
     try {
-      activeNewsAudioContext.close().catch(() => {});
-    } catch {}
+      activeNewsAudioContext.close().catch(() => { });
+    } catch { }
     activeNewsAudioContext = null;
   }
 }
@@ -119,7 +119,7 @@ function playNewsAlertChime() {
     const ctx = new AudioCtx();
     activeNewsAudioContext = ctx;
     if (ctx.state === 'suspended') {
-      ctx.resume().catch(() => {});
+      ctx.resume().catch(() => { });
     }
 
     const playNewsPulse = (offsetSec: number, isLast: boolean) => {
@@ -172,7 +172,7 @@ function playNewsAlertChime() {
     activeNewsAudioTimer = setTimeout(() => {
       stopNewsAlertAudio();
     }, 10000);
-  } catch {}
+  } catch { }
 }
 
 export default function ParticipantMarketTerminal() {
@@ -185,7 +185,7 @@ export default function ParticipantMarketTerminal() {
       if (saved === 'dark' || saved === 'light') {
         setTheme(saved);
       }
-    } catch {}
+    } catch { }
   }, []);
 
   const toggleTheme = () => {
@@ -193,7 +193,7 @@ export default function ParticipantMarketTerminal() {
     setTheme(next);
     try {
       localStorage.setItem('wds_theme', next);
-    } catch {}
+    } catch { }
   };
 
   const isDark = theme === 'dark';
@@ -616,28 +616,25 @@ export default function ParticipantMarketTerminal() {
 
   return (
     <div
-      className={`min-h-screen font-sans selection:bg-emerald-600 selection:text-white flex flex-col w-full max-w-full overflow-x-hidden transition-colors duration-200 ${
-        isDark ? 'bg-[#060a08] text-[#e2e8e3]' : 'bg-[#f4f7f4] text-[#1e2720]'
-      }`}
+      className={`min-h-screen font-sans selection:bg-emerald-600 selection:text-white flex flex-col w-full max-w-full overflow-x-hidden transition-colors duration-200 ${isDark ? 'bg-[#060a08] text-[#e2e8e3]' : 'bg-[#f4f7f4] text-[#1e2720]'
+        }`}
     >
       {/* ========================================================================= */}
       {/* 1. TOP LIVE FLOOR APP BAR */}
       {/* ========================================================================= */}
       <header
-        className={`backdrop-blur-md border-b sticky top-0 z-50 px-3 sm:px-6 py-2 sm:py-2.5 shadow-xl transition-colors duration-200 ${
-          isDark ? 'bg-[#0b110e]/95 border-[#1b261f]' : 'bg-white/95 border-[#dbe4dd] shadow-xs'
-        }`}
+        className={`backdrop-blur-md border-b sticky top-0 z-50 px-3 sm:px-6 py-2 sm:py-2.5 shadow-xl transition-colors duration-200 ${isDark ? 'bg-[#0b110e]/95 border-[#1b261f]' : 'bg-white/95 border-[#dbe4dd] shadow-xs'
+          }`}
       >
         <div className="max-w-[1780px] mx-auto flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 sm:gap-3">
           {/* Top Row on Mobile / Left Section on Desktop */}
           <div className="flex items-center justify-between gap-2.5 w-full sm:w-auto">
             {/* Brand Identity */}
             <div
-              className={`h-9 sm:h-10 px-2.5 sm:px-3 py-1 rounded-xl border flex items-center gap-2 sm:gap-2.5 shadow-md transition-colors ${
-                isDark
+              className={`h-9 sm:h-10 px-2.5 sm:px-3 py-1 rounded-xl border flex items-center gap-2 sm:gap-2.5 shadow-md transition-colors ${isDark
                   ? 'bg-gradient-to-r from-[#121c15] to-[#18251c] border-[#233527]'
                   : 'bg-gradient-to-r from-[#f0f6f1] to-[#e6f0e8] border-[#cce0d1]'
-              }`}
+                }`}
             >
               <img
                 src="/wds-logo-clean.png"
@@ -646,9 +643,8 @@ export default function ParticipantMarketTerminal() {
               />
               <div className="flex flex-col leading-none">
                 <span
-                  className={`font-extrabold text-xs sm:text-base tracking-tight flex items-center gap-1 sm:gap-1.5 ${
-                    isDark ? 'text-white' : 'text-zinc-900'
-                  }`}
+                  className={`font-extrabold text-xs sm:text-base tracking-tight flex items-center gap-1 sm:gap-1.5 ${isDark ? 'text-white' : 'text-zinc-900'
+                    }`}
                 >
                   Wolf of Dalal Street
                   <span className="text-[8px] sm:text-[9px] px-1 sm:px-1.5 py-0.5 rounded bg-emerald-950/90 text-emerald-400 font-bold border border-emerald-700/80 uppercase font-mono tracking-wider shadow-xs">
@@ -664,11 +660,10 @@ export default function ParticipantMarketTerminal() {
             {/* Desktop Stage Info */}
             <div className={`hidden lg:flex items-center gap-2 pl-3 border-l text-xs ${isDark ? 'border-zinc-800' : 'border-zinc-200'}`}>
               <span
-                className={`px-2.5 py-1 rounded-full font-extrabold text-[11px] font-mono shadow-xs border ${
-                  isDark
+                className={`px-2.5 py-1 rounded-full font-extrabold text-[11px] font-mono shadow-xs border ${isDark
                     ? 'bg-[#16221a] text-emerald-300 border-[#2a3d2e]'
                     : 'bg-emerald-50 text-emerald-800 border-emerald-200'
-                }`}
+                  }`}
               >
                 Round {currentRound ? currentRound.index : 0} of 7
               </span>
@@ -682,11 +677,10 @@ export default function ParticipantMarketTerminal() {
               <button
                 type="button"
                 onClick={toggleTheme}
-                className={`p-1.5 rounded-lg border text-xs font-bold transition flex items-center justify-center cursor-pointer ${
-                  isDark
+                className={`p-1.5 rounded-lg border text-xs font-bold transition flex items-center justify-center cursor-pointer ${isDark
                     ? 'bg-[#152219] text-amber-300 border-emerald-700/60'
                     : 'bg-white text-zinc-700 border-zinc-300'
-                }`}
+                  }`}
                 title={isDark ? 'Switch to Light' : 'Switch to Dark'}
               >
                 <span className="material-symbols-outlined text-[16px]">
@@ -700,15 +694,14 @@ export default function ParticipantMarketTerminal() {
                   setSoundEnabled(next);
                   if (next) playTradeBell();
                 }}
-                className={`p-1.5 rounded-lg border text-xs font-bold transition flex items-center justify-center cursor-pointer ${
-                  isDark
+                className={`p-1.5 rounded-lg border text-xs font-bold transition flex items-center justify-center cursor-pointer ${isDark
                     ? soundEnabled
                       ? 'bg-[#152219] text-emerald-400 border-emerald-700/60'
                       : 'bg-[#101412] text-zinc-500 border-zinc-800'
                     : soundEnabled
-                    ? 'bg-emerald-100 text-emerald-800 border-emerald-300'
-                    : 'bg-zinc-100 text-zinc-400 border-zinc-200'
-                }`}
+                      ? 'bg-emerald-100 text-emerald-800 border-emerald-300'
+                      : 'bg-zinc-100 text-zinc-400 border-zinc-200'
+                  }`}
               >
                 <span className="material-symbols-outlined text-[16px]">
                   {soundEnabled ? 'volume_up' : 'volume_off'}
@@ -722,11 +715,10 @@ export default function ParticipantMarketTerminal() {
             {/* Mobile Stage Pill */}
             <div className="flex lg:hidden items-center gap-1 text-[11px] font-mono">
               <span
-                className={`px-2 py-0.5 rounded-lg font-bold border truncate max-w-[155px] ${
-                  isDark
+                className={`px-2 py-0.5 rounded-lg font-bold border truncate max-w-[155px] ${isDark
                     ? 'bg-[#16221a] text-emerald-300 border-[#2a3d2e]'
                     : 'bg-emerald-50 text-emerald-800 border-emerald-200'
-                }`}
+                  }`}
               >
                 R{currentRound ? currentRound.index : 0}: {currentRound?.name?.split(':')[1]?.trim() || 'Initial'}
               </span>
@@ -734,14 +726,12 @@ export default function ParticipantMarketTerminal() {
 
             {/* Live Synchronized Floor Clock */}
             <div
-              className={`flex items-center gap-2 sm:gap-2.5 px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-xl border shadow-inner transition-colors ${
-                isDark ? 'bg-[#080d0a] border-[#1e2a21]' : 'bg-[#f0f5f1] border-[#d2dfd5]'
-              }`}
+              className={`flex items-center gap-2 sm:gap-2.5 px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-xl border shadow-inner transition-colors ${isDark ? 'bg-[#080d0a] border-[#1e2a21]' : 'bg-[#f0f5f1] border-[#d2dfd5]'
+                }`}
             >
               <span
-                className={`material-symbols-outlined text-[18px] sm:text-[20px] ${
-                  roundClock.is_paused ? 'text-amber-500' : 'text-emerald-500 animate-pulse'
-                }`}
+                className={`material-symbols-outlined text-[18px] sm:text-[20px] ${roundClock.is_paused ? 'text-amber-500' : 'text-emerald-500 animate-pulse'
+                  }`}
               >
                 schedule
               </span>
@@ -750,13 +740,12 @@ export default function ParticipantMarketTerminal() {
                   Timer
                 </span>
                 <span
-                  className={`font-mono text-base sm:text-xl font-black tracking-wider ${
-                    roundClock.is_paused
+                  className={`font-mono text-base sm:text-xl font-black tracking-wider ${roundClock.is_paused
                       ? 'text-amber-500'
                       : roundClock.remaining_seconds <= 120
-                      ? 'text-rose-500 animate-pulse'
-                      : 'text-emerald-500'
-                  }`}
+                        ? 'text-rose-500 animate-pulse'
+                        : 'text-emerald-500'
+                    }`}
                 >
                   {timeFormatted}
                   {roundClock.is_paused && (
@@ -772,11 +761,10 @@ export default function ParticipantMarketTerminal() {
             <button
               type="button"
               onClick={toggleTheme}
-              className={`hidden sm:flex p-2 rounded-xl border text-xs font-bold transition items-center justify-center cursor-pointer shadow-xs ${
-                isDark
+              className={`hidden sm:flex p-2 rounded-xl border text-xs font-bold transition items-center justify-center cursor-pointer shadow-xs ${isDark
                   ? 'bg-[#152219] text-amber-300 border-emerald-700/60 hover:bg-[#1b2d21]'
                   : 'bg-white text-zinc-700 border-zinc-300 hover:bg-zinc-100'
-              }`}
+                }`}
               title={isDark ? 'Switch to Light Theme' : 'Switch to Dark Terminal Theme'}
             >
               <span className="material-symbols-outlined text-[18px]">
@@ -792,15 +780,14 @@ export default function ParticipantMarketTerminal() {
                 setSoundEnabled(next);
                 if (next) playTradeBell();
               }}
-              className={`hidden sm:flex p-2 rounded-xl border text-xs font-bold transition items-center justify-center cursor-pointer ${
-                isDark
+              className={`hidden sm:flex p-2 rounded-xl border text-xs font-bold transition items-center justify-center cursor-pointer ${isDark
                   ? soundEnabled
                     ? 'bg-[#152219] text-emerald-400 border-emerald-700/60 hover:bg-[#1b2d21]'
                     : 'bg-[#101412] text-zinc-500 border-zinc-800 hover:text-zinc-300'
                   : soundEnabled
-                  ? 'bg-emerald-100 text-emerald-800 border-emerald-300 hover:bg-emerald-200'
-                  : 'bg-zinc-100 text-zinc-400 border-zinc-200 hover:text-zinc-600'
-              }`}
+                    ? 'bg-emerald-100 text-emerald-800 border-emerald-300 hover:bg-emerald-200'
+                    : 'bg-zinc-100 text-zinc-400 border-zinc-200 hover:text-zinc-600'
+                }`}
               title={soundEnabled ? 'Floor Sound Alerts: Active (Click to mute)' : 'Floor Sound Alerts: Muted (Click to enable)'}
             >
               <span className="material-symbols-outlined text-[18px]">
@@ -810,14 +797,12 @@ export default function ParticipantMarketTerminal() {
 
             {/* Stream Pulse */}
             <div
-              className={`flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1 sm:py-1.5 rounded-xl border text-[10px] sm:text-xs font-mono font-bold shadow-inner shrink-0 ${
-                isDark ? 'bg-[#080d0a] border-[#1e2a21]' : 'bg-[#f0f5f1] border-[#d2dfd5]'
-              }`}
+              className={`flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1 sm:py-1.5 rounded-xl border text-[10px] sm:text-xs font-mono font-bold shadow-inner shrink-0 ${isDark ? 'bg-[#080d0a] border-[#1e2a21]' : 'bg-[#f0f5f1] border-[#d2dfd5]'
+                }`}
             >
               <span
-                className={`w-1.5 sm:w-2 h-1.5 sm:h-2 rounded-full ${
-                  roundClock.is_paused ? 'bg-amber-500' : 'bg-emerald-400 animate-ping'
-                }`}
+                className={`w-1.5 sm:w-2 h-1.5 sm:h-2 rounded-full ${roundClock.is_paused ? 'bg-amber-500' : 'bg-emerald-400 animate-ping'
+                  }`}
               ></span>
               <span className={roundClock.is_paused ? 'text-amber-500' : 'text-emerald-500'}>
                 {roundClock.is_paused ? 'PAUSED' : 'LIVE'}
@@ -831,9 +816,8 @@ export default function ParticipantMarketTerminal() {
       {/* 2. CONTINUOUS RUNNING STOCK TICKER MARQUEE TAPE (SLOW, LEISURELY PACE) */}
       {/* ========================================================================= */}
       <div
-        className={`w-full border-b overflow-hidden py-1.5 relative z-40 select-none shadow-xs transition-colors duration-200 ${
-          isDark ? 'bg-[#070b08] border-[#18231c]' : 'bg-[#edf4ee] border-[#d5e0d7]'
-        }`}
+        className={`w-full border-b overflow-hidden py-1.5 relative z-40 select-none shadow-xs transition-colors duration-200 ${isDark ? 'bg-[#070b08] border-[#18231c]' : 'bg-[#edf4ee] border-[#d5e0d7]'
+          }`}
       >
         <div className="animate-marquee whitespace-nowrap flex items-center gap-6">
           {[...stocks, ...stocks].map((stk, idx) => {
@@ -848,9 +832,8 @@ export default function ParticipantMarketTerminal() {
                 key={`${stk.ticker}-${idx}`}
                 type="button"
                 onClick={() => setSelectedStock(stk)}
-                className={`inline-flex items-center gap-2 px-2.5 py-0.5 rounded-lg transition cursor-pointer text-left ${
-                  isDark ? 'hover:bg-[#141f17]' : 'hover:bg-[#e0ece2]'
-                }`}
+                className={`inline-flex items-center gap-2 px-2.5 py-0.5 rounded-lg transition cursor-pointer text-left ${isDark ? 'hover:bg-[#141f17]' : 'hover:bg-[#e0ece2]'
+                  }`}
               >
                 <span className={`font-mono font-black text-xs ${isDark ? 'text-white' : 'text-zinc-900'}`}>
                   {stk.ticker}
@@ -859,15 +842,14 @@ export default function ParticipantMarketTerminal() {
                   ₹{stk.current_price.toFixed(1)}
                 </span>
                 <span
-                  className={`text-[10px] font-mono font-extrabold px-1.5 py-0.2 rounded ${
-                    isUp
+                  className={`text-[10px] font-mono font-extrabold px-1.5 py-0.2 rounded ${isUp
                       ? isDark
                         ? 'text-emerald-400 bg-emerald-950/70'
                         : 'text-emerald-700 bg-emerald-100'
                       : isDark
-                      ? 'text-rose-400 bg-rose-950/70'
-                      : 'text-rose-700 bg-rose-100'
-                  }`}
+                        ? 'text-rose-400 bg-rose-950/70'
+                        : 'text-rose-700 bg-rose-100'
+                    }`}
                 >
                   {isUp ? '▲ +' : '▼ '}
                   {Math.abs(chg).toFixed(1)}%
@@ -967,19 +949,17 @@ export default function ParticipantMarketTerminal() {
 
         return (
           <div
-            className={`w-full relative z-40 transition-all duration-300 ${
-              isPrimary
+            className={`w-full relative z-40 transition-all duration-300 ${isPrimary
                 ? 'bg-[#120F09]/95 border-b border-amber-500/20 shadow-[0_4px_24px_-4px_rgba(245,158,11,0.15)]'
                 : 'bg-[#0B1015]/95 border-b border-emerald-500/20 shadow-[0_4px_24px_-4px_rgba(16,185,129,0.15)]'
-            } backdrop-blur-xl text-white`}
+              } backdrop-blur-xl text-white`}
           >
             {/* Top ambient hairline accent */}
             <div
-              className={`absolute top-0 left-0 right-0 h-px ${
-                isPrimary
+              className={`absolute top-0 left-0 right-0 h-px ${isPrimary
                   ? 'bg-gradient-to-r from-transparent via-amber-500/40 to-transparent'
                   : 'bg-gradient-to-r from-transparent via-emerald-500/40 to-transparent'
-              }`}
+                }`}
             />
 
             <div className="max-w-[1780px] mx-auto px-4 sm:px-6 py-2 flex flex-col md:flex-row md:items-center justify-between gap-3">
@@ -987,22 +967,19 @@ export default function ParticipantMarketTerminal() {
               <div className="flex items-center gap-3 flex-wrap">
                 {/* Live Pulse Beacon Badge */}
                 <div
-                  className={`inline-flex items-center gap-2 px-2.5 py-1 rounded-full font-mono text-[10px] font-bold tracking-[0.16em] uppercase shrink-0 ${
-                    isPrimary
+                  className={`inline-flex items-center gap-2 px-2.5 py-1 rounded-full font-mono text-[10px] font-bold tracking-[0.16em] uppercase shrink-0 ${isPrimary
                       ? 'bg-amber-500/10 border border-amber-500/30 text-amber-400'
                       : 'bg-emerald-500/10 border border-emerald-500/30 text-emerald-400'
-                  }`}
+                    }`}
                 >
                   <span className="relative flex h-2 w-2">
                     <span
-                      className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${
-                        isPrimary ? 'bg-amber-400' : 'bg-emerald-400'
-                      }`}
+                      className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${isPrimary ? 'bg-amber-400' : 'bg-emerald-400'
+                        }`}
                     />
                     <span
-                      className={`relative inline-flex rounded-full h-2 w-2 ${
-                        isPrimary ? 'bg-amber-500' : 'bg-emerald-500'
-                      }`}
+                      className={`relative inline-flex rounded-full h-2 w-2 ${isPrimary ? 'bg-amber-500' : 'bg-emerald-500'
+                        }`}
                     />
                   </span>
                   <span>{isPrimary ? 'PRIMARY ISSUE ALLOTMENT' : 'FLOOR SETTLEMENT'}</span>
@@ -1080,11 +1057,10 @@ export default function ParticipantMarketTerminal() {
             {/* Micro Precision Progress Line */}
             <div className="w-full bg-white/[0.03] h-[1.5px] relative overflow-hidden">
               <div
-                className={`h-full ${
-                  isPrimary
+                className={`h-full ${isPrimary
                     ? 'bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-300'
                     : 'bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-300'
-                } transition-all duration-100 ease-linear`}
+                  } transition-all duration-100 ease-linear`}
                 style={{ width: `${pctRemaining}%` }}
               />
             </div>
@@ -1096,9 +1072,8 @@ export default function ParticipantMarketTerminal() {
       {/* 4. DYNAMIC MARKET PULSE & DALAL STREET BREADTH OVERVIEW */}
       {/* ========================================================================= */}
       <section
-        className={`border-b px-3 sm:px-6 py-2.5 transition-colors duration-200 ${
-          isDark ? 'bg-[#090e0b] border-[#18231c]' : 'bg-white border-[#dbe4dd]'
-        }`}
+        className={`border-b px-3 sm:px-6 py-2.5 transition-colors duration-200 ${isDark ? 'bg-[#090e0b] border-[#18231c]' : 'bg-white border-[#dbe4dd]'
+          }`}
       >
         <div className="max-w-[1780px] mx-auto flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 text-xs">
           {/* Market Breadth Gauge */}
@@ -1108,20 +1083,18 @@ export default function ParticipantMarketTerminal() {
                 Market Pulse:
               </span>
               <span
-                className={`font-bold font-mono flex items-center gap-1 px-2 py-0.5 rounded border ${
-                  isDark
+                className={`font-bold font-mono flex items-center gap-1 px-2 py-0.5 rounded border ${isDark
                     ? 'bg-emerald-950/60 text-emerald-400 border-emerald-800/60'
                     : 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                }`}
+                  }`}
               >
                 ▲ {marketPulse.advancers} Advancing
               </span>
               <span
-                className={`font-bold font-mono flex items-center gap-1 px-2 py-0.5 rounded border ${
-                  isDark
+                className={`font-bold font-mono flex items-center gap-1 px-2 py-0.5 rounded border ${isDark
                     ? 'bg-rose-950/60 text-rose-400 border-rose-800/60'
                     : 'bg-rose-50 text-rose-700 border-rose-200'
-                }`}
+                  }`}
               >
                 ▼ {marketPulse.decliners} Declining
               </span>
@@ -1130,9 +1103,8 @@ export default function ParticipantMarketTerminal() {
             {/* Breadth Bar */}
             <div className="hidden lg:flex items-center gap-2 w-36">
               <div
-                className={`w-full h-2 rounded-full overflow-hidden flex border ${
-                  isDark ? 'bg-rose-950 border-zinc-800' : 'bg-rose-200 border-zinc-300'
-                }`}
+                className={`w-full h-2 rounded-full overflow-hidden flex border ${isDark ? 'bg-rose-950 border-zinc-800' : 'bg-rose-200 border-zinc-300'
+                  }`}
               >
                 <div
                   className="bg-emerald-500 h-full transition-all duration-500"
@@ -1151,11 +1123,10 @@ export default function ParticipantMarketTerminal() {
                   setSelectedStock(topGainer);
                   setMobileTab('chart');
                 }}
-                className={`flex items-center justify-between sm:justify-start gap-1.5 px-2.5 py-1 rounded-lg border transition cursor-pointer text-[11px] font-mono ${
-                  isDark
+                className={`flex items-center justify-between sm:justify-start gap-1.5 px-2.5 py-1 rounded-lg border transition cursor-pointer text-[11px] font-mono ${isDark
                     ? 'bg-[#111c14] border-emerald-800/60 hover:bg-[#18291d]'
                     : 'bg-emerald-50 border-emerald-200 hover:bg-emerald-100'
-                }`}
+                  }`}
               >
                 <span className={isDark ? 'text-zinc-400' : 'text-zinc-600'}>Gainer:</span>
                 <span className={`font-black ${isDark ? 'text-white' : 'text-zinc-900'}`}>{topGainer.ticker}</span>
@@ -1172,11 +1143,10 @@ export default function ParticipantMarketTerminal() {
                   setSelectedStock(topLoser);
                   setMobileTab('chart');
                 }}
-                className={`flex items-center justify-between sm:justify-start gap-1.5 px-2.5 py-1 rounded-lg border transition cursor-pointer text-[11px] font-mono ${
-                  isDark
+                className={`flex items-center justify-between sm:justify-start gap-1.5 px-2.5 py-1 rounded-lg border transition cursor-pointer text-[11px] font-mono ${isDark
                     ? 'bg-[#181012] border-rose-800/60 hover:bg-[#251518]'
                     : 'bg-rose-50 border-rose-200 hover:bg-rose-100'
-                }`}
+                  }`}
               >
                 <span className={isDark ? 'text-zinc-400' : 'text-zinc-600'}>Loser:</span>
                 <span className={`font-black ${isDark ? 'text-white' : 'text-zinc-900'}`}>{topLoser.ticker}</span>
@@ -1208,11 +1178,10 @@ export default function ParticipantMarketTerminal() {
 
       {activeIPO && !isIpoDismissed && (
         <section
-          className={`border-b-2 border-amber-500/80 px-3 sm:px-6 py-4 shadow-xl transition-colors duration-200 relative ${
-            isDark
+          className={`border-b-2 border-amber-500/80 px-3 sm:px-6 py-4 shadow-xl transition-colors duration-200 relative ${isDark
               ? 'bg-gradient-to-r from-[#171408] via-[#241e0b] to-[#171408]'
               : 'bg-gradient-to-r from-[#fdfbf3] via-[#f7f2dc] to-[#fdfbf3]'
-          }`}
+            }`}
         >
           <div className="max-w-[1780px] mx-auto">
             <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
@@ -1224,22 +1193,20 @@ export default function ParticipantMarketTerminal() {
                     PRIMARY MARKET OFFERING OPEN
                   </span>
                   <span
-                    className={`px-2 py-0.5 rounded font-mono text-xs border font-bold ${
-                      isDark
+                    className={`px-2 py-0.5 rounded font-mono text-xs border font-bold ${isDark
                         ? 'bg-black/60 text-amber-300 border-amber-500/40'
                         : 'bg-white text-amber-800 border-amber-300'
-                    }`}
+                      }`}
                   >
                     {activeIPO.sector}
                   </span>
 
                   {typeof activeIPO.news_impact_percent === 'number' && activeIPO.news_impact_percent !== 0 && (
                     <span
-                      className={`px-2 py-0.5 rounded font-mono text-xs border font-bold flex items-center gap-1 ${
-                        activeIPO.news_impact_percent > 0
+                      className={`px-2 py-0.5 rounded font-mono text-xs border font-bold flex items-center gap-1 ${activeIPO.news_impact_percent > 0
                           ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40'
                           : 'bg-rose-500/20 text-rose-400 border-rose-500/40'
-                      }`}
+                        }`}
                     >
                       <span className="material-symbols-outlined text-[13px]">
                         {activeIPO.news_impact_percent > 0 ? 'trending_up' : 'trending_down'}
@@ -1284,9 +1251,8 @@ export default function ParticipantMarketTerminal() {
 
               {/* Right: Demand Ratio Gauge & Offline Floor Book-Building Notice */}
               <div
-                className={`border border-amber-500/40 p-3 sm:p-4 rounded-2xl flex flex-col sm:flex-row items-stretch sm:items-center gap-4 shrink-0 shadow-lg ${
-                  isDark ? 'bg-black/60' : 'bg-white'
-                }`}
+                className={`border border-amber-500/40 p-3 sm:p-4 rounded-2xl flex flex-col sm:flex-row items-stretch sm:items-center gap-4 shrink-0 shadow-lg ${isDark ? 'bg-black/60' : 'bg-white'
+                  }`}
               >
                 {/* Demand Ratio Gauge */}
                 <div className="text-center sm:text-right border-b sm:border-b-0 sm:border-r border-zinc-800 sm:pr-4 pb-2 sm:pb-0 min-w-[130px]">
@@ -1301,9 +1267,8 @@ export default function ParticipantMarketTerminal() {
                   </span>
                   <div className="w-full bg-zinc-800/80 h-1.5 rounded-full overflow-hidden mt-1.5">
                     <div
-                      className={`h-full transition-all duration-500 ${
-                        (activeIPO.subscription_ratio || 0) >= 1.0 ? 'bg-emerald-500' : 'bg-amber-500'
-                      }`}
+                      className={`h-full transition-all duration-500 ${(activeIPO.subscription_ratio || 0) >= 1.0 ? 'bg-emerald-500' : 'bg-amber-500'
+                        }`}
                       style={{
                         width: `${Math.min(100, ((activeIPO.subscription_ratio || 0) / 1.5) * 100)}%`,
                       }}
@@ -1345,11 +1310,10 @@ export default function ParticipantMarketTerminal() {
             {/* Receipt Feedback */}
             {ipoReceipt && (
               <div
-                className={`mt-2.5 p-2.5 rounded-xl text-xs font-bold font-mono flex items-center justify-between border ${
-                  ipoReceipt.success
+                className={`mt-2.5 p-2.5 rounded-xl text-xs font-bold font-mono flex items-center justify-between border ${ipoReceipt.success
                     ? 'bg-emerald-950/80 text-emerald-300 border-emerald-700/80'
                     : 'bg-rose-950/80 text-rose-300 border-rose-700/80'
-                }`}
+                  }`}
               >
                 <span>{ipoReceipt.message}</span>
                 <button
@@ -1369,9 +1333,8 @@ export default function ParticipantMarketTerminal() {
       {/* 6. CONTROLS BAR: SEARCH, QUICK FILTERS, SECTOR CHIPS & SORTING */}
       {/* ========================================================================= */}
       <div
-        className={`border-b px-3 sm:px-6 py-2.5 sm:py-3 static sm:sticky sm:top-[61px] z-30 shadow-md transition-colors duration-200 ${
-          isDark ? 'bg-[#0b100d] border-[#18231c]' : 'bg-[#f8faf8] border-[#dbe4dd]'
-        }`}
+        className={`border-b px-3 sm:px-6 py-2.5 sm:py-3 static sm:sticky sm:top-[61px] z-30 shadow-md transition-colors duration-200 ${isDark ? 'bg-[#0b100d] border-[#18231c]' : 'bg-[#f8faf8] border-[#dbe4dd]'
+          }`}
       >
         <div className="max-w-[1780px] mx-auto flex flex-col md:flex-row md:items-center justify-between gap-2.5 sm:gap-3">
           {/* Search Box */}
@@ -1384,11 +1347,10 @@ export default function ParticipantMarketTerminal() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search 78 stocks by Ticker, Company, or Sector (e.g. Zomato, Reliance)..."
-              className={`w-full pl-9 pr-8 py-2 rounded-xl border text-xs sm:text-sm focus:border-emerald-500 focus:outline-none transition shadow-inner ${
-                isDark
+              className={`w-full pl-9 pr-8 py-2 rounded-xl border text-xs sm:text-sm focus:border-emerald-500 focus:outline-none transition shadow-inner ${isDark
                   ? 'bg-[#121a14] border-[#233327] text-white placeholder-zinc-500'
                   : 'bg-white border-[#ccd9cf] text-zinc-900 placeholder-zinc-400'
-              }`}
+                }`}
             />
             {searchQuery && (
               <button
@@ -1406,52 +1368,48 @@ export default function ParticipantMarketTerminal() {
             <button
               type="button"
               onClick={() => { setQuickFilter('ALL'); setSelectedSector('ALL'); }}
-              className={`px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition cursor-pointer shadow-xs ${
-                quickFilter === 'ALL' && selectedSector === 'ALL'
+              className={`px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition cursor-pointer shadow-xs ${quickFilter === 'ALL' && selectedSector === 'ALL'
                   ? 'bg-emerald-600 text-white'
                   : isDark
-                  ? 'bg-[#121a14] text-zinc-400 hover:text-white hover:bg-[#1a261d] border border-[#1e2c21]'
-                  : 'bg-white text-zinc-600 hover:text-zinc-900 hover:bg-[#ebf3ed] border border-[#ccd9cf]'
-              }`}
+                    ? 'bg-[#121a14] text-zinc-400 hover:text-white hover:bg-[#1a261d] border border-[#1e2c21]'
+                    : 'bg-white text-zinc-600 hover:text-zinc-900 hover:bg-[#ebf3ed] border border-[#ccd9cf]'
+                }`}
             >
               All 78 Stocks
             </button>
             <button
               type="button"
               onClick={() => setQuickFilter('GAINERS')}
-              className={`px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition cursor-pointer shadow-xs ${
-                quickFilter === 'GAINERS'
+              className={`px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition cursor-pointer shadow-xs ${quickFilter === 'GAINERS'
                   ? 'bg-emerald-600 text-white'
                   : isDark
-                  ? 'bg-[#121a14] text-zinc-400 hover:text-emerald-300 hover:bg-[#1a261d] border border-[#1e2c21]'
-                  : 'bg-white text-zinc-600 hover:text-emerald-700 hover:bg-[#ebf3ed] border border-[#ccd9cf]'
-              }`}
+                    ? 'bg-[#121a14] text-zinc-400 hover:text-emerald-300 hover:bg-[#1a261d] border border-[#1e2c21]'
+                    : 'bg-white text-zinc-600 hover:text-emerald-700 hover:bg-[#ebf3ed] border border-[#ccd9cf]'
+                }`}
             >
               🔥 Top Gainers
             </button>
             <button
               type="button"
               onClick={() => setQuickFilter('LOSERS')}
-              className={`px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition cursor-pointer shadow-xs ${
-                quickFilter === 'LOSERS'
+              className={`px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition cursor-pointer shadow-xs ${quickFilter === 'LOSERS'
                   ? 'bg-rose-600 text-white'
                   : isDark
-                  ? 'bg-[#121a14] text-zinc-400 hover:text-rose-300 hover:bg-[#1a261d] border border-[#1e2c21]'
-                  : 'bg-white text-zinc-600 hover:text-rose-700 hover:bg-[#ebf3ed] border border-[#ccd9cf]'
-              }`}
+                    ? 'bg-[#121a14] text-zinc-400 hover:text-rose-300 hover:bg-[#1a261d] border border-[#1e2c21]'
+                    : 'bg-white text-zinc-600 hover:text-rose-700 hover:bg-[#ebf3ed] border border-[#ccd9cf]'
+                }`}
             >
               ❄️ Top Losers
             </button>
             <button
               type="button"
               onClick={() => setQuickFilter('HIGH_BETA')}
-              className={`px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition cursor-pointer shadow-xs ${
-                quickFilter === 'HIGH_BETA'
+              className={`px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition cursor-pointer shadow-xs ${quickFilter === 'HIGH_BETA'
                   ? 'bg-amber-600 text-white'
                   : isDark
-                  ? 'bg-[#121a14] text-zinc-400 hover:text-amber-300 hover:bg-[#1a261d] border border-[#1e2c21]'
-                  : 'bg-white text-zinc-600 hover:text-amber-700 hover:bg-[#ebf3ed] border border-[#ccd9cf]'
-              }`}
+                    ? 'bg-[#121a14] text-zinc-400 hover:text-amber-300 hover:bg-[#1a261d] border border-[#1e2c21]'
+                    : 'bg-white text-zinc-600 hover:text-amber-700 hover:bg-[#ebf3ed] border border-[#ccd9cf]'
+                }`}
             >
               ⚡ High Beta
             </button>
@@ -1462,11 +1420,10 @@ export default function ParticipantMarketTerminal() {
             <select
               value={selectedSector}
               onChange={(e) => { setSelectedSector(e.target.value); setQuickFilter('ALL'); }}
-              className={`w-full sm:w-auto px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-bold focus:outline-none cursor-pointer border ${
-                isDark
+              className={`w-full sm:w-auto px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-bold focus:outline-none cursor-pointer border ${isDark
                   ? 'bg-[#121a14] border-[#1e2c21] text-zinc-300'
                   : 'bg-white border-[#ccd9cf] text-zinc-800'
-              }`}
+                }`}
             >
               {sectors.map((sec) => (
                 <option key={sec} value={sec}>
@@ -1478,11 +1435,10 @@ export default function ParticipantMarketTerminal() {
             <select
               value={sortBy}
               onChange={(e: any) => setSortBy(e.target.value)}
-              className={`w-full sm:w-auto py-1.5 px-2.5 sm:px-3 rounded-xl border text-xs font-bold focus:outline-none cursor-pointer shadow-inner ${
-                isDark
+              className={`w-full sm:w-auto py-1.5 px-2.5 sm:px-3 rounded-xl border text-xs font-bold focus:outline-none cursor-pointer shadow-inner ${isDark
                   ? 'bg-[#121a14] border-[#233327] text-white'
                   : 'bg-white border-[#ccd9cf] text-zinc-800'
-              }`}
+                }`}
             >
               <option value="alpha">A-Z (Alphabetical)</option>
               <option value="gainers">Top Gainers (▲ %)</option>
@@ -1498,21 +1454,19 @@ export default function ParticipantMarketTerminal() {
       {/* Hidden on Windows & Laptops (lg:hidden) */}
       {/* ========================================================================= */}
       <div
-        className={`lg:hidden px-3 py-2 border-b sticky top-0 z-20 transition-colors backdrop-blur-md shadow-xs ${
-          isDark ? 'bg-[#060a08]/95 border-[#18231c]' : 'bg-[#f4f7f4]/95 border-[#dbe4dd]'
-        }`}
+        className={`lg:hidden px-3 py-2 border-b sticky top-0 z-20 transition-colors backdrop-blur-md shadow-xs ${isDark ? 'bg-[#060a08]/95 border-[#18231c]' : 'bg-[#f4f7f4]/95 border-[#dbe4dd]'
+          }`}
       >
         <div className="grid grid-cols-3 gap-1.5 p-1 rounded-xl bg-black/20 border border-white/5 font-mono text-xs font-bold">
           <button
             type="button"
             onClick={() => setMobileTab('equities')}
-            className={`py-2 px-1 rounded-lg text-center transition flex items-center justify-center gap-1 ${
-              mobileTab === 'equities'
+            className={`py-2 px-1 rounded-lg text-center transition flex items-center justify-center gap-1 ${mobileTab === 'equities'
                 ? 'bg-emerald-600 text-white shadow-md'
                 : isDark
-                ? 'text-zinc-400 hover:text-white'
-                : 'text-zinc-600 hover:text-zinc-900'
-            }`}
+                  ? 'text-zinc-400 hover:text-white'
+                  : 'text-zinc-600 hover:text-zinc-900'
+              }`}
           >
             <span className="material-symbols-outlined text-[15px]">format_list_bulleted</span>
             <span className="text-[11px]">Equities ({filteredStocks.length})</span>
@@ -1521,13 +1475,12 @@ export default function ParticipantMarketTerminal() {
           <button
             type="button"
             onClick={() => setMobileTab('chart')}
-            className={`py-2 px-1 rounded-lg text-center transition flex items-center justify-center gap-1 ${
-              mobileTab === 'chart'
+            className={`py-2 px-1 rounded-lg text-center transition flex items-center justify-center gap-1 ${mobileTab === 'chart'
                 ? 'bg-emerald-600 text-white shadow-md'
                 : isDark
-                ? 'text-zinc-400 hover:text-white'
-                : 'text-zinc-600 hover:text-zinc-900'
-            }`}
+                  ? 'text-zinc-400 hover:text-white'
+                  : 'text-zinc-600 hover:text-zinc-900'
+              }`}
           >
             <span className="material-symbols-outlined text-[15px]">show_chart</span>
             <span className="text-[11px] truncate">{selectedStock ? selectedStock.ticker : 'Chart'}</span>
@@ -1536,13 +1489,12 @@ export default function ParticipantMarketTerminal() {
           <button
             type="button"
             onClick={() => setMobileTab('news')}
-            className={`py-2 px-1 rounded-lg text-center transition flex items-center justify-center gap-1 ${
-              mobileTab === 'news'
+            className={`py-2 px-1 rounded-lg text-center transition flex items-center justify-center gap-1 ${mobileTab === 'news'
                 ? 'bg-emerald-600 text-white shadow-md'
                 : isDark
-                ? 'text-zinc-400 hover:text-white'
-                : 'text-zinc-600 hover:text-zinc-900'
-            }`}
+                  ? 'text-zinc-400 hover:text-white'
+                  : 'text-zinc-600 hover:text-zinc-900'
+              }`}
           >
             <span className="material-symbols-outlined text-[15px]">campaign</span>
             <span className="text-[11px]">Wire ({news.length})</span>
@@ -1556,9 +1508,8 @@ export default function ParticipantMarketTerminal() {
       <main className="max-w-[1780px] mx-auto w-full p-3 sm:p-6 flex-1 flex flex-col lg:flex-row gap-5 items-start">
         {/* Left Column: Securities List (All 78 Stocks Grid) */}
         <section
-          className={`w-full lg:w-[62%] xl:w-[65%] space-y-3 ${
-            mobileTab === 'equities' ? 'block' : 'hidden lg:block'
-          }`}
+          className={`w-full lg:w-[62%] xl:w-[65%] space-y-3 ${mobileTab === 'equities' ? 'block' : 'hidden lg:block'
+            }`}
         >
           <div className="flex items-center justify-between text-xs px-1">
             <span className={`font-bold uppercase tracking-wider font-mono ${isDark ? 'text-zinc-400' : 'text-zinc-600'}`}>
@@ -1580,26 +1531,24 @@ export default function ParticipantMarketTerminal() {
                 <div
                   key={stock.id || stock.ticker}
                   onClick={() => setSelectedStock(stock)}
-                  className={`p-3.5 rounded-2xl border transition duration-150 cursor-pointer relative overflow-hidden group shadow-md ${
-                    isSelected
+                  className={`p-3.5 rounded-2xl border transition duration-150 cursor-pointer relative overflow-hidden group shadow-md ${isSelected
                       ? isDark
                         ? 'bg-gradient-to-br from-[#16231a] to-[#1a2d1f] border-emerald-500 shadow-emerald-950/40 ring-2 ring-emerald-500/40 scale-[1.01]'
                         : 'bg-gradient-to-br from-[#ebf5ed] to-[#f0faf2] border-emerald-600 ring-2 ring-emerald-600/30 shadow-md scale-[1.01]'
                       : isDark
-                      ? 'bg-[#0d1410] border-[#1c281f] hover:bg-[#121c15] hover:border-[#2d4032]'
-                      : 'bg-white border-[#d8e4da] hover:bg-[#f3f8f4]'
-                  }`}
+                        ? 'bg-[#0d1410] border-[#1c281f] hover:bg-[#121c15] hover:border-[#2d4032]'
+                        : 'bg-white border-[#d8e4da] hover:bg-[#f3f8f4]'
+                    }`}
                 >
                   {/* Header Row */}
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-1.5 flex-wrap">
                         <span
-                          className={`font-mono text-base font-black transition ${
-                            isDark
+                          className={`font-mono text-base font-black transition ${isDark
                               ? 'text-white group-hover:text-emerald-300'
                               : 'text-zinc-900 group-hover:text-emerald-700'
-                          }`}
+                            }`}
                         >
                           {stock.ticker}
                         </span>
@@ -1616,15 +1565,14 @@ export default function ParticipantMarketTerminal() {
 
                     {/* % Change Badge */}
                     <span
-                      className={`px-2 py-0.5 rounded-md font-mono text-xs font-black shrink-0 flex items-center gap-0.5 shadow-xs ${
-                        isGain
+                      className={`px-2 py-0.5 rounded-md font-mono text-xs font-black shrink-0 flex items-center gap-0.5 shadow-xs ${isGain
                           ? isDark
                             ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
                             : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
                           : isDark
-                          ? 'bg-rose-500/15 text-rose-400 border border-rose-500/30'
-                          : 'bg-rose-50 text-rose-700 border border-rose-200'
-                      }`}
+                            ? 'bg-rose-500/15 text-rose-400 border border-rose-500/30'
+                            : 'bg-rose-50 text-rose-700 border border-rose-200'
+                        }`}
                     >
                       {isGain ? '▲ +' : '▼ '}
                       {Math.abs(changePct).toFixed(2)}%
@@ -1638,9 +1586,8 @@ export default function ParticipantMarketTerminal() {
                         Current Price
                       </span>
                       <span
-                        className={`font-mono text-lg font-black mt-0.5 block tracking-tight ${
-                          isDark ? 'text-white' : 'text-zinc-900'
-                        }`}
+                        className={`font-mono text-lg font-black mt-0.5 block tracking-tight ${isDark ? 'text-white' : 'text-zinc-900'
+                          }`}
                       >
                         ₹{stock.current_price.toFixed(2)}
                       </span>
@@ -1666,9 +1613,8 @@ export default function ParticipantMarketTerminal() {
                         setSelectedStock(stock);
                         setMobileTab('chart');
                       }}
-                      className={`font-bold hover:underline flex items-center gap-0.5 cursor-pointer ${
-                        isDark ? 'text-emerald-400' : 'text-emerald-600'
-                      }`}
+                      className={`font-bold hover:underline flex items-center gap-0.5 cursor-pointer ${isDark ? 'text-emerald-400' : 'text-emerald-600'
+                        }`}
                     >
                       Chart
                       <span className="material-symbols-outlined text-[13px]">arrow_forward</span>
@@ -1680,9 +1626,8 @@ export default function ParticipantMarketTerminal() {
 
             {filteredStocks.length === 0 && (
               <div
-                className={`col-span-full py-16 text-center rounded-2xl border ${
-                  isDark ? 'text-zinc-400 bg-[#0e1511] border-[#1d2920]' : 'text-zinc-500 bg-white border-[#d8e4da]'
-                }`}
+                className={`col-span-full py-16 text-center rounded-2xl border ${isDark ? 'text-zinc-400 bg-[#0e1511] border-[#1d2920]' : 'text-zinc-500 bg-white border-[#d8e4da]'
+                  }`}
               >
                 <span className="material-symbols-outlined text-4xl text-zinc-400 mb-2 block">
                   search_off
@@ -1700,19 +1645,17 @@ export default function ParticipantMarketTerminal() {
 
         {/* Right Column: Interactive Stock Chart & Floor Wire (Sticky on Desktop) */}
         <aside
-          className={`w-full lg:w-[38%] xl:w-[35%] lg:sticky lg:top-[125px] space-y-4 ${
-            mobileTab === 'equities' ? 'hidden lg:block' : 'block'
-          }`}
+          className={`w-full lg:w-[38%] xl:w-[35%] lg:sticky lg:top-[125px] space-y-4 ${mobileTab === 'equities' ? 'hidden lg:block' : 'block'
+            }`}
         >
           {/* Mobile Back Button to Watchlist */}
           <button
             type="button"
             onClick={() => setMobileTab('equities')}
-            className={`lg:hidden w-full flex items-center justify-center gap-2 py-2 px-3 rounded-xl border text-xs font-mono font-bold transition shadow-xs cursor-pointer ${
-              isDark
+            className={`lg:hidden w-full flex items-center justify-center gap-2 py-2 px-3 rounded-xl border text-xs font-mono font-bold transition shadow-xs cursor-pointer ${isDark
                 ? 'bg-[#121c15] text-emerald-300 border-emerald-800/80 hover:bg-[#18291d]'
                 : 'bg-emerald-50 text-emerald-800 border-emerald-200 hover:bg-emerald-100'
-            }`}
+              }`}
           >
             <span className="material-symbols-outlined text-[16px]">arrow_back</span>
             Back to 78 Equities Watchlist
@@ -1721,9 +1664,8 @@ export default function ParticipantMarketTerminal() {
           {/* Selected Stock Hero Card with Interactive SVG Chart */}
           {selectedStock && (
             <div
-              className={`rounded-3xl p-4 sm:p-5 shadow-xl space-y-4 border transition-colors duration-200 ${
-                mobileTab === 'news' ? 'hidden lg:block' : 'block'
-              } ${isDark ? 'bg-[#0c120f] border-[#1e2c21]' : 'bg-white border-[#d8e4da]'}`}
+              className={`rounded-3xl p-4 sm:p-5 shadow-xl space-y-4 border transition-colors duration-200 ${mobileTab === 'news' ? 'hidden lg:block' : 'block'
+                } ${isDark ? 'bg-[#0c120f] border-[#1e2c21]' : 'bg-white border-[#d8e4da]'}`}
             >
               {/* Header Info */}
               <div className={`flex items-start justify-between gap-3 pb-3 border-b ${isDark ? 'border-zinc-800' : 'border-zinc-200'}`}>
@@ -1733,11 +1675,10 @@ export default function ParticipantMarketTerminal() {
                       {selectedStock.ticker}
                     </h2>
                     <span
-                      className={`px-2 py-0.5 rounded text-[10px] font-bold font-mono border ${
-                        isDark
+                      className={`px-2 py-0.5 rounded text-[10px] font-bold font-mono border ${isDark
                           ? 'bg-[#17231a] text-emerald-300 border-emerald-800'
                           : 'bg-emerald-50 text-emerald-800 border-emerald-200'
-                      }`}
+                        }`}
                     >
                       {selectedStock.sector}
                     </span>
@@ -1779,11 +1720,10 @@ export default function ParticipantMarketTerminal() {
                   <button
                     type="button"
                     onClick={() => setIsChartExpanded(true)}
-                    className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold transition border cursor-pointer ${
-                      isDark
+                    className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold transition border cursor-pointer ${isDark
                         ? 'bg-zinc-800/80 hover:bg-zinc-700 text-zinc-200 border-zinc-700/80'
                         : 'bg-zinc-100 hover:bg-zinc-200 text-zinc-800 border-zinc-300'
-                    }`}
+                      }`}
                     title="Open expanded high-definition chart"
                   >
                     <span className="material-symbols-outlined text-[13px]">open_in_full</span>
@@ -1796,13 +1736,13 @@ export default function ParticipantMarketTerminal() {
                     selectedStock.historical_prices && selectedStock.historical_prices.length > 1
                       ? selectedStock.historical_prices
                       : [
-                          selectedStock.previous_close * 0.985,
-                          selectedStock.previous_close * 0.992,
-                          selectedStock.previous_close * 1.008,
-                          selectedStock.previous_close * 0.997,
-                          selectedStock.previous_close * 1.003,
-                          selectedStock.current_price,
-                        ];
+                        selectedStock.previous_close * 0.985,
+                        selectedStock.previous_close * 0.992,
+                        selectedStock.previous_close * 1.008,
+                        selectedStock.previous_close * 0.997,
+                        selectedStock.previous_close * 1.003,
+                        selectedStock.current_price,
+                      ];
 
                   const rawMin = Math.min(...history);
                   const rawMax = Math.max(...history);
@@ -1857,21 +1797,18 @@ export default function ParticipantMarketTerminal() {
 
                   return (
                     <div
-                      className={`p-3.5 sm:p-4 rounded-2xl border relative transition-colors ${
-                        isDark ? 'bg-[#080d0a] border-zinc-800/80' : 'bg-[#f4f8f5] border-[#d8e4da]'
-                      }`}
+                      className={`p-3.5 sm:p-4 rounded-2xl border relative transition-colors ${isDark ? 'bg-[#080d0a] border-zinc-800/80' : 'bg-[#f4f8f5] border-[#d8e4da]'
+                        }`}
                     >
                       {/* Active Point Live Inspection Bar */}
                       {activePt && (
                         <div
-                          className={`flex items-center justify-between text-xs font-mono pb-2.5 border-b mb-2.5 ${
-                            isDark ? 'border-zinc-800/80' : 'border-zinc-200'
-                          }`}
+                          className={`flex items-center justify-between text-xs font-mono pb-2.5 border-b mb-2.5 ${isDark ? 'border-zinc-800/80' : 'border-zinc-200'
+                            }`}
                         >
                           <div className="flex items-center gap-2">
-                            <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold uppercase font-mono ${
-                              isDark ? 'bg-zinc-800 text-zinc-300' : 'bg-zinc-200 text-zinc-800'
-                            }`}>
+                            <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold uppercase font-mono ${isDark ? 'bg-zinc-800 text-zinc-300' : 'bg-zinc-200 text-zinc-800'
+                              }`}>
                               Round {activePt.round}
                             </span>
                             <span className={`text-base font-black ${isDark ? 'text-white' : 'text-zinc-900'}`}>
@@ -1886,11 +1823,10 @@ export default function ParticipantMarketTerminal() {
                               const pct = prev > 0 ? (diff / prev) * 100 : 0;
                               const up = diff >= 0;
                               return (
-                                <span className={`text-[11px] font-bold px-2 py-0.5 rounded ${
-                                  up
+                                <span className={`text-[11px] font-bold px-2 py-0.5 rounded ${up
                                     ? isDark ? 'bg-emerald-500/15 text-emerald-400' : 'bg-emerald-100 text-emerald-800'
                                     : isDark ? 'bg-rose-500/15 text-rose-400' : 'bg-rose-100 text-rose-800'
-                                }`}>
+                                  }`}>
                                   {up ? '▲ +' : '▼ '}{diff.toFixed(2)} ({up ? '+' : ''}{pct.toFixed(2)}%)
                                 </span>
                               );
@@ -2132,9 +2068,8 @@ export default function ParticipantMarketTerminal() {
               {/* Key Technical Stats Grid */}
               <div className="grid grid-cols-2 gap-2 text-xs font-mono">
                 <div
-                  className={`p-2.5 rounded-xl border ${
-                    isDark ? 'bg-[#101712] border-zinc-800' : 'bg-[#f2f7f3] border-[#d8e4da]'
-                  }`}
+                  className={`p-2.5 rounded-xl border ${isDark ? 'bg-[#101712] border-zinc-800' : 'bg-[#f2f7f3] border-[#d8e4da]'
+                    }`}
                 >
                   <span className={`text-[10px] block uppercase font-sans ${isDark ? 'text-zinc-500' : 'text-zinc-500'}`}>
                     Lower Circuit (-10%)
@@ -2145,9 +2080,8 @@ export default function ParticipantMarketTerminal() {
                 </div>
 
                 <div
-                  className={`p-2.5 rounded-xl border ${
-                    isDark ? 'bg-[#101712] border-zinc-800' : 'bg-[#f2f7f3] border-[#d8e4da]'
-                  }`}
+                  className={`p-2.5 rounded-xl border ${isDark ? 'bg-[#101712] border-zinc-800' : 'bg-[#f2f7f3] border-[#d8e4da]'
+                    }`}
                 >
                   <span className={`text-[10px] block uppercase font-sans ${isDark ? 'text-zinc-500' : 'text-zinc-500'}`}>
                     Upper Circuit (+10%)
@@ -2158,9 +2092,8 @@ export default function ParticipantMarketTerminal() {
                 </div>
 
                 <div
-                  className={`p-2.5 rounded-xl border ${
-                    isDark ? 'bg-[#101712] border-zinc-800' : 'bg-[#f2f7f3] border-[#d8e4da]'
-                  }`}
+                  className={`p-2.5 rounded-xl border ${isDark ? 'bg-[#101712] border-zinc-800' : 'bg-[#f2f7f3] border-[#d8e4da]'
+                    }`}
                 >
                   <span className={`text-[10px] block uppercase font-sans ${isDark ? 'text-zinc-500' : 'text-zinc-500'}`}>
                     Day High
@@ -2171,9 +2104,8 @@ export default function ParticipantMarketTerminal() {
                 </div>
 
                 <div
-                  className={`p-2.5 rounded-xl border ${
-                    isDark ? 'bg-[#101712] border-zinc-800' : 'bg-[#f2f7f3] border-[#d8e4da]'
-                  }`}
+                  className={`p-2.5 rounded-xl border ${isDark ? 'bg-[#101712] border-zinc-800' : 'bg-[#f2f7f3] border-[#d8e4da]'
+                    }`}
                 >
                   <span className={`text-[10px] block uppercase font-sans ${isDark ? 'text-zinc-500' : 'text-zinc-500'}`}>
                     Day Low
@@ -2188,9 +2120,8 @@ export default function ParticipantMarketTerminal() {
 
           {/* Live Floor Announcements & Macro Shocks */}
           <div
-            className={`rounded-3xl p-4 sm:p-5 shadow-xl space-y-3 border transition-colors duration-200 ${
-              mobileTab === 'chart' ? 'hidden lg:block' : 'block'
-            } ${isDark ? 'bg-[#0c120f] border-[#1e2c21]' : 'bg-white border-[#d8e4da]'}`}
+            className={`rounded-3xl p-4 sm:p-5 shadow-xl space-y-3 border transition-colors duration-200 ${mobileTab === 'chart' ? 'hidden lg:block' : 'block'
+              } ${isDark ? 'bg-[#0c120f] border-[#1e2c21]' : 'bg-white border-[#d8e4da]'}`}
           >
             <div className={`flex items-center justify-between pb-2 border-b ${isDark ? 'border-zinc-800' : 'border-zinc-200'}`}>
               <div className="flex items-center gap-2">
@@ -2200,11 +2131,10 @@ export default function ParticipantMarketTerminal() {
                 </h3>
               </div>
               <span
-                className={`text-[10px] font-mono px-2 py-0.5 rounded border font-bold ${
-                  isDark
+                className={`text-[10px] font-mono px-2 py-0.5 rounded border font-bold ${isDark
                     ? 'text-zinc-400 bg-black/40 border-white/5'
                     : 'text-zinc-600 bg-zinc-100 border-zinc-200'
-                }`}
+                  }`}
               >
                 {news.length} Broadcasts
               </span>
@@ -2214,11 +2144,10 @@ export default function ParticipantMarketTerminal() {
               {news.map((item) => (
                 <div
                   key={item.id}
-                  className={`p-3 rounded-2xl border space-y-1 transition ${
-                    isDark
+                  className={`p-3 rounded-2xl border space-y-1 transition ${isDark
                       ? 'bg-[#101712] border-[#1c281f] hover:border-[#2f4233]'
                       : 'bg-[#f6fbf7] border-[#dbe7dc] hover:border-[#b5ccb8]'
-                  }`}
+                    }`}
                 >
                   <div className="flex items-center justify-between text-[10px]">
                     <span className="font-bold uppercase tracking-wider text-amber-500 font-mono">
@@ -2228,8 +2157,8 @@ export default function ParticipantMarketTerminal() {
                       {item.published_at
                         ? new Date(item.published_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })
                         : (item as any).created_at
-                        ? new Date((item as any).created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })
-                        : 'Just now'}
+                          ? new Date((item as any).created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })
+                          : 'Just now'}
                     </span>
                   </div>
                   <h4 className={`text-xs font-bold leading-snug ${isDark ? 'text-white' : 'text-zinc-900'}`}>
@@ -2258,11 +2187,10 @@ export default function ParticipantMarketTerminal() {
         <div className="lg:hidden fixed bottom-3 left-3 right-3 z-40 animate-in slide-in-from-bottom duration-200">
           <div
             onClick={() => setMobileTab('chart')}
-            className={`p-2.5 sm:p-3 rounded-2xl border shadow-2xl flex items-center justify-between cursor-pointer backdrop-blur-md ${
-              isDark
+            className={`p-2.5 sm:p-3 rounded-2xl border shadow-2xl flex items-center justify-between cursor-pointer backdrop-blur-md ${isDark
                 ? 'bg-[#0e1711]/95 border-emerald-500/80 text-white shadow-emerald-950/60'
                 : 'bg-white/95 border-emerald-600 text-zinc-900 shadow-xl'
-            }`}
+              }`}
           >
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 flex items-center justify-center font-mono font-black text-xs shrink-0">
@@ -2298,13 +2226,13 @@ export default function ParticipantMarketTerminal() {
           selectedStock.historical_prices && selectedStock.historical_prices.length > 1
             ? selectedStock.historical_prices
             : [
-                selectedStock.previous_close * 0.985,
-                selectedStock.previous_close * 0.992,
-                selectedStock.previous_close * 1.008,
-                selectedStock.previous_close * 0.997,
-                selectedStock.previous_close * 1.003,
-                selectedStock.current_price,
-              ];
+              selectedStock.previous_close * 0.985,
+              selectedStock.previous_close * 0.992,
+              selectedStock.previous_close * 1.008,
+              selectedStock.previous_close * 0.997,
+              selectedStock.previous_close * 1.003,
+              selectedStock.current_price,
+            ];
 
         const rawMin = Math.min(...history);
         const rawMax = Math.max(...history);
@@ -2350,9 +2278,8 @@ export default function ParticipantMarketTerminal() {
         return (
           <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-y-auto animate-in fade-in duration-200">
             <div
-              className={`w-full max-w-5xl rounded-3xl border shadow-2xl overflow-hidden flex flex-col max-h-[92vh] ${
-                isDark ? 'bg-[#0d1410] border-zinc-800 text-white' : 'bg-white border-zinc-300 text-zinc-900'
-              }`}
+              className={`w-full max-w-5xl rounded-3xl border shadow-2xl overflow-hidden flex flex-col max-h-[92vh] ${isDark ? 'bg-[#0d1410] border-zinc-800 text-white' : 'bg-white border-zinc-300 text-zinc-900'
+                }`}
             >
               {/* Modal Header */}
               <div className={`p-4 sm:p-6 border-b flex items-start justify-between gap-4 ${isDark ? 'border-zinc-800/80 bg-[#090e0b]' : 'border-zinc-200 bg-zinc-50'}`}>
@@ -2361,9 +2288,8 @@ export default function ParticipantMarketTerminal() {
                     <h2 className="text-2xl sm:text-3xl font-black font-mono tracking-tight">
                       {selectedStock.ticker}
                     </h2>
-                    <span className={`px-2.5 py-0.5 rounded-full text-xs font-mono font-bold border ${
-                      isDark ? 'bg-[#152218] text-emerald-300 border-emerald-800' : 'bg-emerald-50 text-emerald-800 border-emerald-200'
-                    }`}>
+                    <span className={`px-2.5 py-0.5 rounded-full text-xs font-mono font-bold border ${isDark ? 'bg-[#152218] text-emerald-300 border-emerald-800' : 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                      }`}>
                       {selectedStock.sector}
                     </span>
                     <span className="text-xs font-mono font-semibold text-zinc-400">
@@ -2398,11 +2324,10 @@ export default function ParticipantMarketTerminal() {
                       setIsChartExpanded(false);
                       setHoveredPointIndex(null);
                     }}
-                    className={`w-9 h-9 rounded-xl flex items-center justify-center font-bold transition border cursor-pointer ${
-                      isDark
+                    className={`w-9 h-9 rounded-xl flex items-center justify-center font-bold transition border cursor-pointer ${isDark
                         ? 'bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border-zinc-700'
                         : 'bg-zinc-200 hover:bg-zinc-300 text-zinc-700 border-zinc-300'
-                    }`}
+                      }`}
                     title="Close"
                   >
                     ✕
@@ -2413,13 +2338,11 @@ export default function ParticipantMarketTerminal() {
               {/* Modal Body: Large Chart & Stats */}
               <div className="p-4 sm:p-6 overflow-y-auto space-y-5">
                 {/* Active Round Inspection Strip */}
-                <div className={`p-3.5 rounded-2xl border flex flex-wrap items-center justify-between gap-3 font-mono ${
-                  isDark ? 'bg-black/50 border-zinc-800' : 'bg-zinc-50 border-zinc-200'
-                }`}>
+                <div className={`p-3.5 rounded-2xl border flex flex-wrap items-center justify-between gap-3 font-mono ${isDark ? 'bg-black/50 border-zinc-800' : 'bg-zinc-50 border-zinc-200'
+                  }`}>
                   <div className="flex items-center gap-3">
-                    <span className={`px-2 py-0.5 rounded text-xs font-bold uppercase ${
-                      isDark ? 'bg-zinc-800 text-zinc-200' : 'bg-zinc-200 text-zinc-800'
-                    }`}>
+                    <span className={`px-2 py-0.5 rounded text-xs font-bold uppercase ${isDark ? 'bg-zinc-800 text-zinc-200' : 'bg-zinc-200 text-zinc-800'
+                      }`}>
                       Round {activePt.round}
                     </span>
                     <span className="text-xl sm:text-2xl font-black">
@@ -2435,11 +2358,10 @@ export default function ParticipantMarketTerminal() {
                         const pct = prev > 0 ? (diff / prev) * 100 : 0;
                         const up = diff >= 0;
                         return (
-                          <span className={`font-bold px-2 py-1 rounded ${
-                            up
+                          <span className={`font-bold px-2 py-1 rounded ${up
                               ? isDark ? 'bg-emerald-500/15 text-emerald-400' : 'bg-emerald-100 text-emerald-800'
                               : isDark ? 'bg-rose-500/15 text-rose-400' : 'bg-rose-100 text-rose-800'
-                          }`}>
+                            }`}>
                             Round Shift: {up ? '+' : ''}{diff.toFixed(2)} ({up ? '+' : ''}{pct.toFixed(2)}%)
                           </span>
                         );
@@ -2679,13 +2601,12 @@ export default function ParticipantMarketTerminal() {
                           key={`chip-${idx}`}
                           type="button"
                           onClick={() => setHoveredPointIndex(idx)}
-                          className={`p-2 rounded-xl border text-left shrink-0 transition font-mono cursor-pointer ${
-                            isSelected
+                          className={`p-2 rounded-xl border text-left shrink-0 transition font-mono cursor-pointer ${isSelected
                               ? 'border-emerald-500 ring-2 ring-emerald-500/40 bg-emerald-500/10'
                               : isDark
-                              ? 'bg-zinc-900/60 border-zinc-800 hover:bg-zinc-800'
-                              : 'bg-zinc-100 border-zinc-200 hover:bg-zinc-200'
-                          }`}
+                                ? 'bg-zinc-900/60 border-zinc-800 hover:bg-zinc-800'
+                                : 'bg-zinc-100 border-zinc-200 hover:bg-zinc-200'
+                            }`}
                         >
                           <div className="flex items-center justify-between gap-3 text-[10px] text-zinc-400">
                             <span>R{idx}</span>

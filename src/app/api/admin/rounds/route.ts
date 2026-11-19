@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { getCurrentSession } from '@/lib/auth';
 import {
   advanceCompetitionRound,
   updateRoundClock,
@@ -10,6 +11,11 @@ import {
 
 export async function GET() {
   try {
+    const session = await getCurrentSession();
+    if (!session || (session.role !== 'admin' && session.role !== 'superadmin')) {
+      return NextResponse.json({ error: 'Unauthorized: Admin privileges required.' }, { status: 403 });
+    }
+
     const data = getCompetitionRounds();
     const rStats = calculateMarketRFormula(data.currentRound.id);
     return NextResponse.json({
@@ -24,6 +30,11 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
+    const session = await getCurrentSession();
+    if (!session || (session.role !== 'admin' && session.role !== 'superadmin')) {
+      return NextResponse.json({ error: 'Unauthorized: Admin privileges required.' }, { status: 403 });
+    }
+
     const body = await request.json();
     const { action } = body;
 

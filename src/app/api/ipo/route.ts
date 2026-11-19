@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { getCurrentSession } from '@/lib/auth';
 import {
   getIPOListings,
   getIPOSubscriptions,
@@ -72,55 +73,62 @@ export async function POST(request: Request) {
           return;
         }
 
-        if (action === 'ALLOT') {
-          const { ipo_id, admin_email } = body;
-          if (!ipo_id) {
-            resolve(NextResponse.json({ success: false, error: 'ipo_id is required' }, { status: 400 }));
+        if (action === 'ALLOT' || action === 'CREATE' || action === 'SET_STATUS') {
+          const session = await getCurrentSession();
+          if (!session || (session.role !== 'admin' && session.role !== 'superadmin')) {
+            resolve(NextResponse.json({ success: false, error: 'Unauthorized: Admin privileges required.' }, { status: 403 }));
             return;
           }
-          const result = allotIPOLots(admin_email || 'admin.econ@thapar.edu', ipo_id);
-          resolve(NextResponse.json(result, { status: result.success ? 200 : 400 }));
-          return;
-        }
 
-        if (action === 'CREATE') {
-          const {
-            admin_email,
-            company_name,
-            ticker,
-            sector,
-            issue_price,
-            lot_size,
-            total_issue_lots,
-            round_id,
-            description,
-          } = body;
-
-          const result = createCustomIPO({
-            adminEmail: admin_email || 'admin.econ@thapar.edu',
-            company_name,
-            ticker,
-            sector,
-            issue_price: Number(issue_price),
-            lot_size: lot_size ? Number(lot_size) : undefined,
-            total_issue_lots: total_issue_lots ? Number(total_issue_lots) : undefined,
-            round_id,
-            description,
-          });
-
-          resolve(NextResponse.json(result, { status: result.success ? 201 : 400 }));
-          return;
-        }
-
-        if (action === 'SET_STATUS') {
-          const { ipo_id, status, reset_bids } = body;
-          if (!ipo_id || !status) {
-            resolve(NextResponse.json({ success: false, error: 'ipo_id and status are required' }, { status: 400 }));
+          if (action === 'ALLOT') {
+            const { ipo_id } = body;
+            if (!ipo_id) {
+              resolve(NextResponse.json({ success: false, error: 'ipo_id is required' }, { status: 400 }));
+              return;
+            }
+            const result = allotIPOLots(session.email || 'admin.econ@thapar.edu', ipo_id);
+            resolve(NextResponse.json(result, { status: result.success ? 200 : 400 }));
             return;
           }
-          const result = updateIPOStatus({ ipo_id, status, reset_bids: Boolean(reset_bids) });
-          resolve(NextResponse.json(result, { status: result.success ? 200 : 400 }));
-          return;
+
+          if (action === 'CREATE') {
+            const {
+              company_name,
+              ticker,
+              sector,
+              issue_price,
+              lot_size,
+              total_issue_lots,
+              round_id,
+              description,
+            } = body;
+
+            const result = createCustomIPO({
+              adminEmail: session.email || 'admin.econ@thapar.edu',
+              company_name,
+              ticker,
+              sector,
+              issue_price: Number(issue_price),
+              lot_size: lot_size ? Number(lot_size) : undefined,
+              total_issue_lots: total_issue_lots ? Number(total_issue_lots) : undefined,
+              round_id,
+              description,
+            });
+
+            resolve(NextResponse.json(result, { status: result.success ? 201 : 400 }));
+            return;
+          }
+
+          if (action === 'SET_STATUS') {
+            const { ipo_id, status, reset_bids } = body;
+            if (!ipo_id || !status) {
+              resolve(NextResponse.json({ success: false, error: 'ipo_id and status are required' }, { status: 400 }));
+              return;
+            }
+            const result = updateIPOStatus({ ipo_id, status, reset_bids: Boolean(reset_bids) });
+            resolve(NextResponse.json(result, { status: result.success ? 200 : 400 }));
+            return;
+          }
         }
 
         resolve(NextResponse.json({ success: false, error: `Invalid action: ${action}` }, { status: 400 }));
