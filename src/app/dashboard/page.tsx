@@ -24,90 +24,154 @@ interface TeamOption {
   balance: number;
 }
 
-// Basic Floor Audio Pack: Authentic Trading Bell (Trade Approved)
+// Stop handles for 10-second audio alerts
+let activeTradeAudioContext: AudioContext | null = null;
+let activeTradeAudioTimer: any = null;
+
+function stopTradeBellAudio() {
+  if (activeTradeAudioTimer) {
+    clearTimeout(activeTradeAudioTimer);
+    activeTradeAudioTimer = null;
+  }
+  if (activeTradeAudioContext) {
+    try {
+      activeTradeAudioContext.close().catch(() => {});
+    } catch {}
+    activeTradeAudioContext = null;
+  }
+}
+
+// Basic Floor Audio Pack: Authentic Trading Bell (Plays across 10 seconds)
 function playTradeBell() {
   try {
+    stopTradeBellAudio();
     const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
     if (!AudioCtx) return;
     const ctx = new AudioCtx();
+    activeTradeAudioContext = ctx;
     if (ctx.state === 'suspended') {
       ctx.resume().catch(() => {});
     }
-    const now = ctx.currentTime;
 
-    // Primary bell strike: 880Hz (A5) -> 1320Hz (E6)
-    const osc1 = ctx.createOscillator();
-    const gain1 = ctx.createGain();
-    osc1.type = 'sine';
-    osc1.frequency.setValueAtTime(880, now);
-    osc1.frequency.exponentialRampToValueAtTime(1320, now + 0.08);
-    gain1.gain.setValueAtTime(0.25, now);
-    gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
-    osc1.connect(gain1);
-    gain1.connect(ctx.destination);
-    osc1.start(now);
-    osc1.stop(now + 0.5);
+    const strikeBell = (offsetSec: number, volumeScale: number) => {
+      const now = ctx.currentTime + offsetSec;
 
-    // Metallic overtone: 1760Hz harmonic
-    const osc2 = ctx.createOscillator();
-    const gain2 = ctx.createGain();
-    osc2.type = 'triangle';
-    osc2.frequency.setValueAtTime(1760, now);
-    gain2.gain.setValueAtTime(0.12, now);
-    gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
-    osc2.connect(gain2);
-    gain2.connect(ctx.destination);
-    osc2.start(now);
-    osc2.stop(now + 0.35);
+      // Primary strike: 880Hz (A5) -> 1320Hz (E6)
+      const osc1 = ctx.createOscillator();
+      const gain1 = ctx.createGain();
+      osc1.type = 'sine';
+      osc1.frequency.setValueAtTime(880, now);
+      osc1.frequency.exponentialRampToValueAtTime(1320, now + 0.08);
+      gain1.gain.setValueAtTime(0.24 * volumeScale, now);
+      gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
+      osc1.connect(gain1);
+      gain1.connect(ctx.destination);
+      osc1.start(now);
+      osc1.stop(now + 0.6);
+
+      // Shimmering metallic harmonic: 1760Hz
+      const osc2 = ctx.createOscillator();
+      const gain2 = ctx.createGain();
+      osc2.type = 'triangle';
+      osc2.frequency.setValueAtTime(1760, now);
+      gain2.gain.setValueAtTime(0.12 * volumeScale, now);
+      gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+      osc2.connect(gain2);
+      gain2.connect(ctx.destination);
+      osc2.start(now);
+      osc2.stop(now + 0.45);
+    };
+
+    // 10-Second Rhythmic Bell Chime Sequence (spaced across 10 seconds)
+    strikeBell(0.0, 1.0);  // 0s
+    strikeBell(2.5, 0.85); // 2.5s
+    strikeBell(5.0, 0.70); // 5.0s
+    strikeBell(7.5, 0.55); // 7.5s (rings out to 10s)
+
+    activeTradeAudioTimer = setTimeout(() => {
+      stopTradeBellAudio();
+    }, 10000);
   } catch {}
 }
 
-// Basic Floor Audio Pack: 3-Tone Broadcast Alert (Breaking News)
+let activeNewsAudioContext: AudioContext | null = null;
+let activeNewsAudioTimer: any = null;
+
+function stopNewsAlertAudio() {
+  if (activeNewsAudioTimer) {
+    clearTimeout(activeNewsAudioTimer);
+    activeNewsAudioTimer = null;
+  }
+  if (activeNewsAudioContext) {
+    try {
+      activeNewsAudioContext.close().catch(() => {});
+    } catch {}
+    activeNewsAudioContext = null;
+  }
+}
+
+// Basic Floor Audio Pack: 3-Tone Broadcast Alert (Plays across 10 seconds)
 function playNewsAlertChime() {
   try {
+    stopNewsAlertAudio();
     const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
     if (!AudioCtx) return;
     const ctx = new AudioCtx();
+    activeNewsAudioContext = ctx;
     if (ctx.state === 'suspended') {
       ctx.resume().catch(() => {});
     }
-    const now = ctx.currentTime;
 
-    // Tone 1: 523.25 Hz (C5)
-    const osc1 = ctx.createOscillator();
-    const gain1 = ctx.createGain();
-    osc1.type = 'triangle';
-    osc1.frequency.setValueAtTime(523.25, now);
-    gain1.gain.setValueAtTime(0.24, now);
-    gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
-    osc1.connect(gain1);
-    gain1.connect(ctx.destination);
-    osc1.start(now);
-    osc1.stop(now + 0.22);
+    const playNewsPulse = (offsetSec: number, isLast: boolean) => {
+      const now = ctx.currentTime + offsetSec;
 
-    // Tone 2: 659.25 Hz (E5) at +0.14s
-    const osc2 = ctx.createOscillator();
-    const gain2 = ctx.createGain();
-    osc2.type = 'triangle';
-    osc2.frequency.setValueAtTime(659.25, now + 0.14);
-    gain2.gain.setValueAtTime(0.28, now + 0.14);
-    gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.38);
-    osc2.connect(gain2);
-    gain2.connect(ctx.destination);
-    osc2.start(now + 0.14);
-    osc2.stop(now + 0.38);
+      // Tone 1: 523.25 Hz (C5)
+      const osc1 = ctx.createOscillator();
+      const gain1 = ctx.createGain();
+      osc1.type = 'triangle';
+      osc1.frequency.setValueAtTime(523.25, now);
+      gain1.gain.setValueAtTime(0.24, now);
+      gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
+      osc1.connect(gain1);
+      gain1.connect(ctx.destination);
+      osc1.start(now);
+      osc1.stop(now + 0.22);
 
-    // Tone 3: 1046.50 Hz (High C6) at +0.28s
-    const osc3 = ctx.createOscillator();
-    const gain3 = ctx.createGain();
-    osc3.type = 'sine';
-    osc3.frequency.setValueAtTime(1046.50, now + 0.28);
-    gain3.gain.setValueAtTime(0.32, now + 0.28);
-    gain3.gain.exponentialRampToValueAtTime(0.001, now + 0.75);
-    osc3.connect(gain3);
-    gain3.connect(ctx.destination);
-    osc3.start(now + 0.28);
-    osc3.stop(now + 0.75);
+      // Tone 2: 659.25 Hz (E5)
+      const osc2 = ctx.createOscillator();
+      const gain2 = ctx.createGain();
+      osc2.type = 'triangle';
+      osc2.frequency.setValueAtTime(659.25, now + 0.12);
+      gain2.gain.setValueAtTime(0.28, now + 0.12);
+      gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+      osc2.connect(gain2);
+      gain2.connect(ctx.destination);
+      osc2.start(now + 0.12);
+      osc2.stop(now + 0.35);
+
+      // Tone 3: 1046.50 Hz (High C6)
+      const osc3 = ctx.createOscillator();
+      const gain3 = ctx.createGain();
+      osc3.type = 'sine';
+      osc3.frequency.setValueAtTime(1046.50, now + 0.24);
+      gain3.gain.setValueAtTime(isLast ? 0.24 : 0.30, now + 0.24);
+      gain3.gain.exponentialRampToValueAtTime(0.001, now + (isLast ? 1.8 : 0.7));
+      osc3.connect(gain3);
+      gain3.connect(ctx.destination);
+      osc3.start(now + 0.24);
+      osc3.stop(now + (isLast ? 1.8 : 0.7));
+    };
+
+    // 10-Second Rhythmic Broadcast Chime Sequence (spaced across 10 seconds)
+    playNewsPulse(0.0, false); // 0.0s
+    playNewsPulse(2.0, false); // 2.0s
+    playNewsPulse(4.0, false); // 4.0s
+    playNewsPulse(6.0, false); // 6.0s
+    playNewsPulse(8.0, true);  // 8.0s -> smooth tail ends at exactly 10.0s
+
+    activeNewsAudioTimer = setTimeout(() => {
+      stopNewsAlertAudio();
+    }, 10000);
   } catch {}
 }
 
@@ -180,8 +244,8 @@ export default function ParticipantMarketTerminal() {
   const triggerBreakingNewsAlert = (item: NewsArticle) => {
     if (!item) return;
     setLatestNewsAlert(item);
-    newsAlertExpireRef.current = Date.now() + 15000;
-    setNewsAlertMsRemaining(15000);
+    newsAlertExpireRef.current = Date.now() + 10000;
+    setNewsAlertMsRemaining(10000);
     if (soundEnabled) {
       playNewsAlertChime();
     }
@@ -818,7 +882,7 @@ export default function ParticipantMarketTerminal() {
       {/* 2.8 BREAKING NEWS WIRE FLASH NOTIFICATION BANNER */}
       {/* ========================================================================= */}
       {latestNewsAlert && newsAlertMsRemaining > 0 && (() => {
-        const pctRemaining = Math.max(0, Math.min(100, (newsAlertMsRemaining / 15000) * 100));
+        const pctRemaining = Math.max(0, Math.min(100, (newsAlertMsRemaining / 10000) * 100));
         return (
           <div className="w-full relative z-40 transition-all duration-300 bg-[#160B0E]/95 border-b border-rose-500/30 shadow-[0_4px_24px_-4px_rgba(244,63,94,0.25)] backdrop-blur-xl text-white animate-in fade-in slide-in-from-top-2">
             <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-rose-500/50 to-transparent" />
@@ -868,6 +932,7 @@ export default function ParticipantMarketTerminal() {
                     newsAlertExpireRef.current = 0;
                     setNewsAlertMsRemaining(0);
                     setLatestNewsAlert(null);
+                    stopNewsAlertAudio();
                   }}
                   className="p-1 rounded-md text-zinc-400 hover:text-white hover:bg-white/10 transition cursor-pointer"
                   title="Dismiss news banner"
@@ -1001,6 +1066,7 @@ export default function ParticipantMarketTerminal() {
                       tradeExpireAtRef.current = 0;
                       setTradeBannerMsRemaining(0);
                       setLatestTrade(null);
+                      stopTradeBellAudio();
                     }}
                     className="p-1 rounded-md text-zinc-400 hover:text-white hover:bg-white/10 transition cursor-pointer"
                     title="Dismiss"
