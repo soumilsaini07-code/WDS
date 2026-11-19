@@ -138,7 +138,6 @@ export default function EditorialBrokerDeskPage() {
             type: 'error',
             message: `🚨 BREAKING NEWS WIRE // ${item.headline.replace(/^BREAKING:\s*/i, '')}`,
           });
-          playSuccessChime();
         }
       })
       .subscribe();

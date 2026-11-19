@@ -36,7 +36,7 @@ function playTradeChime() {
   } catch {}
 }
 
-export function TradeBroadcastBanner() {
+export function TradeBroadcastBanner({ enableSound = false }: { enableSound?: boolean } = {}) {
   const [latestTrade, setLatestTrade] = useState<LatestTrade | null>(null);
   const [msRemaining, setMsRemaining] = useState<number>(0);
   const expireAtRef = useRef<number>(0);
@@ -65,7 +65,9 @@ export function TradeBroadcastBanner() {
     setLatestTrade(trade);
     expireAtRef.current = Date.now() + forceDurationMs;
     setMsRemaining(forceDurationMs);
-    playTradeChime();
+    if (enableSound) {
+      playTradeChime();
+    }
   };
 
   // 1. Supabase Realtime Telemetry (<50ms instantaneous push)
