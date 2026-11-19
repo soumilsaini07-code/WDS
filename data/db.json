@@ -68,7 +68,7 @@
       "email": "centralp@thapar.edu",
       "role": "participant",
       "username": "Central Primary Pool",
-      "balance": 10013910,
+      "balance": 10031092.5,
       "ecoin_balance": 0,
       "team_id": "team-yfnz05",
       "team_name": "Central Primary Pool",
@@ -76,6 +76,21 @@
       "assigned_admin_id": "usr-8ryunba",
       "assigned_admin_name": "Soumil Saini (Desk Lead)",
       "group_name": "Group Alpha - Desk 1"
+    },
+    {
+      "id": "test-leader-1",
+      "email": "test@thapar.edu",
+      "role": "participant",
+      "username": "Tester",
+      "balance": 10031092.5,
+      "ecoin_balance": 0,
+      "team_id": "team-yfnz05",
+      "team_name": "Central Primary Pool",
+      "created_at": "2026-11-19T06:31:49.455Z",
+      "assigned_admin_id": "admin-ipr7h",
+      "assigned_admin_name": "Vanshaj Jhuntra",
+      "group_name": "Group Beta - Desk 2",
+      "is_team_leader": false
     }
   ],
   "stocks": [
@@ -2662,11 +2677,62 @@
       "shares_count": 0,
       "avg_buy_price": 139.1,
       "updated_at": "2026-11-18T14:13:37.323Z"
+    },
+    {
+      "id": "port-9xxio3w",
+      "user_id": "usr-9ukdfl",
+      "stock_id": "s-zomato",
+      "shares_count": 0,
+      "avg_buy_price": 343.65,
+      "updated_at": "2026-11-19T06:31:49.455Z"
     }
   ],
   "transactions": [],
-  "market_events": [],
+  "market_events": [
+    {
+      "id": "evt-l5ym0t0",
+      "headline": "RANDOLM",
+      "description": "Official market news flash released by exchange administration.",
+      "impact_map": {},
+      "created_at": "2026-11-18T14:49:30.567Z"
+    },
+    {
+      "id": "evt-dy2n8cb",
+      "headline": "CNN",
+      "description": "Official market news flash released by exchange administration.",
+      "impact_map": {},
+      "created_at": "2026-11-18T14:48:51.195Z"
+    },
+    {
+      "id": "evt-lh7i1ja",
+      "headline": "ADANI",
+      "description": "Official market news flash released by exchange administration.",
+      "impact_map": {},
+      "created_at": "2026-11-18T14:43:51.432Z"
+    }
+  ],
   "news_articles": [
+    {
+      "id": "news-zyv7h51",
+      "headline": "BREAKING: RANDOLM",
+      "body": "Official market news flash released by exchange administration.",
+      "sentiment": "NEUTRAL",
+      "published_at": "2026-11-18T14:49:30.567Z"
+    },
+    {
+      "id": "news-r3x4vvq",
+      "headline": "BREAKING: CNN",
+      "body": "Official market news flash released by exchange administration.",
+      "sentiment": "NEUTRAL",
+      "published_at": "2026-11-18T14:48:51.195Z"
+    },
+    {
+      "id": "news-9rh39dx",
+      "headline": "BREAKING: ADANI",
+      "body": "Official market news flash released by exchange administration.",
+      "sentiment": "NEUTRAL",
+      "published_at": "2026-11-18T14:43:51.432Z"
+    },
     {
       "id": "news-3",
       "headline": "Foreign Institutional Inflows Cross ₹4,200 Cr in Weekly Trading",
@@ -2939,7 +3005,7 @@
       "id": "team-yfnz05",
       "name": "Central Primary Pool",
       "code": "CENTRALP",
-      "balance": 10013910,
+      "balance": 10031092.5,
       "leader_id": "usr-9ukdfl",
       "leader_name": "Central Primary Pool",
       "leader_email": "centralp@thapar.edu",
@@ -2950,6 +3016,13 @@
           "email": "centralp@thapar.edu",
           "roll": "centralp",
           "is_leader": true
+        },
+        {
+          "id": "test-leader-1",
+          "name": "Tester",
+          "email": "test@thapar.edu",
+          "roll": "test",
+          "is_leader": false
         }
       ],
       "created_at": "2026-11-11T17:44:01.417Z"
@@ -3020,10 +3093,10 @@
   ],
   "current_round_id": "round-0",
   "round_clock": {
-    "remaining_seconds": 212,
+    "remaining_seconds": 0,
     "is_paused": false,
     "is_orders_locked": false,
-    "last_tick": 1795012699056
+    "last_tick": 1795013429941
   },
   "ipo_listings": [
     {

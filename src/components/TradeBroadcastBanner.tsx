@@ -90,14 +90,14 @@ export function TradeBroadcastBanner() {
     let isMounted = true;
     const checkLatestTrade = async () => {
       try {
-        const res = await fetch('/api/trades/latest');
+        const res = await fetch('/api/trades/latest?t=' + Date.now(), { cache: 'no-store' });
         if (!res.ok || !isMounted) return;
         const data = await res.json();
         if (data?.latestTrade) {
           const trade = data.latestTrade as LatestTrade;
           if (trade.id && lastTradeIdRef.current !== trade.id) {
             const ageMs = Date.now() - (trade.timestamp || 0);
-            if (ageMs < 25000) {
+            if (ageMs < 30000) {
               const remaining = Math.max(3000, 10000 - Math.max(0, ageMs));
               triggerBanner(trade, remaining);
             } else {

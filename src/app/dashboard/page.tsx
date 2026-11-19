@@ -46,77 +46,27 @@ function playTradeBell() {
   } catch {}
 }
 
-// Play custom audio file whenever news is published, with synthetic Web Audio API fallback
+// Simple synthetic Web Audio alert for news publications
 function playNewsAlertChime() {
   try {
-    const candidateUrls = [
-      '/news.mp3',
-      '/breaking-news.mp3',
-      '/news-alert.mp3',
-      '/alert.mp3',
-      '/audio.mp3',
-      '/news.wav',
-      '/breaking-news.wav',
-      '/sound.mp3',
-    ];
+    const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+    if (!AudioCtx) return;
+    const ctx = new AudioCtx();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
 
-    let audioPlayed = false;
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(523.25, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(783.99, ctx.currentTime + 0.12);
+    osc.frequency.setValueAtTime(1046.50, ctx.currentTime + 0.22);
 
-    // Attempt HTML5 Audio element for custom user audio files
-    const tryPlayFile = (index: number) => {
-      if (index >= candidateUrls.length) {
-        playSyntheticChime();
-        return;
-      }
-      const url = candidateUrls[index];
-      const audio = new Audio(url);
-      audio.volume = 0.9;
-      audio
-        .play()
-        .then(() => {
-          audioPlayed = true;
-          // Auto-stop after exactly 10 seconds with smooth fade out
-          setTimeout(() => {
-            const fadeInterval = setInterval(() => {
-              if (audio.volume > 0.1) {
-                audio.volume = Math.max(0, audio.volume - 0.1);
-              } else {
-                clearInterval(fadeInterval);
-                audio.pause();
-                audio.currentTime = 0;
-              }
-            }, 80);
-          }, 9200); // 9.2s full volume + 0.8s fade = 10s total
-        })
-        .catch(() => {
-          tryPlayFile(index + 1);
-        });
-    };
+    gain.gain.setValueAtTime(0.25, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.6);
 
-    const playSyntheticChime = () => {
-      try {
-        const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
-        if (!AudioCtx) return;
-        const ctx = new AudioCtx();
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(523.25, ctx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(783.99, ctx.currentTime + 0.12);
-        osc.frequency.setValueAtTime(1046.50, ctx.currentTime + 0.22);
-
-        gain.gain.setValueAtTime(0.3, ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.7);
-
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.start(ctx.currentTime);
-        osc.stop(ctx.currentTime + 0.7);
-      } catch {}
-    };
-
-    tryPlayFile(0);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + 0.6);
   } catch {}
 }
 
@@ -337,7 +287,7 @@ export default function ParticipantMarketTerminal() {
         const [stocksRes, roundsRes, tradeRes, newsRes] = await Promise.all([
           fetch('/api/stocks').then((r) => (r.ok ? r.json() : null)),
           fetch('/api/rounds').then((r) => (r.ok ? r.json() : null)),
-          fetch('/api/trades/latest').then((r) => (r.ok ? r.json() : null)),
+          fetch('/api/trades/latest?t=' + Date.now(), { cache: 'no-store' }).then((r) => (r.ok ? r.json() : null)),
           fetch('/api/events').then((r) => (r.ok ? r.json() : null)),
         ]);
 
