@@ -83,25 +83,66 @@ export function syncStockToSupabase(stock: Stock) {
   ).catch(() => {});
 }
 
-export function syncTransactionToSupabase(tx: Transaction, sellerTeamName?: string, buyerTeamName?: string) {
+export function syncTransactionToSupabase(
+  tx: Transaction,
+  sellerTeamId?: string,
+  buyerTeamId?: string,
+  ticker?: string
+) {
   if (!supabase) return;
   Promise.resolve(
-    supabase
-      .from('transactions')
-      .insert({
-        id: tx.id,
-        user_id: tx.user_id,
-        team_id: tx.type === 'SELL' ? sellerTeamName : buyerTeamName,
-        counterparty_team_id: tx.type === 'SELL' ? buyerTeamName : sellerTeamName,
-        stock_id: tx.stock_id,
-        type: tx.type,
-        quantity: tx.quantity,
-        price: tx.price_at_trade || tx.price,
-        brokerage: tx.brokerage,
-        total_amount: tx.gross_amount || tx.net_amount,
-        round_id: tx.round_id,
-        timestamp: tx.timestamp || new Date().toISOString(),
-      })
+    (async () => {
+      try {
+        const db = getLocalDB();
+        const stock = db.stocks?.find((s) => s.id === tx.stock_id || s.ticker === tx.stock_id);
+        const resolvedTicker = ticker || stock?.ticker || tx.stock_id.replace(/^s-/, '').toUpperCase();
+
+        const resolvedTeamId = tx.type === 'SELL' ? sellerTeamId : buyerTeamId;
+        const resolvedCounterpartyId = tx.type === 'SELL' ? buyerTeamId : sellerTeamId;
+
+        // If team ID passed is a name or code, look up actual team id
+        const findTeamId = (idOrName?: string) => {
+          if (!idOrName) return null;
+          const found = db.teams?.find((t) => t.id === idOrName || t.name.toLowerCase() === idOrName.toLowerCase());
+          return found ? found.id : idOrName;
+        };
+
+        const finalTeamId = findTeamId(resolvedTeamId);
+        const finalCounterpartyId = findTeamId(resolvedCounterpartyId);
+
+        // Ensure user exists in users table or pass null to avoid FK error
+        let finalUserId: string | null = tx.user_id;
+        const userExists = db.users?.some((u) => u.id === tx.user_id);
+        if (!userExists) {
+          finalUserId = null;
+        }
+
+        const payload = {
+          id: tx.id,
+          user_id: finalUserId,
+          team_id: finalTeamId,
+          counterparty_team_id: finalCounterpartyId,
+          stock_id: stock?.id || tx.stock_id,
+          ticker: resolvedTicker,
+          type: tx.type,
+          quantity: tx.quantity,
+          price: tx.price_at_trade || tx.price,
+          brokerage: tx.brokerage || 0,
+          total_amount: tx.gross_amount || tx.net_amount,
+          round_id: tx.round_id || 'round-0',
+          timestamp: tx.timestamp || new Date().toISOString(),
+        };
+
+        const { error } = await supabase.from('transactions').upsert(payload, { onConflict: 'id' });
+        if (error) {
+          console.error('[Supabase Sync] Transaction upsert error:', error.message, payload);
+        } else {
+          broadcastRealtimeEvent('TRADE_SAVED_TO_CLOUD', payload);
+        }
+      } catch (err: any) {
+        console.error('[Supabase Sync] Exception syncing transaction to Supabase:', err?.message || err);
+      }
+    })()
   ).catch(() => {});
 }
 
@@ -1605,6 +1646,92 @@ export async function reconcileStocksFromSupabase(force = false): Promise<Stock[
   }
 }
 
+let _lastTxReconcileTime = 0;
+export async function reconcileTransactionsFromSupabase(force = false): Promise<Transaction[]> {
+  const db = getLocalDB();
+  if (!supabase) return db.transactions || [];
+
+  const now = Date.now();
+  if (!force && now - _lastTxReconcileTime < 1500) {
+    return db.transactions || [];
+  }
+  _lastTxReconcileTime = now;
+
+  try {
+    const { data: suTxs, error } = await supabase
+      .from('transactions')
+      .select('id, user_id, team_id, counterparty_team_id, stock_id, ticker, type, quantity, price, brokerage, total_amount, round_id, timestamp');
+
+    if (error || !suTxs) return db.transactions || [];
+    if (!db.transactions) db.transactions = [];
+
+    const suTxMap = new Map(suTxs.map((t) => [t.id, t]));
+    let modified = false;
+
+    // 1. Remove local transactions that were deleted from Supabase
+    const initialLen = db.transactions.length;
+    db.transactions = db.transactions.filter((lt) => suTxMap.has(lt.id));
+    if (db.transactions.length !== initialLen) {
+      modified = true;
+    }
+
+    // 2. Add or update transactions from Supabase
+    for (const st of suTxs) {
+      const existing = db.transactions.find((t) => t.id === st.id);
+      const stock = db.stocks?.find((s) => s.id === st.stock_id || s.ticker.toUpperCase() === (st.ticker || '').toUpperCase());
+      const stockId = stock?.id || st.stock_id;
+
+      if (existing) {
+        const suPrice = Number(st.price);
+        const suTotal = Number(st.total_amount);
+        const suBrokerage = Number(st.brokerage || 0);
+
+        if (
+          existing.quantity !== st.quantity ||
+          (existing.price_at_trade || existing.price) !== suPrice ||
+          (existing.gross_amount || existing.net_amount) !== suTotal
+        ) {
+          existing.quantity = st.quantity;
+          existing.price = suPrice;
+          existing.price_at_trade = suPrice;
+          existing.brokerage = suBrokerage;
+          existing.gross_amount = suTotal;
+          existing.net_amount = suTotal;
+          modified = true;
+        }
+      } else {
+        const team = db.teams?.find((t) => t.id === st.team_id || t.name === st.team_id);
+        const resolvedUserId = st.user_id || team?.leader_id || (team?.members && team.members[0]?.id) || 'usr-broker';
+        db.transactions.push({
+          id: st.id,
+          user_id: resolvedUserId,
+          stock_id: stockId,
+          type: (st.type === 'SELL' || st.type === 'P2P_SELL') ? 'SELL' : 'BUY',
+          quantity: st.quantity,
+          price: Number(st.price),
+          price_at_trade: Number(st.price),
+          brokerage: Number(st.brokerage || 0),
+          gross_amount: Number(st.total_amount),
+          net_amount: Number(st.total_amount),
+          round_id: st.round_id || 'round-0',
+          timestamp: st.timestamp,
+        });
+        modified = true;
+      }
+    }
+
+    if (modified) {
+      saveLocalDB(db);
+      broadcastRealtimeEvent('BROKER_LEDGER_UPDATED', { timestamp: Date.now() });
+    }
+
+    return db.transactions;
+  } catch (err: any) {
+    console.warn('[reconcileTransactionsFromSupabase] Exception:', err?.message || err);
+    return db.transactions || [];
+  }
+}
+
 // Background auto-reconciliation loop (runs every 2 seconds)
 if (typeof globalThis !== 'undefined' && !(globalThis as any)._wdsSupabaseSyncStarted) {
   (globalThis as any)._wdsSupabaseSyncStarted = true;
@@ -1613,6 +1740,7 @@ if (typeof globalThis !== 'undefined' && !(globalThis as any)._wdsSupabaseSyncSt
       await reconcileTeamsFromSupabase();
       await reconcilePortfoliosFromSupabase();
       await reconcileStocksFromSupabase();
+      await reconcileTransactionsFromSupabase();
     } catch {}
   }, 2000);
 }
@@ -3745,6 +3873,7 @@ export async function modifyTeamBudget(
       timestamp: new Date().toISOString(),
     };
     db.transactions.push(tx);
+    syncTransactionToSupabase(tx, undefined, team.id, 'CASH');
   }
 
   saveLocalDB(db);
@@ -4088,8 +4217,8 @@ export async function executeInterTeamTrade(
     broadcastRealtimeEvent('STOCK_PRICE_UPDATED', stock);
     syncStockToSupabase(stock);
   }
-  syncTransactionToSupabase(sellTx, sellerTeam.name, buyerTeam.name);
-  syncTransactionToSupabase(buyTx, sellerTeam.name, buyerTeam.name);
+  syncTransactionToSupabase(sellTx, sellerTeam.id, buyerTeam.id, stock.ticker);
+  syncTransactionToSupabase(buyTx, sellerTeam.id, buyerTeam.id, stock.ticker);
   syncTeamToSupabase(sellerTeam, sellerLeader);
   syncTeamToSupabase(buyerTeam, buyerLeader);
   syncPortfolioToSupabase(sellerPort);
@@ -5035,6 +5164,7 @@ export function allotIPOLots(
       timestamp: new Date().toISOString(),
     };
     db.transactions.push(tx);
+    syncTransactionToSupabase(tx, undefined, team.id, ipo.ticker);
 
     sub.lots_allotted = allottedLots;
     sub.share_quantity = finalShares;
