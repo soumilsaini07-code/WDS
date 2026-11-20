@@ -34,13 +34,27 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // 1. Strict Protection for Admin API Endpoints (/api/admin/*)
-  if (pathname.startsWith('/api/admin')) {
+  // 1. Strict Protection for Admin Portal (/admin) & Admin API Endpoints (/api/admin/*)
+  if (
+    pathname === '/admin' ||
+    pathname.startsWith('/admin/') ||
+    pathname.startsWith('/api/admin')
+  ) {
     if (!session || (session.role !== 'admin' && session.role !== 'superadmin')) {
-      return NextResponse.json(
-        { error: 'Unauthorized: Platform Administrator privileges required.' },
-        { status: 403 }
-      );
+      if (pathname.startsWith('/api/')) {
+        return NextResponse.json(
+          { error: 'Unauthorized: Platform Administrator privileges required.' },
+          { status: 403 }
+        );
+      }
+      // If signed in as a student/participant, redirect away to the dashboard
+      if (session) {
+        return NextResponse.redirect(new URL('/dashboard', request.url));
+      }
+      // If unauthenticated, redirect to login page with return parameter
+      const loginUrl = new URL('/login', request.url);
+      loginUrl.searchParams.set('redirect', pathname);
+      return NextResponse.redirect(loginUrl);
     }
   }
 
@@ -75,6 +89,7 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
+    '/admin',
     '/admin/:path*',
     '/api/admin/:path*',
     '/api/slips/:path*',

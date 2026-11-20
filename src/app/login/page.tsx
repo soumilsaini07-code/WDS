@@ -21,27 +21,6 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
-  const handleSuperAdminQuickSignIn = async () => {
-    setError(null);
-    setLoading(true);
-    try {
-      const res = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: 'soumilsaini07@gmail.com', password: 'superadmin123' }),
-      });
-      const data = await res.json();
-      if (!res.ok || !data.token) {
-        throw new Error(data.error || 'Admin login failed');
-      }
-      localStorage.setItem('econ_token', data.token);
-      document.cookie = `econ_token=${data.token}; path=/; max-age=604800; SameSite=Lax`;
-      window.location.href = '/admin';
-    } catch (err: any) {
-      setError(err.message || 'Failed to authenticate as superadmin.');
-      setLoading(false);
-    }
-  };
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -304,17 +283,6 @@ export default function LoginPage() {
                   )}
                 </button>
 
-                <div className="pt-3 border-t border-[#e1e4da] mt-3">
-                  <button
-                    type="button"
-                    onClick={handleSuperAdminQuickSignIn}
-                    disabled={loading}
-                    className="w-full py-2.5 bg-[#1b261e] hover:bg-[#25352a] text-[#a4d4b3] border border-[#3e5043] font-bold text-xs rounded-lg transition flex items-center justify-center gap-2 cursor-pointer shadow-xs disabled:opacity-50"
-                  >
-                    <ShieldCheck className="w-4 h-4 text-[#a4d4b3]" />
-                    <span>⚡ Quick Superadmin Sign In (1-Click)</span>
-                  </button>
-                </div>
 
                 <div className="text-center pt-2">
                   <button

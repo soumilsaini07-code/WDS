@@ -141,30 +141,6 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(false);
   const [authError, setAuthError] = useState(false);
 
-  const handleQuickAdminLogin = async () => {
-    try {
-      const res = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: 'soumilsaini07@gmail.com', password: 'superadmin123' }),
-      });
-      const data = await res.json();
-      if (data.token) {
-        localStorage.setItem('econ_token', data.token);
-        document.cookie = `econ_token=${data.token}; path=/; max-age=604800; SameSite=Lax`;
-        setAuthError(false);
-        await Promise.allSettled([
-          fetchAdminData(),
-          fetchAdminRounds(),
-          fetchAdminTeams(),
-          fetchAdminSlips(),
-          fetchIPOData(),
-        ]);
-      }
-    } catch (e) {
-      console.error('Quick admin login error:', e);
-    }
-  };
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
@@ -952,6 +928,11 @@ export default function AdminPage() {
   };
 
   useEffect(() => {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('econ_token') : null;
+    if (!token) {
+      setAuthError(true);
+      return;
+    }
     fetchAdminData();
     fetchAdminSlips();
     fetchAdminTeams();
@@ -1492,18 +1473,17 @@ export default function AdminPage() {
             </p>
           </div>
           <div className="pt-2 space-y-2.5">
-            <button
-              type="button"
-              onClick={handleQuickAdminLogin}
-              className="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-sm transition shadow-md flex items-center justify-center gap-2 cursor-pointer"
-            >
-              <span>⚡ Enter as Superadmin (1-Click)</span>
-            </button>
             <Link
-              href="/login"
-              className="block w-full py-2.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-semibold rounded-xl text-xs transition"
+              href="/login?redirect=/admin"
+              className="block w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-sm transition shadow-md text-center"
             >
-              Go to Standard Sign In Page
+              Sign In with Admin Account
+            </Link>
+            <Link
+              href="/dashboard"
+              className="block w-full py-2.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-semibold rounded-xl text-xs transition text-center"
+            >
+              Return to Public Trading Floor
             </Link>
           </div>
         </div>
