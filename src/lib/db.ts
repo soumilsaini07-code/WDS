@@ -1519,12 +1519,18 @@ export function syncPortfolioToSupabase(portfolio: Portfolio) {
   Promise.resolve(
     (async () => {
       try {
+        const db = getLocalDB();
+        const user = db.users?.find((u) => u.id === portfolio.user_id);
+        const team = db.teams?.find((t) => t.id === portfolio.team_id || t.id === user?.team_id || t.leader_id === portfolio.user_id);
+        const resolvedTeamId = portfolio.team_id || team?.id || null;
+
         const payload = {
           id: portfolio.id,
-          user_id: portfolio.user_id,
+          user_id: portfolio.user_id || null,
+          team_id: resolvedTeamId,
           stock_id: portfolio.stock_id,
-          shares_count: portfolio.shares_count,
-          avg_buy_price: portfolio.avg_buy_price,
+          shares_count: Math.max(0, portfolio.shares_count || 0),
+          avg_buy_price: Math.max(0, portfolio.avg_buy_price || 0),
           updated_at: new Date().toISOString(),
         };
         const { error } = await supabase.from('portfolios').upsert(payload, { onConflict: 'id' });
@@ -1647,13 +1653,14 @@ export async function reconcilePortfoliosFromSupabase(force = false): Promise<Po
   try {
     const { data: suPorts, error } = await supabase
       .from('portfolios')
-      .select('id, user_id, stock_id, shares_count, avg_buy_price, updated_at');
+      .select('id, user_id, team_id, stock_id, shares_count, avg_buy_price, updated_at');
 
     if (error || !suPorts) return db.portfolios || [];
 
     if (!db.portfolios) db.portfolios = [];
     const suPortMap = new Map(suPorts.map((p) => [p.id, p]));
     const suPortUserStockKey = new Map(suPorts.map((p) => [`${p.user_id}_${p.stock_id}`, p]));
+    const suPortTeamStockKey = new Map(suPorts.filter((p) => p.team_id).map((p) => [`${p.team_id}_${p.stock_id}`, p]));
 
     let modified = false;
 
@@ -1662,7 +1669,8 @@ export async function reconcilePortfoliosFromSupabase(force = false): Promise<Po
       if (lp.shares_count > 0) {
         const suByExactId = suPortMap.get(lp.id);
         const suByKey = suPortUserStockKey.get(`${lp.user_id}_${lp.stock_id}`);
-        if (!suByExactId && !suByKey) {
+        const suByTeamKey = lp.team_id ? suPortTeamStockKey.get(`${lp.team_id}_${lp.stock_id}`) : null;
+        if (!suByExactId && !suByKey && !suByTeamKey) {
           lp.shares_count = 0;
           lp.updated_at = new Date().toISOString();
           modified = true;
@@ -1673,9 +1681,16 @@ export async function reconcilePortfoliosFromSupabase(force = false): Promise<Po
     // 2. Update holdings that were edited or added in Supabase
     for (const sp of suPorts) {
       let localPort = db.portfolios.find(
-        (p) => p.id === sp.id || (p.user_id === sp.user_id && p.stock_id === sp.stock_id)
+        (p) =>
+          p.id === sp.id ||
+          (sp.team_id && p.team_id && p.team_id === sp.team_id && p.stock_id === sp.stock_id) ||
+          (p.user_id === sp.user_id && p.stock_id === sp.stock_id)
       );
       if (localPort) {
+        if (sp.team_id && !localPort.team_id) {
+          localPort.team_id = sp.team_id;
+          modified = true;
+        }
         if (localPort.shares_count !== sp.shares_count || localPort.avg_buy_price !== sp.avg_buy_price) {
           localPort.shares_count = sp.shares_count;
           localPort.avg_buy_price = sp.avg_buy_price;
@@ -1686,6 +1701,7 @@ export async function reconcilePortfoliosFromSupabase(force = false): Promise<Po
         db.portfolios.push({
           id: sp.id,
           user_id: sp.user_id,
+          team_id: sp.team_id || null,
           stock_id: sp.stock_id,
           shares_count: sp.shares_count,
           avg_buy_price: sp.avg_buy_price,

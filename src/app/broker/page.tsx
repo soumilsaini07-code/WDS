@@ -146,6 +146,24 @@ export default function EditorialBrokerDeskPage() {
       .on('broadcast', { event: 'TRADE_EXECUTED' }, () => {
         fetchLedger();
       })
+      .on('broadcast', { event: 'TRADE_SAVED_TO_CLOUD' }, () => {
+        fetchLedger();
+      })
+      .on('broadcast', { event: 'BROKER_LEDGER_UPDATED' }, () => {
+        fetchLedger();
+      })
+      .on('broadcast', { event: 'TEAMS_SYNCED' }, () => {
+        fetchLedger();
+      })
+      .on('broadcast', { event: 'PORTFOLIO_UPDATED' }, () => {
+        fetchLedger();
+      })
+      .on('broadcast', { event: 'SLIP_SUBMITTED' }, () => {
+        fetchLedger();
+      })
+      .on('broadcast', { event: 'SLIP_EXECUTED' }, () => {
+        fetchLedger();
+      })
       .on('broadcast', { event: 'STOCK_PRICE_UPDATED' }, () => {
         fetchLedger();
       })
@@ -180,6 +198,12 @@ export default function EditorialBrokerDeskPage() {
         fetchLedger();
       })
       .on('postgres_changes', { event: '*', schema: 'public', table: 'ipo_listings' }, () => {
+        fetchLedger();
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'order_slips' }, () => {
+        fetchLedger();
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'transactions' }, () => {
         fetchLedger();
       })
       .subscribe();

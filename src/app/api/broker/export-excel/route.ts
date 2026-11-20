@@ -1,11 +1,28 @@
 import { NextResponse } from 'next/server';
 import * as XLSX from 'xlsx';
 import { computeBrokerLedgerSnapshot } from '@/lib/broker-ledger';
+import {
+  reconcileTeamsFromSupabase,
+  reconcilePortfoliosFromSupabase,
+  reconcileTransactionsFromSupabase,
+  reconcileClockFromSupabase,
+  reconcileIPOFromSupabase,
+} from '@/lib/db';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
+    try {
+      await Promise.allSettled([
+        reconcileTeamsFromSupabase(),
+        reconcilePortfoliosFromSupabase(),
+        reconcileTransactionsFromSupabase(),
+        reconcileClockFromSupabase(),
+        reconcileIPOFromSupabase(),
+      ]);
+    } catch {}
+
     const snapshot = computeBrokerLedgerSnapshot();
 
     // 1. Sheet 1: Team Purses & Elimination Audit

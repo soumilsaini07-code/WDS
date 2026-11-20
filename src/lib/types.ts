@@ -95,6 +95,7 @@ export interface Stock {
 export interface Portfolio {
   id: string;
   user_id: string;
+  team_id?: string;
   stock_id: string;
   shares_count: number;
   avg_buy_price: number;
@@ -108,6 +109,9 @@ export type TransactionType = 'BUY' | 'SELL';
 export interface Transaction {
   id: string;
   user_id: string;
+  team_id?: string;
+  counterparty_team_id?: string;
+  ticker?: string;
   stock_id: string;
   type: TransactionType;
   quantity: number;
