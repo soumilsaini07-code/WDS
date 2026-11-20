@@ -3550,7 +3550,7 @@
       "leader_id": "test-leader-2",
       "leader_name": "Team 2 Leader",
       "leader_email": "test-team-2@example.com",
-      "balance": 302492,
+      "balance": 505922,
       "members": [],
       "created_at": "2026-11-20T16:38:09.176965+00:00"
     },
@@ -3561,7 +3561,7 @@
       "leader_id": "test-leader-3",
       "leader_name": "Team 3 Leader",
       "leader_email": "test-team-3@example.com",
-      "balance": 683417.26,
+      "balance": 785085.5,
       "members": [],
       "created_at": "2026-11-20T16:38:09.176965+00:00"
     },
@@ -3594,7 +3594,7 @@
       "leader_id": "test-leader-6",
       "leader_name": "Team 6 Leader",
       "leader_email": "test-team-6@example.com",
-      "balance": 793164,
+      "balance": 673004.5,
       "members": [],
       "created_at": "2026-11-20T16:38:09.176965+00:00"
     },

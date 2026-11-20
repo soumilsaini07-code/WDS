@@ -335,6 +335,7 @@ export interface RoundSettlementState {
     total_round_sell_volume: number;
     average_traded_stock_shift: number;
     calculated_r: number;
+    formula_breakdown?: string;
   };
   settlements: StockPriceSettlement[];
   is_applied: boolean;

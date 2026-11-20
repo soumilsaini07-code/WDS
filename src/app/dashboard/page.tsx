@@ -1234,10 +1234,11 @@ export default function ParticipantMarketTerminal() {
 
                 <p className={`text-xs max-w-3xl leading-relaxed ${isDark ? 'text-zinc-300' : 'text-zinc-600'}`}>
                   {(activeIPO.description || 'Enterprise offering on Dalal Street. Primary market offering open for offline book-building.')
-                    .replace(/\.?\s*(Smooth\s*(pricing|S-Curve\s*Pricing)?[:\s]*)?P_?listing\s*=\s*P0.*$/i, '')
-                    .replace(/Smooth\s*pricing[:\s].*$/i, '')
-                    .replace(/P_?listing\s*=.*$/i, '')
-                    .replace(/P0\s*[×*].*$/i, '')
+                    .replace(/\.?\s*(Smooth\s*(pricing|S-Curve\s*Pricing)?[:\s]*)?P_?listing[\s\S]*$/i, '')
+                    .replace(/Smooth\s*pricing[\s\S]*$/i, '')
+                    .replace(/P_?listing[\s\S]*$/i, '')
+                    .replace(/P0\s*[×*][\s\S]*$/i, '')
+                    .replace(/Formula:[\s\S]*$/i, '')
                     .trim() || 'Enterprise offering on Dalal Street. Primary market offering open for offline book-building.'}
                 </p>
               </div>

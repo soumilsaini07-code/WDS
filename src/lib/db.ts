@@ -4487,7 +4487,8 @@ export function calculateMarketRFormula(roundId?: CompetitionRoundId): {
   formula_breakdown: string;
 } {
   const db = getLocalDB();
-  const txs = db.transactions || [];
+  const currentId = roundId || db.current_round_id || 'round-0';
+  const txs = (db.transactions || []).filter((tx) => !tx.round_id || tx.round_id === currentId);
 
   // Group transactions by stock
   const stockShiftMap: Record<string, { totalVol: number; weightedPriceSum: number; basePrice: number }> = {};
@@ -4563,7 +4564,7 @@ export function previewRoundSettlement(params: {
   const db = getLocalDB();
   const currentId = params.roundId || db.current_round_id || 'round-0';
   const rStats = calculateMarketRFormula(currentId);
-  const activeR = typeof params.overrideR === 'number' ? params.overrideR : rStats.calculated_r;
+  const activeR = typeof params.overrideR === 'number' && !isNaN(params.overrideR) ? params.overrideR : rStats.calculated_r;
 
   // Determine which stocks had orders in this specific round (filtering to BUY legs to avoid dual-counting)
   const stockOrdersMap: Record<string, { count: number; totalVol: number; valueSum: number }> = {};
@@ -4615,18 +4616,17 @@ export function previewRoundSettlement(params: {
       }
     }
 
-    // Individual stock R% (Assigned automatically between 1% and 10% per stock, with admin overrides)
-    let stockR: number;
+    // Market Drift R% for this security:
+    // Defaults directly to activeR (formula-derived market drift or admin override slider).
+    // Overridden ONLY if explicitly specified for this specific stock, or if randomizeR is explicitly true.
+    let stockR = activeR;
     if (params.stockROverrides && typeof params.stockROverrides[stock.id] === 'number') {
       stockR = params.stockROverrides[stock.id];
     } else if (params.stockROverrides && typeof params.stockROverrides[stock.ticker] === 'number') {
       stockR = params.stockROverrides[stock.ticker];
-    } else if (typeof params.overrideR === 'number' && params.overrideR !== 0 && !params.randomizeR) {
-      stockR = params.overrideR;
-    } else {
-      // Automatically assign random R% between 1% and 10% (signed to give natural bull/bear market dispersion)
+    } else if (params.randomizeR) {
       const sign = Math.random() < 0.5 ? 1 : -1;
-      const magnitude = 1.0 + Math.random() * 9.0; // 1.00% to 10.00%
+      const magnitude = 1.0 + Math.random() * 4.0;
       stockR = Number((sign * magnitude).toFixed(2));
     }
 
@@ -4711,6 +4711,7 @@ export function previewRoundSettlement(params: {
       total_round_sell_volume: rStats.total_round_sell_volume,
       average_traded_stock_shift: rStats.average_traded_stock_shift,
       calculated_r: avgMarketR,
+      formula_breakdown: rStats.formula_breakdown,
     },
     settlements,
     is_applied: false,
@@ -4846,10 +4847,17 @@ export function getIPONewsImpact(ipo: { ticker: string; sector?: string }): { im
 export function getIPOListings(): IPOListing[] {
   const db = getLocalDB();
   const raw = db.ipo_listings && db.ipo_listings.length > 0 ? db.ipo_listings : DEFAULT_IPO_LISTINGS;
+  const subs = db.ipo_subscriptions || [];
   return raw.map((item) => {
     const news = getIPONewsImpact(item);
+    const matchingSubs = subs.filter((s) => s.ipo_id === item.id && (s.status === 'BID_PLACED' || s.status === 'ALLOTTED'));
+    const totalDemanded = matchingSubs.reduce((acc, s) => acc + (s.lots_requested || 0), 0);
+    const totalOffered = item.total_issue_lots || 100;
+    const subRatio = totalOffered > 0 ? Number((totalDemanded / totalOffered).toFixed(2)) : 0;
     return {
       ...item,
+      total_demanded_lots: totalDemanded,
+      subscription_ratio: subRatio,
       news_impact_percent: news.impact_percent,
       news_headline: news.headline,
     };

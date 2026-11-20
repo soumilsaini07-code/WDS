@@ -662,6 +662,100 @@ export default function AdminPage() {
     }
   };
 
+  // Helper to recalculate dynamic 4-branch pricing for a settlement row in real-time
+  const recalculateRowPricing = (
+    item: any,
+    newsDeltaStr?: string,
+    rDeltaStr?: string
+  ) => {
+    const nVal = typeof newsDeltaStr === 'string' ? (parseFloat(newsDeltaStr) || 0) : item.news_impact_percent;
+    const rVal = typeof rDeltaStr === 'string' ? (parseFloat(rDeltaStr) || 0) : item.market_drift_percent;
+    const baseP = item.orders_baseline_price || item.previous_round_price;
+    const hasOrders = item.order_count > 0;
+    const hasNews = nVal !== 0;
+
+    let branch = item.branch;
+    let branch_label = item.branch_label;
+    let rawPrice = item.previous_round_price;
+
+    const nFactor = 1 + nVal / 100;
+    const rFactor = 1 + rVal / 100;
+
+    if (hasOrders && hasNews) {
+      branch = 'BRANCH_2_ORDERS_AND_NEWS';
+      branch_label = 'Branch 2: Orders + News [P_orders × (1 + N%) × (1 + R%)]';
+      rawPrice = baseP * nFactor * rFactor;
+    } else if (hasOrders && !hasNews) {
+      branch = 'BRANCH_1_ORDERS';
+      branch_label = 'Branch 1: Orders Only [P_orders × (1 + R%)]';
+      rawPrice = baseP * rFactor;
+    } else if (!hasOrders && hasNews) {
+      branch = 'BRANCH_3_NEWS_ONLY';
+      branch_label = 'Branch 3: News Only [P_current × (1 + N%)]';
+      rawPrice = item.previous_round_price * nFactor;
+    } else {
+      branch = 'BRANCH_4_DRIFT_ONLY';
+      branch_label = 'Branch 4: Drift Only [P_current × (1 + R%)]';
+      rawPrice = item.previous_round_price * rFactor;
+    }
+
+    const lower = Number((item.previous_round_price * 0.90).toFixed(2));
+    const upper = Number((item.previous_round_price * 1.10).toFixed(2));
+    const isBreached = rawPrice < lower || rawPrice > upper;
+    const finalPrice = Number(Math.max(lower, Math.min(upper, rawPrice)).toFixed(2));
+
+    return {
+      ...item,
+      news_impact_percent: nVal,
+      market_drift_percent: rVal,
+      branch,
+      branch_label,
+      calculated_price: Number(rawPrice.toFixed(2)),
+      final_price: finalPrice,
+      circuit_lower: lower,
+      circuit_upper: upper,
+      is_circuit_breached: isBreached,
+    };
+  };
+
+  const handleOverrideRChange = (val: string) => {
+    setOverrideR(val);
+    setStockRDeltas({}); // Clear individual per-stock overrides so global slider sets all stocks
+    if (previewSettlements.length > 0) {
+      setPreviewSettlements((prev) =>
+        prev.map((item) =>
+          recalculateRowPricing(
+            item,
+            stockNewsDeltas[item.ticker] ?? stockNewsDeltas[item.stock_id],
+            val
+          )
+        )
+      );
+    }
+  };
+
+  const handleStockNewsDeltaChange = (ticker: string, val: string) => {
+    setStockNewsDeltas((prev) => ({ ...prev, [ticker]: val }));
+    setPreviewSettlements((prev) =>
+      prev.map((item) => {
+        if (item.ticker !== ticker && item.stock_id !== ticker) return item;
+        const currentR = stockRDeltas[ticker] ?? overrideR;
+        return recalculateRowPricing(item, val, currentR);
+      })
+    );
+  };
+
+  const handleStockRDeltaChange = (ticker: string, val: string) => {
+    setStockRDeltas((prev) => ({ ...prev, [ticker]: val }));
+    setPreviewSettlements((prev) =>
+      prev.map((item) => {
+        if (item.ticker !== ticker && item.stock_id !== ticker) return item;
+        const currentN = stockNewsDeltas[ticker] ?? stockNewsDeltas[item.stock_id];
+        return recalculateRowPricing(item, currentN, val);
+      })
+    );
+  };
+
   // Generate Dynamic 4-Branch Pricing Preview
   const handleGeneratePreview = async () => {
     setLoadingPreview(true);
@@ -696,12 +790,8 @@ export default function AdminPage() {
         return;
       }
       setPreviewSettlements(data.preview?.settlements || []);
-      if (data.preview?.settlements) {
-        const newRDeltas: Record<string, string> = {};
-        data.preview.settlements.forEach((s: any) => {
-          newRDeltas[s.ticker] = s.market_drift_percent.toString();
-        });
-        setStockRDeltas((prev) => ({ ...newRDeltas, ...prev }));
+      if ((overrideR === '0.0' || !overrideR) && typeof data.preview?.market_r_percent === 'number') {
+        setOverrideR(data.preview.market_r_percent.toFixed(2));
       }
       if (data.preview?.r_formula_details) {
         setRFormulaStats({
@@ -710,7 +800,7 @@ export default function AdminPage() {
           total_round_buy_volume: data.preview.r_formula_details.total_round_buy_volume,
           total_round_sell_volume: data.preview.r_formula_details.total_round_sell_volume,
           traded_stocks_count: data.preview.settlements.filter((s: any) => s.order_count > 0).length,
-          formula_breakdown: `Avg R% = ${data.preview.market_r_percent}% (each stock assigned random 1% to 10% drift)`,
+          formula_breakdown: data.preview.r_formula_details.formula_breakdown || `Market Drift R% = ${data.preview.market_r_percent}%`,
         });
       }
       showToast('Dynamic 4-Branch Pricing Settlement Preview Generated!');
@@ -1622,15 +1712,11 @@ export default function AdminPage() {
             currentRound={currentRound}
             rFormulaStats={rFormulaStats}
             overrideR={overrideR}
-            onOverrideRChange={(val) => setOverrideR(val)}
+            onOverrideRChange={handleOverrideRChange}
             stockNewsDeltas={stockNewsDeltas}
-            onStockNewsDeltaChange={(ticker, val) =>
-              setStockNewsDeltas((prev) => ({ ...prev, [ticker]: val }))
-            }
+            onStockNewsDeltaChange={handleStockNewsDeltaChange}
             stockRDeltas={stockRDeltas}
-            onStockRDeltaChange={(ticker, val) =>
-              setStockRDeltas((prev) => ({ ...prev, [ticker]: val }))
-            }
+            onStockRDeltaChange={handleStockRDeltaChange}
             onRandomizeAllR={handleRandomizeAllR}
             previewSettlements={previewSettlements}
             onGeneratePreview={handleGeneratePreview}
