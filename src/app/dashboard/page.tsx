@@ -306,7 +306,7 @@ export default function ParticipantMarketTerminal() {
   // 2.5 Real-Time Supabase WebSocket Telemetry Engine (<50ms instantaneous update)
   useEffect(() => {
     const channel = supabaseClient
-      .channel('trading-floor-dashboard')
+      .channel('trading-floor')
       .on('broadcast', { event: 'TRADE_EXECUTED' }, (payload) => {
         const trade = payload.payload as LatestTrade;
         if (trade && trade.id && lastTradeIdRef.current !== trade.id) {
@@ -343,6 +343,15 @@ export default function ParticipantMarketTerminal() {
         if (round) {
           setCurrentRound(round);
         }
+        fetch('/api/rounds')
+          .then((r) => (r.ok ? r.json() : null))
+          .then((data) => {
+            if (data?.currentRound) setCurrentRound(data.currentRound);
+            if (data?.activeIPO) setActiveIPO(data.activeIPO);
+            else setActiveIPO(null);
+            if (data?.clock) setRoundClock(data.clock);
+          })
+          .catch(() => {});
       })
       .on('broadcast', { event: 'IPO_ALLOTTED' }, () => {
         setActiveIPO(null);
@@ -374,6 +383,14 @@ export default function ParticipantMarketTerminal() {
             is_paused: clock.is_paused,
             is_orders_locked: clock.is_orders_locked,
           });
+          fetch('/api/rounds')
+            .then((r) => (r.ok ? r.json() : null))
+            .then((data) => {
+              if (data?.currentRound) setCurrentRound(data.currentRound);
+              if (data?.activeIPO) setActiveIPO(data.activeIPO);
+              else setActiveIPO(null);
+            })
+            .catch(() => {});
         }
       })
       .subscribe();

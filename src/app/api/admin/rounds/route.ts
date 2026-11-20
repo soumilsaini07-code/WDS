@@ -7,7 +7,11 @@ import {
   previewRoundSettlement,
   applyRoundSettlement,
   getCompetitionRounds,
+  reconcileClockFromSupabase,
 } from '@/lib/db';
+
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 export async function GET() {
   try {
@@ -16,6 +20,7 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized: Admin privileges required.' }, { status: 403 });
     }
 
+    await reconcileClockFromSupabase(true);
     const data = getCompetitionRounds();
     const rStats = calculateMarketRFormula(data.currentRound.id);
     return NextResponse.json({
@@ -40,7 +45,7 @@ export async function POST(request: Request) {
 
     switch (action) {
       case 'ADVANCE': {
-        const result = advanceCompetitionRound(body.targetRoundId);
+        const result = await advanceCompetitionRound(body.targetRoundId);
         return NextResponse.json(result);
       }
 

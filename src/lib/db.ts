@@ -149,6 +149,7 @@ export function syncTransactionToSupabase(
 export async function syncClockToSupabase(clock: { remaining_seconds: number; is_paused: boolean; is_orders_locked: boolean }) {
   if (!supabase) return;
   try {
+    const db = getLocalDB();
     await supabase
       .from('round_clock')
       .upsert({
@@ -157,6 +158,7 @@ export async function syncClockToSupabase(clock: { remaining_seconds: number; is
         is_paused: clock.is_paused,
         is_orders_locked: clock.is_orders_locked,
         last_tick: new Date().toISOString(),
+        current_round_id: db.current_round_id || 'round-0',
       });
   } catch (err: any) {
     console.warn('[Supabase Sync] Clock upsert warning:', err?.message || err);
@@ -1748,12 +1750,30 @@ export async function reconcileClockFromSupabase(force = false): Promise<{ remai
   try {
     const { data, error } = await supabase
       .from('round_clock')
-      .select('id, remaining_seconds, is_paused, is_orders_locked, last_tick')
+      .select('id, remaining_seconds, is_paused, is_orders_locked, last_tick, current_round_id')
       .eq('id', 1)
       .maybeSingle();
 
     if (error || !data) {
       return db.round_clock || { remaining_seconds: 1800, is_paused: false, is_orders_locked: false };
+    }
+
+    // Reconcile current_round_id and round progression from Supabase
+    if (data.current_round_id && db.current_round_id !== data.current_round_id) {
+      db.current_round_id = data.current_round_id as any;
+      const targetId = data.current_round_id;
+      const rounds = db.rounds && db.rounds.length > 0 ? db.rounds : DEFAULT_COMPETITION_ROUNDS;
+      rounds.forEach((r) => {
+        if (r.id === targetId) {
+          r.status = 'ACTIVE';
+        } else {
+          const targetIdx = rounds.findIndex((x) => x.id === targetId);
+          const thisIdx = rounds.findIndex((x) => x.id === r.id);
+          r.status = thisIdx < targetIdx ? 'COMPLETED' : 'UPCOMING';
+        }
+      });
+      db.rounds = rounds;
+      saveLocalDB(db);
     }
 
     if (!db.round_clock) {
@@ -4352,11 +4372,11 @@ export function getCompetitionRounds(): {
   return { rounds, currentRound, clock: db.round_clock };
 }
 
-export function advanceCompetitionRound(targetRoundId?: CompetitionRoundId): {
+export async function advanceCompetitionRound(targetRoundId?: CompetitionRoundId): Promise<{
   success: boolean;
   previousRoundId: CompetitionRoundId;
   currentRound: CompetitionRound;
-} {
+}> {
   const db = getLocalDB();
   const rounds = db.rounds && db.rounds.length > 0 ? db.rounds : DEFAULT_COMPETITION_ROUNDS;
   const prevId = db.current_round_id || 'round-0';
@@ -4416,9 +4436,30 @@ export function advanceCompetitionRound(targetRoundId?: CompetitionRoundId): {
 
   saveLocalDB(db);
 
-  broadcastRealtimeEvent('ROUND_ADVANCED', nextRound);
-  broadcastRealtimeEvent('CLOCK_UPDATED', db.round_clock);
-  syncClockToSupabase(db.round_clock);
+  // Directly await sync to Supabase so serverless lambdas never drop the state!
+  if (supabase) {
+    try {
+      await supabase
+        .from('round_clock')
+        .upsert({
+          id: 1,
+          remaining_seconds: db.round_clock.remaining_seconds,
+          is_paused: db.round_clock.is_paused,
+          is_orders_locked: db.round_clock.is_orders_locked,
+          last_tick: new Date().toISOString(),
+          current_round_id: nextRound.id,
+        });
+
+      for (const r of rounds) {
+        await supabase.from('competition_rounds').update({ status: r.status }).eq('id', r.id);
+      }
+    } catch (supaErr: any) {
+      console.warn('[Supabase Sync] Error syncing round advance to Supabase:', supaErr?.message || supaErr);
+    }
+  }
+
+  await broadcastRealtimeEvent('ROUND_ADVANCED', nextRound);
+  await broadcastRealtimeEvent('CLOCK_UPDATED', db.round_clock);
 
   logger.audit('ROUND_ADVANCED', 'Admin', {
     fromRound: prevId,

@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server';
 import { getCompetitionRounds, getIPOListings, getIPOSubscriptions, getTeams, reconcileClockFromSupabase } from '@/lib/db';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);

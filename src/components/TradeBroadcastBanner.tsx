@@ -73,7 +73,7 @@ export function TradeBroadcastBanner({ enableSound = false }: { enableSound?: bo
   // 1. Supabase Realtime Telemetry (<50ms instantaneous push)
   useEffect(() => {
     const channel = supabaseClient
-      .channel('trade-banner-global-sync')
+      .channel('trading-floor')
       .on('broadcast', { event: 'TRADE_EXECUTED' }, (payload) => {
         const trade = payload.payload as LatestTrade;
         if (trade && trade.id && lastTradeIdRef.current !== trade.id) {

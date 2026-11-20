@@ -142,11 +142,17 @@ export default function EditorialBrokerDeskPage() {
   // Supabase Realtime Listener
   useEffect(() => {
     const channel = supabaseClient
-      .channel('broker-desk-sync')
+      .channel('trading-floor')
       .on('broadcast', { event: 'TRADE_EXECUTED' }, () => {
         fetchLedger();
       })
       .on('broadcast', { event: 'STOCK_PRICE_UPDATED' }, () => {
+        fetchLedger();
+      })
+      .on('broadcast', { event: 'ROUND_ADVANCED' }, () => {
+        fetchLedger();
+      })
+      .on('broadcast', { event: 'CLOCK_UPDATED' }, () => {
         fetchLedger();
       })
       .on('broadcast', { event: 'NEWS_PUBLISHED' }, (payload) => {
@@ -157,6 +163,9 @@ export default function EditorialBrokerDeskPage() {
             message: `🚨 BREAKING NEWS WIRE // ${item.headline.replace(/^BREAKING:\s*/i, '')}`,
           });
         }
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'round_clock' }, () => {
+        fetchLedger();
       })
       .subscribe();
 

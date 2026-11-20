@@ -553,7 +553,8 @@ export default function AdminPage() {
   // Fetch Competition Rounds, Current Clock & R Formula
   const fetchAdminRounds = useCallback(async () => {
     try {
-      const res = await fetch('/api/admin/rounds', {
+      const res = await fetch(`/api/admin/rounds?t=${Date.now()}`, {
+        cache: 'no-store',
         headers: { ...getAuthHeaders() },
       });
       if (res.ok) {
@@ -944,7 +945,7 @@ export default function AdminPage() {
   // Realtime Supabase WebSockets for Instant Desk Synchronization
   useEffect(() => {
     const channel = supabaseClient
-      .channel('trading-floor-admin')
+      .channel('trading-floor')
       .on('broadcast', { event: 'TRADE_EXECUTED' }, () => {
         fetchAdminData();
         fetchAdminTeams();
@@ -959,12 +960,20 @@ export default function AdminPage() {
         fetchAdminRounds();
         fetchIPOData();
       })
+      .on('broadcast', { event: 'CLOCK_UPDATED' }, (payload: any) => {
+        if (payload?.payload) {
+          setRoundClock(payload.payload);
+        }
+      })
       .on('broadcast', { event: 'IPO_ALLOTTED' }, () => {
         fetchIPOData();
         fetchAdminData();
       })
       .on('postgres_changes', { event: '*', schema: 'public', table: 'order_slips' }, () => {
         fetchAdminSlips();
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'round_clock' }, () => {
+        fetchAdminRounds();
       })
       .subscribe();
 
