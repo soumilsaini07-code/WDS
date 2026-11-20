@@ -210,7 +210,7 @@ export default function ParticipantMarketTerminal() {
   const [currentRound, setCurrentRound] = useState<CompetitionRound | null>(null);
   const [roundClock, setRoundClock] = useState<{ remaining_seconds: number; is_paused: boolean; is_orders_locked: boolean }>({
     remaining_seconds: 1800,
-    is_paused: true,
+    is_paused: false,
     is_orders_locked: false,
   });
 

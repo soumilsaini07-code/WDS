@@ -45,7 +45,7 @@ export async function POST(request: Request) {
       }
 
       case 'UPDATE_CLOCK': {
-        const clock = updateRoundClock({
+        const clock = await updateRoundClock({
           remaining_seconds: body.remaining_seconds,
           is_paused: body.is_paused,
           is_orders_locked: body.is_orders_locked,

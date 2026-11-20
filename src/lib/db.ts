@@ -146,19 +146,21 @@ export function syncTransactionToSupabase(
   ).catch(() => {});
 }
 
-export function syncClockToSupabase(clock: { remaining_seconds: number; is_paused: boolean; is_orders_locked: boolean }) {
+export async function syncClockToSupabase(clock: { remaining_seconds: number; is_paused: boolean; is_orders_locked: boolean }) {
   if (!supabase) return;
-  Promise.resolve(
-    supabase
+  try {
+    await supabase
       .from('round_clock')
-      .update({
+      .upsert({
+        id: 1,
         remaining_seconds: clock.remaining_seconds,
         is_paused: clock.is_paused,
         is_orders_locked: clock.is_orders_locked,
         last_tick: new Date().toISOString(),
-      })
-      .eq('id', 1)
-  ).catch(() => {});
+      });
+  } catch (err: any) {
+    console.warn('[Supabase Sync] Clock upsert warning:', err?.message || err);
+  }
 }
 
 export function syncTeamToSupabase(team: Team, user?: User) {
@@ -1732,6 +1734,55 @@ export async function reconcileTransactionsFromSupabase(force = false): Promise<
   }
 }
 
+let _lastClockReconcileTime = 0;
+export async function reconcileClockFromSupabase(force = false): Promise<{ remaining_seconds: number; is_paused: boolean; is_orders_locked: boolean; last_tick?: number }> {
+  const db = getLocalDB();
+  if (!supabase) return db.round_clock || { remaining_seconds: 1800, is_paused: false, is_orders_locked: false };
+
+  const now = Date.now();
+  if (!force && now - _lastClockReconcileTime < 1000) {
+    return db.round_clock || { remaining_seconds: 1800, is_paused: false, is_orders_locked: false };
+  }
+  _lastClockReconcileTime = now;
+
+  try {
+    const { data, error } = await supabase
+      .from('round_clock')
+      .select('id, remaining_seconds, is_paused, is_orders_locked, last_tick')
+      .eq('id', 1)
+      .maybeSingle();
+
+    if (error || !data) {
+      return db.round_clock || { remaining_seconds: 1800, is_paused: false, is_orders_locked: false };
+    }
+
+    if (!db.round_clock) {
+      db.round_clock = {
+        remaining_seconds: data.remaining_seconds,
+        is_paused: data.is_paused,
+        is_orders_locked: data.is_orders_locked,
+        last_tick: now,
+      };
+    }
+
+    let remaining = data.remaining_seconds;
+    if (!data.is_paused && remaining > 0 && data.last_tick) {
+      const lastTickMs = new Date(data.last_tick).getTime();
+      const elapsedSecs = Math.max(0, Math.floor((now - lastTickMs) / 1000));
+      remaining = Math.max(0, remaining - elapsedSecs);
+    }
+
+    db.round_clock.remaining_seconds = remaining;
+    db.round_clock.is_paused = data.is_paused;
+    db.round_clock.is_orders_locked = data.is_orders_locked;
+    db.round_clock.last_tick = now;
+
+    return db.round_clock;
+  } catch (err: any) {
+    return db.round_clock || { remaining_seconds: 1800, is_paused: false, is_orders_locked: false };
+  }
+}
+
 // Background auto-reconciliation loop (runs every 2 seconds)
 if (typeof globalThis !== 'undefined' && !(globalThis as any)._wdsSupabaseSyncStarted) {
   (globalThis as any)._wdsSupabaseSyncStarted = true;
@@ -1741,6 +1792,7 @@ if (typeof globalThis !== 'undefined' && !(globalThis as any)._wdsSupabaseSyncSt
       await reconcilePortfoliosFromSupabase();
       await reconcileStocksFromSupabase();
       await reconcileTransactionsFromSupabase();
+      await reconcileClockFromSupabase();
     } catch {}
   }, 2000);
 }
@@ -4381,15 +4433,15 @@ export function advanceCompetitionRound(targetRoundId?: CompetitionRoundId): {
   };
 }
 
-export function updateRoundClock(data: {
+export async function updateRoundClock(data: {
   remaining_seconds?: number;
   is_paused?: boolean;
   is_orders_locked?: boolean;
-}): { remaining_seconds: number; is_paused: boolean; is_orders_locked: boolean; last_tick?: number } {
+}): Promise<{ remaining_seconds: number; is_paused: boolean; is_orders_locked: boolean; last_tick?: number }> {
   const db = getLocalDB();
   const now = Date.now();
   if (!db.round_clock) {
-    db.round_clock = { remaining_seconds: 600, is_paused: false, is_orders_locked: false, last_tick: now };
+    db.round_clock = { remaining_seconds: 1800, is_paused: false, is_orders_locked: false, last_tick: now };
   }
 
   // If it was running, first compute elapsed time before applying overrides
@@ -4414,7 +4466,7 @@ export function updateRoundClock(data: {
   db.round_clock.last_tick = now;
   saveLocalDB(db);
   broadcastRealtimeEvent('CLOCK_UPDATED', db.round_clock);
-  syncClockToSupabase(db.round_clock);
+  await syncClockToSupabase(db.round_clock);
   return db.round_clock;
 }
 

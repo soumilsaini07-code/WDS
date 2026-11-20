@@ -121,6 +121,24 @@ export default function EditorialBrokerDeskPage() {
     return () => clearInterval(interval);
   }, []);
 
+  // 1-second live countdown for broker console clock
+  useEffect(() => {
+    const clockTimer = setInterval(() => {
+      setSnapshot((prev) => {
+        if (!prev || !prev.roundClock) return prev;
+        if (prev.roundClock.is_paused || prev.roundClock.remaining_seconds <= 0) return prev;
+        return {
+          ...prev,
+          roundClock: {
+            ...prev.roundClock,
+            remaining_seconds: prev.roundClock.remaining_seconds - 1,
+          },
+        };
+      });
+    }, 1000);
+    return () => clearInterval(clockTimer);
+  }, []);
+
   // Supabase Realtime Listener
   useEffect(() => {
     const channel = supabaseClient
@@ -457,7 +475,28 @@ export default function EditorialBrokerDeskPage() {
           </div>
         </div>
 
-        <div className="flex items-center gap-4 font-mono text-xs">
+        <div className="flex items-center gap-3 sm:gap-4 font-mono text-xs">
+          {snapshot?.roundClock && (
+            <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full border font-mono font-bold text-xs ${
+              isDark
+                ? snapshot.roundClock.is_paused
+                  ? 'border-amber-700/60 bg-amber-950/50 text-amber-300'
+                  : 'border-emerald-700/60 bg-emerald-950/50 text-emerald-300'
+                : snapshot.roundClock.is_paused
+                  ? 'border-amber-300 bg-amber-50 text-amber-900'
+                  : 'border-emerald-300 bg-emerald-50 text-emerald-900'
+            }`}>
+              <span>⏱️</span>
+              <span>
+                {Math.floor(snapshot.roundClock.remaining_seconds / 60)}:
+                {(snapshot.roundClock.remaining_seconds % 60).toString().padStart(2, '0')}
+              </span>
+              {snapshot.roundClock.is_paused && (
+                <span className="text-[10px] uppercase font-semibold text-amber-500">(PAUSED)</span>
+              )}
+            </div>
+          )}
+
           <div className={`flex items-center gap-2 px-3 py-1 rounded-full border ${
             isDark
               ? 'border-[#233327] bg-[#121c15] text-[#e2e8e3]'
