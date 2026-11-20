@@ -235,12 +235,23 @@ export function DynamicPricingSettlementConsole({
             />
             <button
               type="button"
+              onClick={() => onOverrideRChange('0.00')}
+              className="px-3 py-2 rounded-lg bg-emerald-100 hover:bg-emerald-200 text-xs font-bold text-emerald-900 transition flex items-center gap-1 cursor-pointer"
+              title="Reset Market Drift R to 0.00% (Neutral)"
+            >
+              <span className="material-symbols-outlined text-[15px]">exposure_zero</span>
+              <span>Set to 0%</span>
+            </button>
+            <button
+              type="button"
               onClick={() => {
                 if (rFormulaStats) {
                   onOverrideRChange(rFormulaStats.calculated_r.toFixed(2));
+                } else {
+                  onOverrideRChange('0.00');
                 }
               }}
-              className="px-3 py-2 rounded-lg bg-zinc-200 hover:bg-zinc-300 text-xs font-semibold text-zinc-800 transition"
+              className="px-3 py-2 rounded-lg bg-zinc-200 hover:bg-zinc-300 text-xs font-semibold text-zinc-800 transition cursor-pointer"
               title="Reset R to auto-calculated formula value"
             >
               Reset to Auto

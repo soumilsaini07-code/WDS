@@ -35,7 +35,7 @@ export default function AdminPage() {
   });
   const [roundActionLoading, setRoundActionLoading] = useState(false);
   const [rFormulaStats, setRFormulaStats] = useState<any>(null);
-  const [overrideR, setOverrideR] = useState<string>('0.0');
+  const [overrideR, setOverrideR] = useState<string>('0.00');
   const [stockNewsDeltas, setStockNewsDeltas] = useState<Record<string, string>>({});
   const [stockRDeltas, setStockRDeltas] = useState<Record<string, string>>({});
   const [previewSettlements, setPreviewSettlements] = useState<StockPriceSettlement[]>([]);
@@ -578,7 +578,6 @@ export default function AdminPage() {
           }
           if (data.rStats) {
             setRFormulaStats(data.rStats);
-            setOverrideR(data.rStats.calculated_r.toFixed(2));
           }
         }
       }
@@ -791,9 +790,6 @@ export default function AdminPage() {
         return;
       }
       setPreviewSettlements(data.preview?.settlements || []);
-      if ((overrideR === '0.0' || !overrideR) && typeof data.preview?.market_r_percent === 'number') {
-        setOverrideR(data.preview.market_r_percent.toFixed(2));
-      }
       if (data.preview?.r_formula_details) {
         setRFormulaStats({
           calculated_r: data.preview.market_r_percent,
