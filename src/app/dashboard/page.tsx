@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import Link from 'next/link';
 import { Stock, NewsArticle, CompetitionRound, IPOListing } from '@/lib/types';
-import { supabaseClient } from '@/lib/supabase-client';
+import { realtimeHub } from '@/lib/realtime-hub';
 
 interface LatestTrade {
   id: string;
@@ -303,12 +303,13 @@ export default function ParticipantMarketTerminal() {
     return () => clearInterval(newsTimer);
   }, []);
 
-  // 2.5 Real-Time Supabase WebSocket Telemetry Engine (<50ms instantaneous update)
+  // 2.5 Real-Time Supabase WebSocket Telemetry Engine via Singleton Hub
   useEffect(() => {
-    const channel = supabaseClient
-      .channel('trading-floor')
-      .on('broadcast', { event: 'TRADE_EXECUTED' }, (payload) => {
-        const trade = payload.payload as LatestTrade;
+    const unsubs: Array<() => void> = [];
+
+    unsubs.push(
+      realtimeHub.onBroadcast('TRADE_EXECUTED', (payload: any) => {
+        const trade = (payload?.payload || payload) as LatestTrade;
         if (trade && trade.id && lastTradeIdRef.current !== trade.id) {
           lastTradeIdRef.current = trade.id;
           setLatestTrade(trade);
@@ -318,9 +319,9 @@ export default function ParticipantMarketTerminal() {
             playTradeBell();
           }
         }
-      })
-      .on('broadcast', { event: 'STOCK_PRICE_UPDATED' }, (payload) => {
-        const updated = payload.payload as Stock;
+      }),
+      realtimeHub.onBroadcast('STOCK_PRICE_UPDATED', (payload: any) => {
+        const updated = (payload?.payload || payload) as Stock;
         if (updated && updated.id) {
           setStocks((prev) =>
             prev.map((s) => (s.id === updated.id || s.ticker === updated.ticker ? { ...s, ...updated } : s))
@@ -331,15 +332,15 @@ export default function ParticipantMarketTerminal() {
               : current
           );
         }
-      })
-      .on('broadcast', { event: 'CLOCK_UPDATED' }, (payload) => {
-        const clock = payload.payload;
+      }),
+      realtimeHub.onBroadcast('CLOCK_UPDATED', (payload: any) => {
+        const clock = payload?.payload || payload;
         if (clock) {
           setRoundClock(clock);
         }
-      })
-      .on('broadcast', { event: 'ROUND_ADVANCED' }, (payload) => {
-        const round = payload.payload;
+      }),
+      realtimeHub.onBroadcast('ROUND_ADVANCED', (payload: any) => {
+        const round = payload?.payload || payload;
         if (round) {
           setCurrentRound(round);
         }
@@ -352,18 +353,18 @@ export default function ParticipantMarketTerminal() {
             if (data?.clock) setRoundClock(data.clock);
           })
           .catch(() => {});
-      })
-      .on('broadcast', { event: 'IPO_ALLOTTED' }, () => {
+      }),
+      realtimeHub.onBroadcast('IPO_ALLOTTED', () => {
         setActiveIPO(null);
-      })
-      .on('broadcast', { event: 'IPO_STATUS_UPDATED' }, (payload: any) => {
-        const ipo = payload.payload;
+      }),
+      realtimeHub.onBroadcast('IPO_STATUS_UPDATED', (payload: any) => {
+        const ipo = payload?.payload || payload;
         if (ipo) {
           setActiveIPO((prev) => (prev && prev.id === ipo.id ? { ...prev, ...ipo } : ipo));
         }
-      })
-      .on('broadcast', { event: 'IPO_SUBSCRIPTION_UPDATED' }, (payload: any) => {
-        const update = payload.payload;
+      }),
+      realtimeHub.onBroadcast('IPO_SUBSCRIPTION_UPDATED', (payload: any) => {
+        const update = payload?.payload || payload;
         if (update) {
           setActiveIPO((prev) =>
             prev && (prev.id === update.ipo_id || prev.ticker === update.ticker)
@@ -375,15 +376,15 @@ export default function ParticipantMarketTerminal() {
               : prev
           );
         }
-      })
-      .on('broadcast', { event: 'NEWS_PUBLISHED' }, (payload) => {
-        const item = payload.payload?.news as NewsArticle;
+      }),
+      realtimeHub.onBroadcast('NEWS_PUBLISHED', (payload: any) => {
+        const item = (payload?.payload?.news || payload?.news || payload) as NewsArticle;
         if (item) {
           triggerBreakingNewsAlert(item);
         }
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'stocks' }, (payload) => {
-        const newStock = payload.new as Stock;
+      }),
+      realtimeHub.onPostgresChange('stocks', (payload: any) => {
+        const newStock = payload?.new as Stock;
         if (newStock && newStock.id) {
           setStocks((prev) =>
             prev.map((s) => (s.id === newStock.id || s.ticker === newStock.ticker ? { ...s, ...newStock } : s))
@@ -394,9 +395,9 @@ export default function ParticipantMarketTerminal() {
               : current
           );
         }
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'round_clock' }, (payload) => {
-        const clock = payload.new as any;
+      }),
+      realtimeHub.onPostgresChange('round_clock', (payload: any) => {
+        const clock = payload?.new as any;
         if (clock) {
           setRoundClock({
             remaining_seconds: clock.remaining_seconds,
@@ -413,10 +414,10 @@ export default function ParticipantMarketTerminal() {
             .catch(() => {});
         }
       })
-      .subscribe();
+    );
 
     return () => {
-      supabaseClient.removeChannel(channel);
+      unsubs.forEach((u) => u());
     };
   }, [soundEnabled]);
 

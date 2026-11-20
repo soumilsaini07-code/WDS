@@ -16,7 +16,7 @@ import {
 import { MasterRoundControlBar } from '@/components/MasterRoundControlBar';
 import { DynamicPricingSettlementConsole } from '@/components/DynamicPricingSettlementConsole';
 import { IPOSubscriptionDesk } from '@/components/IPOSubscriptionDesk';
-import { supabaseClient } from '@/lib/supabase-client';
+import { realtimeHub } from '@/lib/realtime-hub';
 import { TradeBroadcastBanner } from '@/components/TradeBroadcastBanner';
 
 export default function AdminPage() {
@@ -966,55 +966,57 @@ export default function AdminPage() {
     return () => clearInterval(interval);
   }, [fetchAdminData, fetchAdminSlips, fetchAdminTeams, fetchAdminRounds, fetchIPOData]);
 
-  // Realtime Supabase WebSockets for Instant Desk Synchronization
+  // Realtime Supabase WebSockets for Instant Desk Synchronization via Singleton Hub
   useEffect(() => {
-    const channel = supabaseClient
-      .channel('trading-floor')
-      .on('broadcast', { event: 'TRADE_EXECUTED' }, () => {
+    const unsubs: Array<() => void> = [];
+
+    unsubs.push(
+      realtimeHub.onBroadcast('TRADE_EXECUTED', () => {
         fetchAdminData();
         fetchAdminTeams();
-      })
-      .on('broadcast', { event: 'SLIP_STATUS_UPDATED' }, () => {
+      }),
+      realtimeHub.onBroadcast('SLIP_STATUS_UPDATED', () => {
         fetchAdminSlips();
-      })
-      .on('broadcast', { event: 'SLIP_SUBMITTED' }, () => {
+      }),
+      realtimeHub.onBroadcast('SLIP_SUBMITTED', () => {
         fetchAdminSlips();
-      })
-      .on('broadcast', { event: 'ROUND_ADVANCED' }, () => {
+      }),
+      realtimeHub.onBroadcast('ROUND_ADVANCED', () => {
         fetchAdminRounds();
         fetchIPOData();
-      })
-      .on('broadcast', { event: 'CLOCK_UPDATED' }, (payload: any) => {
-        if (payload?.payload) {
-          setRoundClock(payload.payload);
+      }),
+      realtimeHub.onBroadcast('CLOCK_UPDATED', (payload: any) => {
+        const clockData = payload?.payload || payload;
+        if (clockData) {
+          setRoundClock(clockData);
         }
-      })
-      .on('broadcast', { event: 'IPO_ALLOTTED' }, () => {
+      }),
+      realtimeHub.onBroadcast('IPO_ALLOTTED', () => {
         fetchIPOData();
         fetchAdminData();
-      })
-      .on('broadcast', { event: 'IPO_STATUS_UPDATED' }, () => {
+      }),
+      realtimeHub.onBroadcast('IPO_STATUS_UPDATED', () => {
         fetchIPOData();
-      })
-      .on('broadcast', { event: 'IPO_SUBSCRIPTION_UPDATED' }, () => {
+      }),
+      realtimeHub.onBroadcast('IPO_SUBSCRIPTION_UPDATED', () => {
         fetchIPOData();
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'ipo_listings' }, () => {
+      }),
+      realtimeHub.onPostgresChange('ipo_listings', () => {
         fetchIPOData();
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'ipo_subscriptions' }, () => {
+      }),
+      realtimeHub.onPostgresChange('ipo_subscriptions', () => {
         fetchIPOData();
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'order_slips' }, () => {
+      }),
+      realtimeHub.onPostgresChange('order_slips', () => {
         fetchAdminSlips();
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'round_clock' }, () => {
+      }),
+      realtimeHub.onPostgresChange('round_clock', () => {
         fetchAdminRounds();
       })
-      .subscribe();
+    );
 
     return () => {
-      supabaseClient.removeChannel(channel);
+      unsubs.forEach((u) => u());
     };
   }, [fetchAdminData, fetchAdminSlips, fetchAdminTeams, fetchAdminRounds, fetchIPOData]);
 

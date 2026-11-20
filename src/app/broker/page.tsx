@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { supabaseClient } from '@/lib/supabase-client';
+import { realtimeHub } from '@/lib/realtime-hub';
 import { TradeBroadcastBanner } from '@/components/TradeBroadcastBanner';
 import {
   BrokerLedgerSnapshot,
@@ -139,77 +139,43 @@ export default function EditorialBrokerDeskPage() {
     return () => clearInterval(clockTimer);
   }, []);
 
-  // Supabase Realtime Listener
+  // Supabase Realtime Listener via Singleton Hub
   useEffect(() => {
-    const channel = supabaseClient
-      .channel('trading-floor')
-      .on('broadcast', { event: 'TRADE_EXECUTED' }, () => {
-        fetchLedger();
-      })
-      .on('broadcast', { event: 'TRADE_SAVED_TO_CLOUD' }, () => {
-        fetchLedger();
-      })
-      .on('broadcast', { event: 'BROKER_LEDGER_UPDATED' }, () => {
-        fetchLedger();
-      })
-      .on('broadcast', { event: 'TEAMS_SYNCED' }, () => {
-        fetchLedger();
-      })
-      .on('broadcast', { event: 'PORTFOLIO_UPDATED' }, () => {
-        fetchLedger();
-      })
-      .on('broadcast', { event: 'SLIP_SUBMITTED' }, () => {
-        fetchLedger();
-      })
-      .on('broadcast', { event: 'SLIP_EXECUTED' }, () => {
-        fetchLedger();
-      })
-      .on('broadcast', { event: 'STOCK_PRICE_UPDATED' }, () => {
-        fetchLedger();
-      })
-      .on('broadcast', { event: 'ROUND_ADVANCED' }, () => {
-        fetchLedger();
-      })
-      .on('broadcast', { event: 'CLOCK_UPDATED' }, () => {
-        fetchLedger();
-      })
-      .on('broadcast', { event: 'IPO_ALLOTTED' }, () => {
-        fetchLedger();
-      })
-      .on('broadcast', { event: 'IPO_STATUS_UPDATED' }, () => {
-        fetchLedger();
-      })
-      .on('broadcast', { event: 'IPO_SUBSCRIPTION_UPDATED' }, () => {
-        fetchLedger();
-      })
-      .on('broadcast', { event: 'NEWS_PUBLISHED' }, (payload) => {
-        const item = payload.payload?.news;
+    const unsubs: Array<() => void> = [];
+    const handleLedgerRefresh = () => fetchLedger();
+
+    unsubs.push(
+      realtimeHub.onBroadcast('TRADE_EXECUTED', handleLedgerRefresh),
+      realtimeHub.onBroadcast('TRADE_SAVED_TO_CLOUD', handleLedgerRefresh),
+      realtimeHub.onBroadcast('BROKER_LEDGER_UPDATED', handleLedgerRefresh),
+      realtimeHub.onBroadcast('TEAMS_SYNCED', handleLedgerRefresh),
+      realtimeHub.onBroadcast('PORTFOLIO_UPDATED', handleLedgerRefresh),
+      realtimeHub.onBroadcast('SLIP_SUBMITTED', handleLedgerRefresh),
+      realtimeHub.onBroadcast('SLIP_EXECUTED', handleLedgerRefresh),
+      realtimeHub.onBroadcast('STOCK_PRICE_UPDATED', handleLedgerRefresh),
+      realtimeHub.onBroadcast('ROUND_ADVANCED', handleLedgerRefresh),
+      realtimeHub.onBroadcast('CLOCK_UPDATED', handleLedgerRefresh),
+      realtimeHub.onBroadcast('IPO_ALLOTTED', handleLedgerRefresh),
+      realtimeHub.onBroadcast('IPO_STATUS_UPDATED', handleLedgerRefresh),
+      realtimeHub.onBroadcast('IPO_SUBSCRIPTION_UPDATED', handleLedgerRefresh),
+      realtimeHub.onBroadcast('NEWS_PUBLISHED', (payload: any) => {
+        const item = payload?.news || payload?.payload?.news;
         if (item?.headline) {
           setFeedback({
             type: 'error',
             message: `🚨 BREAKING NEWS WIRE // ${item.headline.replace(/^BREAKING:\s*/i, '')}`,
           });
         }
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'round_clock' }, () => {
-        fetchLedger();
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'ipo_subscriptions' }, () => {
-        fetchLedger();
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'ipo_listings' }, () => {
-        fetchLedger();
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'order_slips' }, () => {
-        fetchLedger();
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'transactions' }, () => {
-        fetchLedger();
-      })
-      .subscribe();
+      }),
+      realtimeHub.onPostgresChange('round_clock', handleLedgerRefresh),
+      realtimeHub.onPostgresChange('ipo_subscriptions', handleLedgerRefresh),
+      realtimeHub.onPostgresChange('ipo_listings', handleLedgerRefresh),
+      realtimeHub.onPostgresChange('order_slips', handleLedgerRefresh),
+      realtimeHub.onPostgresChange('transactions', handleLedgerRefresh)
+    );
 
     return () => {
-      supabaseClient.removeChannel(channel);
+      unsubs.forEach((u) => u());
     };
   }, []);
 

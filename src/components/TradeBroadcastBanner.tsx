@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { supabaseClient } from '@/lib/supabase-client';
+import { realtimeHub } from '@/lib/realtime-hub';
 
 export interface LatestTrade {
   id: string;
@@ -70,20 +70,17 @@ export function TradeBroadcastBanner({ enableSound = false }: { enableSound?: bo
     }
   };
 
-  // 1. Supabase Realtime Telemetry (<50ms instantaneous push)
+  // 1. Supabase Realtime Telemetry (<50ms instantaneous push via singleton Hub)
   useEffect(() => {
-    const channel = supabaseClient
-      .channel('trading-floor')
-      .on('broadcast', { event: 'TRADE_EXECUTED' }, (payload) => {
-        const trade = payload.payload as LatestTrade;
-        if (trade && trade.id && lastTradeIdRef.current !== trade.id) {
-          triggerBanner(trade, 10000);
-        }
-      })
-      .subscribe();
+    const unsub = realtimeHub.onBroadcast('TRADE_EXECUTED', (payload: any) => {
+      const trade = (payload?.payload || payload) as LatestTrade;
+      if (trade && trade.id && lastTradeIdRef.current !== trade.id) {
+        triggerBanner(trade, 10000);
+      }
+    });
 
     return () => {
-      supabaseClient.removeChannel(channel);
+      unsub();
     };
   }, []);
 
