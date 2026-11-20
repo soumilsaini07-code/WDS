@@ -155,15 +155,20 @@ export function computeBrokerLedgerSnapshot(): BrokerLedgerSnapshot {
     const totalNetWorth = Number((currentCash + totalHoldingsValue).toFixed(2));
     const tradesCount = db.transactions.filter((t) => teamUserIds.has(t.user_id)).length;
 
-    // Determine Strict Elimination Status
-    // Rule 1: Must deploy at least 60% of 10L (₹6 Lakhs) in Round 0
+    // Determine Elimination Status
+    // Rule 1: Must deploy at least 60% of 10L (₹6 Lakhs) in Round 0 (Evaluated after Round 0 concludes)
     // Rule 2: Must maintain at least 10% of 10L (₹1 Lakh) in hand cash after each round
     const eliminationReasons: string[] = [];
-    if (!round0Met60Percent) {
-      eliminationReasons.push(`Failed 60% R0 Rule: Deployed ₹${(round0Spent / 100000).toFixed(2)}L / ₹6.00L (Shortfall: ₹${(round0Shortfall / 100000).toFixed(2)}L)`);
-    }
-    if (!cashMet10PercentFloor) {
-      eliminationReasons.push(`Failed 10% Cash Rule: In-hand cash ₹${(currentCash / 100000).toFixed(2)}L is below ₹1.00L (10%) floor reserve`);
+    const isRound0Current = (db.current_round_id || 'round-0') === 'round-0';
+    const isPrimaryPool = team.name === 'Central Primary Pool' || team.name.toLowerCase().includes('primary pool');
+
+    if (!isPrimaryPool) {
+      if (!isRound0Current && !round0Met60Percent) {
+        eliminationReasons.push(`Failed 60% R0 Rule: Deployed ₹${(round0Spent / 100000).toFixed(2)}L / ₹6.00L (Shortfall: ₹${(round0Shortfall / 100000).toFixed(2)}L)`);
+      }
+      if (!cashMet10PercentFloor) {
+        eliminationReasons.push(`Failed 10% Cash Rule: In-hand cash ₹${(currentCash / 100000).toFixed(2)}L is below ₹1.00L (10%) floor reserve`);
+      }
     }
 
     const status: 'QUALIFIED' | 'ELIMINATED' = eliminationReasons.length > 0 ? 'ELIMINATED' : 'QUALIFIED';

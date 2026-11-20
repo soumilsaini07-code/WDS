@@ -6,9 +6,15 @@ export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
-    await reconcileTeamsFromSupabase();
-    await reconcilePortfoliosFromSupabase();
-    await reconcileTransactionsFromSupabase();
+    // Non-blocking parallel sync with Supabase so ledger snapshot is resilient
+    await Promise.allSettled([
+      reconcileTeamsFromSupabase(),
+      reconcilePortfoliosFromSupabase(),
+      reconcileTransactionsFromSupabase(),
+    ]);
+  } catch {}
+
+  try {
     const snapshot = computeBrokerLedgerSnapshot();
     return NextResponse.json({
       success: true,
