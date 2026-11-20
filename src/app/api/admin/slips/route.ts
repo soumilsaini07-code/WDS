@@ -25,7 +25,8 @@ export async function GET(request: Request) {
     }
 
     const allSlips = await getOrderSlips();
-    return NextResponse.json({ slips: allSlips });
+    const pendingSlips = allSlips.filter((s) => s.status === 'PENDING');
+    return NextResponse.json({ slips: allSlips, allSlips, pendingSlips });
   } catch (err: any) {
     return NextResponse.json({ error: err.message || 'Internal server error' }, { status: 500 });
   }

@@ -2984,10 +2984,10 @@
   ],
   "current_round_id": "round-0",
   "round_clock": {
-    "remaining_seconds": 1800,
-    "is_paused": false,
+    "remaining_seconds": 949,
+    "is_paused": true,
     "is_orders_locked": false,
-    "last_tick": 1795199552212
+    "last_tick": 1795200937523
   },
   "ipo_listings": [
     {
@@ -2997,7 +2997,7 @@
       "ticker": "NOVATECH",
       "sector": "Artificial Intelligence & Cloud",
       "reference_price": 300,
-      "issue_price": 300,
+      "issue_price": 227.84,
       "lot_size": 12,
       "min_lots": 1,
       "max_lots": 30,
@@ -3008,6 +3008,42 @@
       "status": "SUBSCRIPTION_OPEN",
       "description": "Enterprise AI & Cloud Infrastructure provider. Primary market offering open for offline book-building.",
       "news_impact_percent": 0
+    },
+    {
+      "id": "ipo-item-2",
+      "round_id": "ipo-2",
+      "company_name": "EcoPower Green Hydrogen Ltd.",
+      "ticker": "ECOPOWER",
+      "sector": "Renewable Energy & ESG",
+      "reference_price": 200,
+      "issue_price": 200,
+      "lot_size": 12,
+      "min_lots": 1,
+      "max_lots": 30,
+      "total_issue_lots": 120,
+      "total_demanded_lots": 0,
+      "subscription_ratio": 0,
+      "allotted_lots": 0,
+      "status": "SUBSCRIPTION_OPEN",
+      "description": "Grid-scale green hydrogen & battery storage pioneer with sovereign power purchase agreements."
+    },
+    {
+      "id": "ipo-custom-1794156015652",
+      "round_id": "round-1",
+      "company_name": "Zepto Quick Logistics Ltd.",
+      "ticker": "ZEPTO",
+      "sector": "Hyperlocal Logistics",
+      "reference_price": 340,
+      "issue_price": 340,
+      "lot_size": 15,
+      "min_lots": 1,
+      "max_lots": 36,
+      "total_issue_lots": 120,
+      "total_demanded_lots": 0,
+      "subscription_ratio": 0,
+      "allotted_lots": 0,
+      "status": "SUBSCRIPTION_OPEN",
+      "description": "10-minute delivery market leader across Tier-1 metros."
     }
   ],
   "ipo_subscriptions": [],

@@ -229,8 +229,9 @@ export default function AdminPage() {
       });
       if (res.ok) {
         const data = await res.json();
-        setPendingSlips(data.pendingSlips || []);
-        setAllSlips(data.allSlips || []);
+        const slips = data.allSlips || data.slips || [];
+        setAllSlips(slips);
+        setPendingSlips(data.pendingSlips || slips.filter((s: any) => s.status === 'PENDING'));
       }
     } catch (err) {
       console.error('Error fetching slips queue:', err);
