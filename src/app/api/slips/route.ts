@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server';
 import { getCurrentSession } from '@/lib/auth';
-import { createOrderSlip, getOrderSlips } from '@/lib/db';
+import { createOrderSlip, getOrderSlips, reconcileOrderSlipsFromSupabase } from '@/lib/db';
+
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 export async function POST(request: Request) {
   try {
@@ -54,6 +57,7 @@ export async function GET() {
       return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
     }
 
+    await reconcileOrderSlipsFromSupabase();
     const slips = await getOrderSlips(session.team_id || session.userId);
     return NextResponse.json({ slips });
   } catch (err: any) {

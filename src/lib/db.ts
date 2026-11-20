@@ -146,6 +146,43 @@ export function syncIPOSubscriptionToSupabase(sub: IPOSubscription) {
   });
 }
 
+export function syncOrderSlipToSupabase(slip: OrderSlip) {
+  if (!supabase) return;
+  Promise.resolve(
+    (async () => {
+      try {
+        const payload = {
+          id: slip.id,
+          slip_id: slip.slip_id,
+          team_id: slip.team_id,
+          team_name: slip.team_name,
+          student_id: slip.student_id,
+          student_name: slip.student_name,
+          student_email: slip.student_email,
+          stock_id: slip.stock_id,
+          ticker: slip.ticker,
+          stock_name: slip.stock_name,
+          type: slip.type || slip.order_type,
+          quantity: slip.quantity,
+          price: slip.price,
+          brokerage: slip.brokerage || 0,
+          total_amount: slip.total_amount,
+          status: slip.status,
+          executed_by_admin: slip.executed_by_admin || null,
+          created_at: slip.created_at,
+          executed_at: slip.executed_at || null,
+        };
+        const { error } = await supabase.from('order_slips').upsert(payload, { onConflict: 'id' });
+        if (error) {
+          console.error('[Supabase Sync] Order slip upsert error:', error.message);
+        }
+      } catch (err: any) {
+        console.error('[Supabase Sync] Exception syncing order slip:', err?.message || err);
+      }
+    })()
+  ).catch(() => {});
+}
+
 export function syncTransactionToSupabase(
   tx: Transaction,
   sellerTeamId?: string,
@@ -2008,6 +2045,87 @@ export async function reconcileIPOFromSupabase(force = false): Promise<{ listing
   }
 }
 
+let _lastSlipsReconcileTime = 0;
+export async function reconcileOrderSlipsFromSupabase(force = false): Promise<OrderSlip[]> {
+  const db = getLocalDB();
+  if (!supabase) return db.order_slips || [];
+
+  const now = Date.now();
+  if (!force && now - _lastSlipsReconcileTime < 1000) {
+    return db.order_slips || [];
+  }
+  _lastSlipsReconcileTime = now;
+
+  try {
+    const { data: suSlips, error } = await supabase
+      .from('order_slips')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error || !suSlips) return db.order_slips || [];
+    if (!db.order_slips) db.order_slips = [];
+
+    const suSlipMap = new Map(suSlips.map((s: any) => [s.id, s]));
+    let modified = false;
+
+    // 1. Remove slips deleted from Supabase
+    const prevLen = db.order_slips.length;
+    db.order_slips = db.order_slips.filter((s) => suSlipMap.has(s.id));
+    if (db.order_slips.length !== prevLen) modified = true;
+
+    // 2. Add or update slips from Supabase
+    for (const item of suSlips) {
+      const local = db.order_slips.find((s) => s.id === item.id);
+      if (local) {
+        if (
+          local.status !== item.status ||
+          local.executed_by_admin !== item.executed_by_admin ||
+          local.executed_at !== item.executed_at
+        ) {
+          local.status = item.status;
+          local.executed_by_admin = item.executed_by_admin;
+          local.executed_at = item.executed_at;
+          modified = true;
+        }
+      } else {
+        db.order_slips.push({
+          id: item.id,
+          slip_id: item.slip_id,
+          team_id: item.team_id,
+          team_name: item.team_name,
+          student_id: item.student_id,
+          student_name: item.student_name,
+          student_email: item.student_email,
+          stock_id: item.stock_id,
+          ticker: item.ticker,
+          stock_name: item.stock_name,
+          type: item.type,
+          order_type: item.type,
+          quantity: item.quantity,
+          price: Number(item.price),
+          gross_amount: Number(item.total_amount),
+          brokerage: Number(item.brokerage || 0),
+          total_amount: Number(item.total_amount),
+          status: item.status,
+          executed_by_admin: item.executed_by_admin,
+          created_at: item.created_at,
+          executed_at: item.executed_at,
+        });
+        modified = true;
+      }
+    }
+
+    if (modified) {
+      saveLocalDB(db);
+    }
+
+    return db.order_slips;
+  } catch (err: any) {
+    console.warn('[reconcileOrderSlipsFromSupabase] Exception:', err?.message || err);
+    return db.order_slips || [];
+  }
+}
+
 // Background auto-reconciliation loop (runs every 2 seconds)
 if (typeof globalThis !== 'undefined' && !(globalThis as any)._wdsSupabaseSyncStarted) {
   (globalThis as any)._wdsSupabaseSyncStarted = true;
@@ -2019,6 +2137,7 @@ if (typeof globalThis !== 'undefined' && !(globalThis as any)._wdsSupabaseSyncSt
       await reconcileTransactionsFromSupabase();
       await reconcileClockFromSupabase();
       await reconcileIPOFromSupabase();
+      await reconcileOrderSlipsFromSupabase();
     } catch { }
   }, 2000);
 }
@@ -2786,6 +2905,9 @@ export async function executeTrade(
         price_at_trade: stock.current_price,
         timestamp: new Date().toISOString(),
       });
+      if (matePort) {
+        syncPortfolioToSupabase(matePort);
+      }
     }
   }
 
@@ -2804,6 +2926,9 @@ export async function executeTrade(
 
   saveLocalDB(db);
   broadcastRealtimeEvent('TRADE_EXECUTED', (db as any).latest_trade);
+  syncTransactionToSupabase(tx, undefined, team?.id, stock.ticker);
+  if (userPortfolio) syncPortfolioToSupabase(userPortfolio);
+  if (team) syncTeamToSupabase(team, user);
 
   return { success: true, transaction: { ...tx, stock } };
 }
@@ -3867,6 +3992,7 @@ export async function createOrderSlip(
   if (!db.order_slips) db.order_slips = [];
   db.order_slips.unshift(slip);
   saveLocalDB(db);
+  syncOrderSlipToSupabase(slip);
 
   // Realtime Broadcast to Desk Admin
   broadcastRealtimeEvent('SLIP_SUBMITTED', slip);
@@ -3875,6 +4001,7 @@ export async function createOrderSlip(
 }
 
 export async function getOrderSlips(teamId?: string): Promise<OrderSlip[]> {
+  await reconcileOrderSlipsFromSupabase();
   const db = getLocalDB();
   let list = db.order_slips || [];
   if (teamId) {
@@ -3884,6 +4011,7 @@ export async function getOrderSlips(teamId?: string): Promise<OrderSlip[]> {
 }
 
 export async function getOrderSlipBySlipId(slipIdOrId: string): Promise<OrderSlip | undefined> {
+  await reconcileOrderSlipsFromSupabase();
   const db = getLocalDB();
   const norm = slipIdOrId.trim().toUpperCase();
   return db.order_slips?.find(
@@ -3896,6 +4024,7 @@ export async function adminExecuteOrderSlip(
   slipIdOrId: string,
   action: 'APPROVE' | 'REJECT'
 ): Promise<{ success: boolean; slip?: OrderSlip; transaction?: Transaction; error?: string }> {
+  await reconcileOrderSlipsFromSupabase();
   const db = getLocalDB();
   const normSlip = slipIdOrId.trim().toUpperCase();
   const slip = db.order_slips?.find(
@@ -3918,6 +4047,8 @@ export async function adminExecuteOrderSlip(
     slip.executed_at = new Date().toISOString();
     slip.executed_by_admin = adminSession.email;
     saveLocalDB(db);
+    syncOrderSlipToSupabase(slip);
+    broadcastRealtimeEvent('SLIP_STATUS_UPDATED', slip);
     return { success: true, slip };
   }
 
@@ -3951,6 +4082,7 @@ export async function adminExecuteOrderSlip(
   };
 
   saveLocalDB(db);
+  syncOrderSlipToSupabase(slip);
 
   // Real-time Excel/CSV sheet update
   appendTradeToCSV(slip, adminSession.email);
@@ -5559,7 +5691,34 @@ export function allotIPOLots(
 
 export function getLatestBroadcastTrade(): any {
   const db = getLocalDB();
-  return (db as any).latest_trade || null;
+  const current = (db as any).latest_trade || null;
+
+  if (db.transactions && db.transactions.length > 0) {
+    const sorted = [...db.transactions].sort(
+      (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+    );
+    const newestTx = sorted[0];
+    const txTime = new Date(newestTx.timestamp).getTime();
+    if (!current || txTime > (current.timestamp || 0)) {
+      const stock = db.stocks.find((s) => s.id === newestTx.stock_id || s.ticker === newestTx.stock_id);
+      const user = db.users.find((u) => u.id === newestTx.user_id);
+      const team = db.teams?.find((t) => t.id === user?.team_id || t.members?.some((m) => m.id === user?.id));
+      const teamName = team?.name || user?.username || 'Floor Deal';
+      return {
+        id: newestTx.id,
+        seller_team: newestTx.type === 'SELL' ? teamName : 'Central Primary Pool',
+        buyer_team: newestTx.type === 'BUY' ? teamName : 'Central Primary Pool',
+        ticker: stock?.ticker || newestTx.stock_id,
+        stock_name: stock?.name || newestTx.stock_id,
+        quantity: newestTx.quantity,
+        price: newestTx.price_at_trade || newestTx.price,
+        total_amount: newestTx.gross_amount || newestTx.net_amount,
+        timestamp: txTime,
+      };
+    }
+  }
+
+  return current;
 }
 
 export function createCustomIPO(params: {

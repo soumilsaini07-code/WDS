@@ -4,6 +4,9 @@ import { computeBrokerLedgerSnapshot } from '@/lib/broker-ledger';
 import { getCurrentSession } from '@/lib/auth';
 import { pushTradeToGoogleSheets } from '@/lib/google-sheets-sync';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 // In-process FIFO settlement queue ensuring ACID atomic execution during peak concurrent student submissions
 let settlementQueue: Promise<any> = Promise.resolve();
 
