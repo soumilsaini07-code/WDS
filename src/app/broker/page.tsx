@@ -155,6 +155,15 @@ export default function EditorialBrokerDeskPage() {
       .on('broadcast', { event: 'CLOCK_UPDATED' }, () => {
         fetchLedger();
       })
+      .on('broadcast', { event: 'IPO_ALLOTTED' }, () => {
+        fetchLedger();
+      })
+      .on('broadcast', { event: 'IPO_STATUS_UPDATED' }, () => {
+        fetchLedger();
+      })
+      .on('broadcast', { event: 'IPO_SUBSCRIPTION_UPDATED' }, () => {
+        fetchLedger();
+      })
       .on('broadcast', { event: 'NEWS_PUBLISHED' }, (payload) => {
         const item = payload.payload?.news;
         if (item?.headline) {
@@ -165,6 +174,12 @@ export default function EditorialBrokerDeskPage() {
         }
       })
       .on('postgres_changes', { event: '*', schema: 'public', table: 'round_clock' }, () => {
+        fetchLedger();
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'ipo_subscriptions' }, () => {
+        fetchLedger();
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'ipo_listings' }, () => {
         fetchLedger();
       })
       .subscribe();

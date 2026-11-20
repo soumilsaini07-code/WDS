@@ -33,7 +33,7 @@ function playTradeChime() {
     gain.connect(ctx.destination);
     osc.start();
     osc.stop(ctx.currentTime + 0.45);
-  } catch {}
+  } catch { }
 }
 
 export function TradeBroadcastBanner({ enableSound = false }: { enableSound?: boolean } = {}) {
@@ -107,7 +107,7 @@ export function TradeBroadcastBanner({ enableSound = false }: { enableSound?: bo
             }
           }
         }
-      } catch {}
+      } catch { }
     };
 
     checkLatestTrade();
@@ -129,19 +129,17 @@ export function TradeBroadcastBanner({ enableSound = false }: { enableSound?: bo
 
   return (
     <div
-      className={`w-full relative z-50 transition-all duration-300 ${
-        isPrimary
-          ? 'bg-[#120F09]/95 border-b border-amber-500/30 shadow-[0_4px_24px_-4px_rgba(245,158,11,0.2)]'
-          : 'bg-[#0B1015]/95 border-b border-emerald-500/30 shadow-[0_4px_24px_-4px_rgba(16,185,129,0.2)]'
-      } backdrop-blur-xl text-white animate-in slide-in-from-top-2 duration-300`}
+      className={`w-full relative z-50 transition-all duration-300 ${isPrimary
+        ? 'bg-[#120F09]/95 border-b border-amber-500/30 shadow-[0_4px_24px_-4px_rgba(245,158,11,0.2)]'
+        : 'bg-[#0B1015]/95 border-b border-emerald-500/30 shadow-[0_4px_24px_-4px_rgba(16,185,129,0.2)]'
+        } backdrop-blur-xl text-white animate-in slide-in-from-top-2 duration-300`}
     >
       {/* Top accent hairline */}
       <div
-        className={`absolute top-0 left-0 right-0 h-[2px] ${
-          isPrimary
-            ? 'bg-gradient-to-r from-transparent via-amber-400 to-transparent'
-            : 'bg-gradient-to-r from-transparent via-emerald-400 to-transparent'
-        }`}
+        className={`absolute top-0 left-0 right-0 h-[2px] ${isPrimary
+          ? 'bg-gradient-to-r from-transparent via-amber-400 to-transparent'
+          : 'bg-gradient-to-r from-transparent via-emerald-400 to-transparent'
+          }`}
       />
 
       <div className="max-w-[1780px] mx-auto px-4 sm:px-6 py-2.5 flex flex-col md:flex-row md:items-center justify-between gap-3">
@@ -149,22 +147,19 @@ export function TradeBroadcastBanner({ enableSound = false }: { enableSound?: bo
         <div className="flex items-center gap-3 flex-wrap">
           {/* Live Pulse Beacon Badge */}
           <div
-            className={`inline-flex items-center gap-2 px-2.5 py-1 rounded-full font-mono text-[10px] font-bold tracking-[0.16em] uppercase shrink-0 ${
-              isPrimary
-                ? 'bg-amber-500/15 border border-amber-500/40 text-amber-300'
-                : 'bg-emerald-500/15 border border-emerald-500/40 text-emerald-300'
-            }`}
+            className={`inline-flex items-center gap-2 px-2.5 py-1 rounded-full font-mono text-[10px] font-bold tracking-[0.16em] uppercase shrink-0 ${isPrimary
+              ? 'bg-amber-500/15 border border-amber-500/40 text-amber-300'
+              : 'bg-emerald-500/15 border border-emerald-500/40 text-emerald-300'
+              }`}
           >
             <span className="relative flex h-2 w-2">
               <span
-                className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${
-                  isPrimary ? 'bg-amber-400' : 'bg-emerald-400'
-                }`}
+                className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${isPrimary ? 'bg-amber-400' : 'bg-emerald-400'
+                  }`}
               />
               <span
-                className={`relative inline-flex rounded-full h-2 w-2 ${
-                  isPrimary ? 'bg-amber-500' : 'bg-emerald-500'
-                }`}
+                className={`relative inline-flex rounded-full h-2 w-2 ${isPrimary ? 'bg-amber-500' : 'bg-emerald-500'
+                  }`}
               />
             </span>
             <span>{isPrimary ? '⚡ TRADE APPROVED // PRIMARY ALLOTMENT' : '⚡ TRADE APPROVED // FLOOR DEAL'}</span>

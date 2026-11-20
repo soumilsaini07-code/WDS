@@ -211,17 +211,17 @@ export function DynamicPricingSettlementConsole({
             </label>
             <input
               type="range"
-              min="-5.0"
-              max="5.0"
-              step="0.1"
+              min="-10.0"
+              max="10.0"
+              step="0.05"
               value={overrideR}
               onChange={(e) => onOverrideRChange(e.target.value)}
               className="w-full accent-emerald-700 cursor-pointer"
             />
             <div className="flex justify-between text-[10px] text-on-surface-variant font-mono">
-              <span>-5.0% (Bearish Market)</span>
+              <span>-10.0% (Bearish Market)</span>
               <span>0.0% (Neutral)</span>
-              <span>+5.0% (Bullish Market)</span>
+              <span>+10.0% (Bullish Market)</span>
             </div>
           </div>
 

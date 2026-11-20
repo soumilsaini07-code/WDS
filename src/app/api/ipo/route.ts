@@ -7,12 +7,17 @@ import {
   allotIPOLots,
   createCustomIPO,
   updateIPOStatus,
+  reconcileIPOFromSupabase,
   getLocalDB,
 } from '@/lib/db';
 import { pushIpoBidToGoogleSheets } from '@/lib/google-sheets-sync';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export async function GET(request: Request) {
   try {
+    await reconcileIPOFromSupabase();
     const { searchParams } = new URL(request.url);
     const roundId = searchParams.get('roundId') || undefined;
 
@@ -35,6 +40,7 @@ export async function POST(request: Request) {
   return new Promise<NextResponse>((resolve) => {
     ipoQueue = ipoQueue.then(async () => {
       try {
+        await reconcileIPOFromSupabase();
         const body = await request.json();
         const { action } = body;
 

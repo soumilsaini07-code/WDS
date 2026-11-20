@@ -42,6 +42,8 @@ export function IPOSubscriptionDesk({
   const [bidTeamName, setBidTeamName] = useState('');
   const [bidLots, setBidLots] = useState<number>(5);
   const [submittingBid, setSubmittingBid] = useState(false);
+  const [bidFeedback, setBidFeedback] = useState<{ type: 'error' | 'success'; message: string } | null>(null);
+  const [statusUpdating, setStatusUpdating] = useState(false);
 
   // Offline Floor Announcement Modal State
   const [announcementModalOpen, setAnnouncementModalOpen] = useState(false);
@@ -67,20 +69,56 @@ export function IPOSubscriptionDesk({
   // Find currently selected IPO for the paper slip form
   const selectedPaperIpo = listings.find((i) => i.id === bidIpoId) || activeOpenListing;
 
+  // Toggle IPO Bidding Status (SUBSCRIPTION_OPEN vs CLOSED)
+  const handleToggleStatus = async (ipo: IPOListing, newStatus: 'SUBSCRIPTION_OPEN' | 'CLOSED' | 'UPCOMING') => {
+    setStatusUpdating(true);
+    setBidFeedback(null);
+    try {
+      const res = await fetch('/api/ipo', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'SET_STATUS',
+          ipo_id: ipo.id,
+          status: newStatus,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        const err = data.error || 'Failed to update IPO status.';
+        setBidFeedback({ type: 'error', message: err });
+        showToast?.(err);
+        return;
+      }
+      setBidFeedback({ type: 'success', message: `✅ IPO "${ipo.ticker}" status updated to ${newStatus}.` });
+      showToast?.(`IPO "${ipo.ticker}" status updated to ${newStatus}!`);
+      onRefreshIPO?.();
+    } catch (err: any) {
+      const msg = err.message || 'Error updating IPO status.';
+      setBidFeedback({ type: 'error', message: msg });
+      showToast?.(msg);
+    } finally {
+      setStatusUpdating(false);
+    }
+  };
+
   // Handle Offline Paper Bid Submission
   const handleRegisterPaperBid = async (e: React.FormEvent) => {
     e.preventDefault();
     const targetIpoId = bidIpoId || selectedPaperIpo?.id;
     if (!targetIpoId) {
+      setBidFeedback({ type: 'error', message: 'Please select an active IPO listing.' });
       showToast?.('Please select an active IPO listing.');
       return;
     }
     if (!bidTeamName.trim()) {
+      setBidFeedback({ type: 'error', message: 'Please enter or select an applicant team name.' });
       showToast?.('Please enter or select a team name.');
       return;
     }
 
     setSubmittingBid(true);
+    setBidFeedback(null);
     try {
       const res = await fetch('/api/ipo', {
         method: 'POST',
@@ -95,15 +133,23 @@ export function IPOSubscriptionDesk({
 
       const data = await res.json();
       if (!res.ok || !data.success) {
-        showToast?.(data.error || 'Failed to record paper slip bid.');
+        const err = data.error || 'Failed to record paper slip bid.';
+        setBidFeedback({ type: 'error', message: err });
+        showToast?.(err);
         return;
       }
 
+      setBidFeedback({
+        type: 'success',
+        message: `📝 Offline paper bid recorded: ${bidLots} lots for "${bidTeamName.trim()}"!`,
+      });
       showToast?.(`📝 Offline paper bid recorded: ${bidLots} lots for "${bidTeamName.trim()}"!`);
       setBidTeamName('');
       onRefreshIPO?.();
     } catch (err: any) {
-      showToast?.(err.message || 'Error recording offline bid.');
+      const msg = err.message || 'Error recording offline bid.';
+      setBidFeedback({ type: 'error', message: msg });
+      showToast?.(msg);
     } finally {
       setSubmittingBid(false);
     }
@@ -285,6 +331,52 @@ Shares have been credited directly to portfolios. Trading for ${ipo.ticker} is n
           Type or select the applicant team name from the physical slip. New/unregistered teams are auto-created on the spot.
         </p>
 
+        {/* Inline Feedback Banner (Errors & Success) */}
+        {bidFeedback && (
+          <div
+            className={`mb-4 p-3 rounded-xl border text-xs font-mono font-bold flex items-center justify-between gap-3 ${
+              bidFeedback.type === 'error'
+                ? 'bg-rose-50 border-rose-300 text-rose-800'
+                : 'bg-emerald-50 border-emerald-300 text-emerald-800'
+            }`}
+          >
+            <div className="flex items-center gap-2">
+              <span className="material-symbols-outlined text-[18px]">
+                {bidFeedback.type === 'error' ? 'error' : 'check_circle'}
+              </span>
+              <span>{bidFeedback.message}</span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setBidFeedback(null)}
+              className="text-zinc-500 hover:text-zinc-900 px-2 py-0.5 cursor-pointer font-bold"
+            >
+              ✕
+            </button>
+          </div>
+        )}
+
+        {/* Offering Closed / Upcoming Notice */}
+        {selectedPaperIpo && selectedPaperIpo.status !== 'SUBSCRIPTION_OPEN' && (
+          <div className="mb-4 p-3 rounded-xl bg-amber-50 border border-amber-300 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs font-mono">
+            <div className="flex items-center gap-2 text-amber-900">
+              <span className="material-symbols-outlined text-[20px] text-amber-600 shrink-0">info</span>
+              <span>
+                Offering <strong>{selectedPaperIpo.ticker}</strong> is currently <strong>{selectedPaperIpo.status}</strong>. Bids can only be accepted when status is <strong>SUBSCRIPTION_OPEN</strong>.
+              </span>
+            </div>
+            <button
+              type="button"
+              disabled={statusUpdating}
+              onClick={() => handleToggleStatus(selectedPaperIpo, 'SUBSCRIPTION_OPEN')}
+              className="px-3 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shrink-0 cursor-pointer transition shadow-sm flex items-center justify-center gap-1.5"
+            >
+              <span className="material-symbols-outlined text-[15px]">play_arrow</span>
+              <span>{statusUpdating ? 'Opening...' : 'Open Bidding Now'}</span>
+            </button>
+          </div>
+        )}
+
         <form onSubmit={handleRegisterPaperBid} className="grid grid-cols-1 sm:grid-cols-12 gap-3.5 items-end">
           {/* Target IPO Selection */}
           <div className="sm:col-span-4 flex flex-col">
@@ -455,7 +547,31 @@ Shares have been credited directly to portfolios. Trading for ${ipo.ticker} is n
                   Total Bid: ₹{totalCapitalBid.toLocaleString('en-IN')}
                 </span>
 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
+                  {ipo.status !== 'SUBSCRIPTION_OPEN' ? (
+                    <button
+                      type="button"
+                      disabled={statusUpdating}
+                      onClick={() => handleToggleStatus(ipo, 'SUBSCRIPTION_OPEN')}
+                      className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold font-mono transition flex items-center gap-1 cursor-pointer shadow-sm disabled:opacity-50"
+                      title="Open bidding for this offering"
+                    >
+                      <span className="material-symbols-outlined text-[15px]">play_arrow</span>
+                      <span>Open Bidding</span>
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      disabled={statusUpdating}
+                      onClick={() => handleToggleStatus(ipo, 'CLOSED')}
+                      className="px-3 py-1.5 rounded-xl bg-zinc-700 hover:bg-zinc-800 text-white text-xs font-bold font-mono transition flex items-center gap-1 cursor-pointer shadow-sm disabled:opacity-50"
+                      title="Pause / Close bidding for this offering"
+                    >
+                      <span className="material-symbols-outlined text-[15px]">pause</span>
+                      <span>Close Bidding</span>
+                    </button>
+                  )}
+
                   {ipo.status === 'ALLOTTED' && (
                     <button
                       type="button"

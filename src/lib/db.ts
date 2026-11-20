@@ -55,11 +55,15 @@ export async function broadcastRealtimeEvent(event: string, payload: any) {
   if (!supabase) return;
   try {
     const channel = supabase.channel('trading-floor');
-    await channel.send({
-      type: 'broadcast',
-      event,
-      payload,
-    });
+    if (typeof (channel as any).httpSend === 'function') {
+      await (channel as any).httpSend(event, payload);
+    } else {
+      await channel.send({
+        type: 'broadcast',
+        event,
+        payload,
+      });
+    }
   } catch (err) {
     // Non-blocking
   }
@@ -70,7 +74,11 @@ export function syncStockToSupabase(stock: Stock) {
   Promise.resolve(
     supabase
       .from('stocks')
-      .update({
+      .upsert({
+        id: stock.id,
+        ticker: stock.ticker,
+        name: stock.name,
+        sector: stock.sector,
         current_price: stock.current_price,
         day_high: stock.day_high,
         day_low: stock.day_low,
@@ -78,9 +86,64 @@ export function syncStockToSupabase(stock: Stock) {
         upper_circuit: stock.upper_circuit,
         historical_prices: stock.historical_prices,
         updated_at: new Date().toISOString(),
-      })
-      .eq('id', stock.id)
-  ).catch(() => {});
+      }, { onConflict: 'id' })
+  ).catch((err) => {
+    console.warn('[Supabase Sync] Exception syncing stock to Supabase:', err?.message || err);
+  });
+}
+
+export function syncIPOListingToSupabase(ipo: IPOListing) {
+  if (!supabase) return;
+  Promise.resolve(
+    supabase
+      .from('ipo_listings')
+      .upsert({
+        id: ipo.id,
+        round_id: ipo.round_id,
+        company_name: ipo.company_name,
+        ticker: ipo.ticker,
+        sector: ipo.sector,
+        reference_price: ipo.reference_price,
+        issue_price: ipo.issue_price,
+        lot_size: ipo.lot_size,
+        min_lots: ipo.min_lots,
+        max_lots: ipo.max_lots,
+        total_issue_lots: ipo.total_issue_lots,
+        total_demanded_lots: ipo.total_demanded_lots,
+        subscription_ratio: ipo.subscription_ratio,
+        allotted_lots: ipo.allotted_lots,
+        status: ipo.status,
+        description: ipo.description,
+      }, { onConflict: 'id' })
+  ).catch((err) => {
+    console.warn('[Supabase Sync] Exception syncing IPO listing to Supabase:', err?.message || err);
+  });
+}
+
+export function syncIPOSubscriptionToSupabase(sub: IPOSubscription) {
+  if (!supabase) return;
+  Promise.resolve(
+    supabase
+      .from('ipo_subscriptions')
+      .upsert({
+        id: sub.id,
+        ipo_id: sub.ipo_id,
+        round_id: sub.round_id,
+        team_id: sub.team_id,
+        team_name: sub.team_name,
+        user_id: sub.user_id,
+        user_name: sub.user_name,
+        lots_requested: sub.lots_requested,
+        share_quantity: sub.share_quantity,
+        issue_price: sub.issue_price,
+        total_amount: sub.total_amount,
+        lots_allotted: sub.lots_allotted,
+        status: sub.status,
+        created_at: sub.created_at,
+      }, { onConflict: 'id' })
+  ).catch((err) => {
+    console.warn('[Supabase Sync] Exception syncing IPO subscription to Supabase:', err?.message || err);
+  });
 }
 
 export function syncTransactionToSupabase(
@@ -143,7 +206,7 @@ export function syncTransactionToSupabase(
         console.error('[Supabase Sync] Exception syncing transaction to Supabase:', err?.message || err);
       }
     })()
-  ).catch(() => {});
+  ).catch(() => { });
 }
 
 export async function syncClockToSupabase(clock: { remaining_seconds: number; is_paused: boolean; is_orders_locked: boolean }) {
@@ -213,7 +276,7 @@ export function syncTeamToSupabase(team: Team, user?: User) {
         console.warn('[Supabase Sync] Exception syncing team to Supabase:', err?.message || err);
       }
     })()
-  ).catch(() => {});
+  ).catch(() => { });
 }
 
 // Local JSON Store Path & Live CSV Ledger
@@ -873,10 +936,10 @@ export function createDBSnapshot(label: string = 'manual'): DBSnapshotInfo {
         files.sort();
         const toDelete = files.slice(0, files.length - 50);
         toDelete.forEach((f) => {
-          try { fs.unlinkSync(path.join(BACKUPS_DIR, f)); } catch {}
+          try { fs.unlinkSync(path.join(BACKUPS_DIR, f)); } catch { }
         });
       }
-    } catch {}
+    } catch { }
 
     logger.audit('DATABASE_SNAPSHOT_CREATED', 'System', {
       filename,
@@ -905,7 +968,7 @@ export function listDBSnapshots(): DBSnapshotInfo[] {
   try {
     if (!fs.existsSync(BACKUPS_DIR)) return [];
     const files = fs.readdirSync(BACKUPS_DIR).filter((f) => f.startsWith('snapshot_') && f.endsWith('.json'));
-    
+
     const list: DBSnapshotInfo[] = [];
     files.forEach((file) => {
       try {
@@ -914,7 +977,7 @@ export function listDBSnapshots(): DBSnapshotInfo[] {
         const parts = file.replace('.json', '').split('_');
         const ts = Number(parts[1]) || stats.mtimeMs;
         const label = parts.slice(2).join('_') || 'snapshot';
-        
+
         let roundId: string | undefined;
         let stocksCount = 0;
         let teamsCount = 0;
@@ -924,7 +987,7 @@ export function listDBSnapshots(): DBSnapshotInfo[] {
           roundId = parsed.current_round_id;
           stocksCount = parsed.stocks?.length || 0;
           teamsCount = parsed.teams?.length || 0;
-        } catch {}
+        } catch { }
 
         list.push({
           filename: file,
@@ -935,7 +998,7 @@ export function listDBSnapshots(): DBSnapshotInfo[] {
           stocksCount,
           teamsCount,
         });
-      } catch {}
+      } catch { }
     });
 
     return list.sort((a, b) => b.timestamp - a.timestamp);
@@ -969,7 +1032,7 @@ export function rollbackDBSnapshot(filename: string): {
     // Safety snapshot of current state before rollback
     try {
       createDBSnapshot('pre_rollback_safety');
-    } catch {}
+    } catch { }
 
     saveLocalDB(parsed);
     rebuildIndexes(parsed);
@@ -1023,7 +1086,7 @@ export function getLocalDB(): LocalDBState {
     if (fs.existsSync(DB_FILE)) {
       try {
         raw = fs.readFileSync(DB_FILE, 'utf-8').trim();
-      } catch {}
+      } catch { }
     }
 
     // Auto Crash-Recovery: If primary db.json is missing or corrupted/empty, restore from db.backup.json
@@ -1034,7 +1097,7 @@ export function getLocalDB(): LocalDBState {
         if (raw) {
           fs.writeFileSync(DB_FILE, raw);
         }
-      } catch {}
+      } catch { }
     }
 
     if (!raw) {
@@ -1354,7 +1417,7 @@ export function getLocalDB(): LocalDBState {
         rebuildIndexes(backupParsed);
         return backupParsed;
       }
-    } catch {}
+    } catch { }
 
     return {
       users: [],
@@ -1403,7 +1466,7 @@ export function saveLocalDB(data: LocalDBState) {
       if (fs.existsSync(DB_FILE)) {
         _lastFileMtime = fs.statSync(DB_FILE).mtimeMs;
       }
-    } catch {}
+    } catch { }
   } catch (err) {
     console.error('Error saving local DB atomically:', err);
   }
@@ -1435,7 +1498,7 @@ export function syncPortfolioToSupabase(portfolio: Portfolio) {
         console.warn('[Supabase Sync] Exception syncing portfolio to Supabase:', err?.message || err);
       }
     })()
-  ).catch(() => {});
+  ).catch(() => { });
 }
 
 let _lastTeamReconcileTime = 0;
@@ -1803,6 +1866,148 @@ export async function reconcileClockFromSupabase(force = false): Promise<{ remai
   }
 }
 
+let _lastIPOReconcileTime = 0;
+export async function reconcileIPOFromSupabase(force = false): Promise<{ listings: IPOListing[]; subscriptions: IPOSubscription[] }> {
+  const db = getLocalDB();
+  if (!supabase) return { listings: db.ipo_listings || [], subscriptions: db.ipo_subscriptions || [] };
+
+  const now = Date.now();
+  if (!force && now - _lastIPOReconcileTime < 1500) {
+    return { listings: db.ipo_listings || [], subscriptions: db.ipo_subscriptions || [] };
+  }
+  _lastIPOReconcileTime = now;
+
+  try {
+    const [listingsRes, subsRes] = await Promise.all([
+      supabase.from('ipo_listings').select('*'),
+      supabase.from('ipo_subscriptions').select('*'),
+    ]);
+
+    let modified = false;
+
+    // 1. Reconcile Listings
+    if (listingsRes.data) {
+      if (!db.ipo_listings) db.ipo_listings = [];
+      const suListingIds = new Set(listingsRes.data.map((l: any) => l.id));
+
+      if (listingsRes.data.length > 0) {
+        const prevLen = db.ipo_listings.length;
+        db.ipo_listings = db.ipo_listings.filter((l) => suListingIds.has(l.id));
+        if (db.ipo_listings.length !== prevLen) modified = true;
+      }
+
+      for (const item of listingsRes.data) {
+        const local = db.ipo_listings.find((l) => l.id === item.id);
+        const cleanDesc = (item.description || '')
+          .replace(/\.?\s*(Smooth\s*(pricing|S-Curve\s*Pricing)?[:\s]*)?P_?listing[\s\S]*$/i, '')
+          .replace(/Smooth\s*pricing[\s\S]*$/i, '')
+          .replace(/P_?listing[\s\S]*$/i, '')
+          .replace(/P0\s*[×*][\s\S]*$/i, '')
+          .replace(/Formula:[\s\S]*$/i, '')
+          .trim() || 'Enterprise offering on Dalal Street. Primary market offering open for offline book-building.';
+
+        if (local) {
+          if (
+            local.status !== item.status ||
+            local.issue_price !== item.issue_price ||
+            local.reference_price !== item.reference_price ||
+            local.total_demanded_lots !== item.total_demanded_lots ||
+            local.subscription_ratio !== item.subscription_ratio ||
+            local.allotted_lots !== item.allotted_lots ||
+            local.description !== cleanDesc
+          ) {
+            local.status = item.status;
+            local.issue_price = item.issue_price;
+            local.reference_price = item.reference_price;
+            local.total_demanded_lots = item.total_demanded_lots;
+            local.subscription_ratio = item.subscription_ratio;
+            local.allotted_lots = item.allotted_lots;
+            local.description = cleanDesc;
+            modified = true;
+          }
+        } else {
+          db.ipo_listings.push({
+            id: item.id,
+            round_id: item.round_id,
+            company_name: item.company_name,
+            ticker: item.ticker,
+            sector: item.sector,
+            reference_price: item.reference_price,
+            issue_price: item.issue_price,
+            lot_size: item.lot_size,
+            min_lots: item.min_lots,
+            max_lots: item.max_lots,
+            total_issue_lots: item.total_issue_lots,
+            total_demanded_lots: item.total_demanded_lots || 0,
+            subscription_ratio: item.subscription_ratio || 0,
+            allotted_lots: item.allotted_lots || 0,
+            status: item.status,
+            description: cleanDesc,
+          });
+          modified = true;
+        }
+      }
+    }
+
+    // 2. Reconcile Subscriptions
+    if (subsRes.data) {
+      if (!db.ipo_subscriptions) db.ipo_subscriptions = [];
+      const suSubMap = new Map(subsRes.data.map((s: any) => [s.id, s]));
+
+      const prevSubLen = db.ipo_subscriptions.length;
+      db.ipo_subscriptions = db.ipo_subscriptions.filter((ls) => suSubMap.has(ls.id));
+      if (db.ipo_subscriptions.length !== prevSubLen) modified = true;
+
+      for (const item of subsRes.data) {
+        const local = db.ipo_subscriptions.find((s) => s.id === item.id);
+        if (local) {
+          if (
+            local.status !== item.status ||
+            local.lots_allotted !== item.lots_allotted ||
+            local.lots_requested !== item.lots_requested ||
+            local.share_quantity !== item.share_quantity ||
+            local.total_amount !== item.total_amount
+          ) {
+            local.status = item.status;
+            local.lots_allotted = item.lots_allotted;
+            local.lots_requested = item.lots_requested;
+            local.share_quantity = item.share_quantity;
+            local.total_amount = item.total_amount;
+            modified = true;
+          }
+        } else {
+          db.ipo_subscriptions.push({
+            id: item.id,
+            ipo_id: item.ipo_id,
+            round_id: item.round_id,
+            team_id: item.team_id,
+            team_name: item.team_name,
+            user_id: item.user_id,
+            user_name: item.user_name,
+            lots_requested: item.lots_requested,
+            share_quantity: item.share_quantity,
+            issue_price: item.issue_price,
+            total_amount: item.total_amount,
+            lots_allotted: item.lots_allotted || 0,
+            status: item.status,
+            created_at: item.created_at,
+          });
+          modified = true;
+        }
+      }
+    }
+
+    if (modified) {
+      saveLocalDB(db);
+    }
+
+    return { listings: db.ipo_listings || [], subscriptions: db.ipo_subscriptions || [] };
+  } catch (err: any) {
+    console.warn('[reconcileIPOFromSupabase] Exception:', err?.message || err);
+    return { listings: db.ipo_listings || [], subscriptions: db.ipo_subscriptions || [] };
+  }
+}
+
 // Background auto-reconciliation loop (runs every 2 seconds)
 if (typeof globalThis !== 'undefined' && !(globalThis as any)._wdsSupabaseSyncStarted) {
   (globalThis as any)._wdsSupabaseSyncStarted = true;
@@ -1813,7 +2018,8 @@ if (typeof globalThis !== 'undefined' && !(globalThis as any)._wdsSupabaseSyncSt
       await reconcileStocksFromSupabase();
       await reconcileTransactionsFromSupabase();
       await reconcileClockFromSupabase();
-    } catch {}
+      await reconcileIPOFromSupabase();
+    } catch { }
   }, 2000);
 }
 
@@ -1982,7 +2188,7 @@ export async function createUser(user: Omit<User, 'id' | 'created_at'>): Promise
   // 2. Local storage: Persist account and hashed password
   const db = getLocalDB();
   const finalId = createdId || 'usr-' + Math.random().toString(36).substring(2, 9);
-  
+
   // Find desk admin to auto-allot if regular student
   const activeAdmins = db.users.filter((u) => u.role === 'admin' || u.role === 'superadmin');
   const deskLead = db.users.find((a) => a.email.toLowerCase() === 'ssaini3_be25@thapar.edu') || activeAdmins[0];
@@ -2336,15 +2542,15 @@ export async function getUserPortfolios(userId: string): Promise<Portfolio[]> {
 
   const team = user
     ? db.teams?.find(
-        (t) =>
-          t.id === user.team_id ||
-          t.name.toLowerCase() === (user.team_name || '').toLowerCase() ||
-          t.members?.some(
-            (m) =>
-              m.id === user.id ||
-              (m.email && m.email.toLowerCase() === (user.email || '').toLowerCase())
-          )
-      )
+      (t) =>
+        t.id === user.team_id ||
+        t.name.toLowerCase() === (user.team_name || '').toLowerCase() ||
+        t.members?.some(
+          (m) =>
+            m.id === user.id ||
+            (m.email && m.email.toLowerCase() === (user.email || '').toLowerCase())
+        )
+    )
     : undefined;
 
   if (team) {
@@ -2368,14 +2574,14 @@ export async function getUserTransactions(userId?: string): Promise<Transaction[
     const user = db.users.find((u) => u.id === userId);
     const team = user
       ? db.teams?.find(
-          (t) =>
-            t.id === user.team_id ||
-            t.members?.some(
-              (m) =>
-                m.id === user.id ||
-                (m.email && m.email.toLowerCase() === (user.email || '').toLowerCase())
-            )
-        )
+        (t) =>
+          t.id === user.team_id ||
+          t.members?.some(
+            (m) =>
+              m.id === user.id ||
+              (m.email && m.email.toLowerCase() === (user.email || '').toLowerCase())
+          )
+      )
       : undefined;
 
     let targetIds = [userId];
@@ -3273,7 +3479,7 @@ export function getLiveTradesCSVContent(): string {
     if (fs.existsSync(CSV_FILE)) {
       return fs.readFileSync(CSV_FILE, 'utf8');
     }
-  } catch {}
+  } catch { }
   return 'Slip ID,Timestamp,Team Name,Participant Name,Email,Stock Ticker,Stock Name,Order Type,Quantity,Price (INR),Gross Consideration (INR),Brokerage 1% (INR),Net Consideration (INR),Executed By Admin,Status\n';
 }
 
@@ -3848,7 +4054,7 @@ export async function applyTeamPenalty(
     const randId = `FINE-${Math.floor(1000 + Math.random() * 9000)}`;
     const row = `${safe(randId)},${safe(new Date().toISOString())},${safe(team.name)},${safe(team.leader_name)},${safe(team.leader_email)},"PENALTY","${safe(reasonLabel)}","PENALTY",1,${penaltyAmount},${penaltyAmount},0,-${penaltyAmount},${safe(adminEmail)},"EXECUTED"\n`;
     fs.appendFileSync(CSV_FILE, row, 'utf8');
-  } catch {}
+  } catch { }
 
   saveLocalDB(db);
 
@@ -4043,7 +4249,7 @@ export async function executeInterTeamTrade(
   const isCircuitBreached =
     !isPrimaryPool &&
     ((stock.upper_circuit && effectivePrice > stock.upper_circuit) ||
-     (stock.lower_circuit && effectivePrice < stock.lower_circuit));
+      (stock.lower_circuit && effectivePrice < stock.lower_circuit));
   if (isCircuitBreached && !options?.allowCircuitBypass) {
     return {
       success: false,
@@ -4264,7 +4470,7 @@ export async function executeInterTeamTrade(
     const buyerRow = `${safe(randSlip + '-B')},${safe(txTime)},${safe(buyerTeam.name)},${safe(buyerTeam.leader_name)},${safe(buyerTeam.leader_email)},${safe(stock.ticker)},${safe(stock.name)},"BUY",${quantity},${effectivePrice},${grossDealValue},${buyerBrokerage},${totalBuyerDebit},${safe(adminEmail)},"EXECUTED (P2P Bought from ${sellerTeam.name})"\n`;
     fs.appendFileSync(CSV_FILE, sellerRow, 'utf8');
     fs.appendFileSync(CSV_FILE, buyerRow, 'utf8');
-  } catch {}
+  } catch { }
 
   // 7. Record Latest Broadcast Trade for Floor Telemetry (Visible across all screens and rounds)
   (db as any).latest_trade = {
@@ -4927,8 +5133,12 @@ export function updateIPOStatus(params: {
     ipo.allotted_lots = 0;
     ipo.total_demanded_lots = 0;
     ipo.subscription_ratio = 0;
+    if (supabase) {
+      supabase.from('ipo_subscriptions').delete().eq('ipo_id', params.ipo_id).then(() => {});
+    }
   }
   saveLocalDB(db);
+  syncIPOListingToSupabase(ipo);
   broadcastRealtimeEvent('IPO_STATUS_UPDATED', ipo);
   return { success: true, ipo };
 }
@@ -5057,6 +5267,8 @@ export function subscribeToIPO(params: {
   ipo.subscription_ratio = Number((totalDemanded / totalOffered).toFixed(2));
 
   saveLocalDB(db);
+  syncIPOSubscriptionToSupabase(subscription);
+  syncIPOListingToSupabase(ipo);
 
   // Realtime Broadcast to Floor Screens & Dashboards
   broadcastRealtimeEvent('IPO_SUBSCRIPTION_UPDATED', {
@@ -5310,6 +5522,10 @@ export function allotIPOLots(
   };
 
   saveLocalDB(db);
+  syncIPOListingToSupabase(ipo);
+  subs.forEach((sub) => {
+    syncIPOSubscriptionToSupabase(sub);
+  });
 
   broadcastRealtimeEvent('TRADE_EXECUTED', (db as any).latest_trade);
   broadcastRealtimeEvent('IPO_ALLOTTED', { ipo_id: ipo.id, ticker: ipo.ticker });
@@ -5440,6 +5656,10 @@ export function createCustomIPO(params: {
   };
 
   saveLocalDB(db);
+  syncIPOListingToSupabase(newIPO);
+  if (stock) {
+    syncStockToSupabase(stock);
+  }
 
   logger.audit('CUSTOM_IPO_CREATED', params.adminEmail || 'AdminDesk', {
     ticker: cleanTicker,

@@ -969,6 +969,18 @@ export default function AdminPage() {
         fetchIPOData();
         fetchAdminData();
       })
+      .on('broadcast', { event: 'IPO_STATUS_UPDATED' }, () => {
+        fetchIPOData();
+      })
+      .on('broadcast', { event: 'IPO_SUBSCRIPTION_UPDATED' }, () => {
+        fetchIPOData();
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'ipo_listings' }, () => {
+        fetchIPOData();
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'ipo_subscriptions' }, () => {
+        fetchIPOData();
+      })
       .on('postgres_changes', { event: '*', schema: 'public', table: 'order_slips' }, () => {
         fetchAdminSlips();
       })

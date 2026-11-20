@@ -1,6 +1,12 @@
 import { NextResponse } from 'next/server';
 import { computeBrokerLedgerSnapshot } from '@/lib/broker-ledger';
-import { reconcileTeamsFromSupabase, reconcilePortfoliosFromSupabase, reconcileTransactionsFromSupabase, reconcileClockFromSupabase } from '@/lib/db';
+import {
+  reconcileTeamsFromSupabase,
+  reconcilePortfoliosFromSupabase,
+  reconcileTransactionsFromSupabase,
+  reconcileClockFromSupabase,
+  reconcileIPOFromSupabase,
+} from '@/lib/db';
 
 export const dynamic = 'force-dynamic';
 
@@ -12,6 +18,7 @@ export async function GET() {
       reconcilePortfoliosFromSupabase(),
       reconcileTransactionsFromSupabase(),
       reconcileClockFromSupabase(),
+      reconcileIPOFromSupabase(),
     ]);
   } catch {}
 

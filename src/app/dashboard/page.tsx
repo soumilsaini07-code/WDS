@@ -356,6 +356,26 @@ export default function ParticipantMarketTerminal() {
       .on('broadcast', { event: 'IPO_ALLOTTED' }, () => {
         setActiveIPO(null);
       })
+      .on('broadcast', { event: 'IPO_STATUS_UPDATED' }, (payload: any) => {
+        const ipo = payload.payload;
+        if (ipo) {
+          setActiveIPO((prev) => (prev && prev.id === ipo.id ? { ...prev, ...ipo } : ipo));
+        }
+      })
+      .on('broadcast', { event: 'IPO_SUBSCRIPTION_UPDATED' }, (payload: any) => {
+        const update = payload.payload;
+        if (update) {
+          setActiveIPO((prev) =>
+            prev && (prev.id === update.ipo_id || prev.ticker === update.ticker)
+              ? {
+                  ...prev,
+                  total_demanded_lots: update.total_demanded_lots,
+                  subscription_ratio: update.subscription_ratio,
+                }
+              : prev
+          );
+        }
+      })
       .on('broadcast', { event: 'NEWS_PUBLISHED' }, (payload) => {
         const item = payload.payload?.news as NewsArticle;
         if (item) {
