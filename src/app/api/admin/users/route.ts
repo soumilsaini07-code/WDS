@@ -11,6 +11,9 @@ import {
 } from '@/lib/db';
 import { Role } from '@/lib/types';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export async function GET() {
   const session = await getCurrentSession();
   if (!session || (session.role !== 'admin' && session.role !== 'superadmin')) {

@@ -3,6 +3,9 @@ import { getCurrentSession } from '@/lib/auth';
 import { createDBSnapshot, listDBSnapshots, rollbackDBSnapshot } from '@/lib/db';
 import { logger } from '@/lib/logger';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export async function GET() {
   try {
     const session = await getCurrentSession();

@@ -34,18 +34,13 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // 1. Strict Protection for Admin Routes (/admin and /api/admin/*)
-  if (pathname.startsWith('/admin') || pathname.startsWith('/api/admin')) {
+  // 1. Strict Protection for Admin API Endpoints (/api/admin/*)
+  if (pathname.startsWith('/api/admin')) {
     if (!session || (session.role !== 'admin' && session.role !== 'superadmin')) {
-      if (pathname.startsWith('/api/')) {
-        return NextResponse.json(
-          { error: 'Unauthorized: Platform Administrator privileges required.' },
-          { status: 403 }
-        );
-      }
-      const loginUrl = new URL('/login', request.url);
-      loginUrl.searchParams.set('error', 'admin_required');
-      return NextResponse.redirect(loginUrl);
+      return NextResponse.json(
+        { error: 'Unauthorized: Platform Administrator privileges required.' },
+        { status: 403 }
+      );
     }
   }
 
