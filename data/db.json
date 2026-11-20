@@ -101,7 +101,10 @@
       "ecoin_balance": 0,
       "team_id": "team-lekkq1",
       "team_name": "TEAM 4",
-      "created_at": "2026-11-19T18:45:27.182Z"
+      "created_at": "2026-11-19T18:45:27.182Z",
+      "assigned_admin_id": "usr-8ryunba",
+      "assigned_admin_name": "Soumil Saini (Desk Lead)",
+      "group_name": "Group Alpha - Desk 1"
     },
     {
       "id": "usr-5l443u",
@@ -112,7 +115,10 @@
       "ecoin_balance": 0,
       "team_id": "team-8i5n8b",
       "team_name": "TEAM 2",
-      "created_at": "2026-11-19T18:45:41.254Z"
+      "created_at": "2026-11-19T18:45:41.254Z",
+      "assigned_admin_id": "admin-ipr7h",
+      "assigned_admin_name": "Vanshaj Jhuntra",
+      "group_name": "Group Beta - Desk 2"
     },
     {
       "id": "usr-sd5cis",
@@ -123,7 +129,10 @@
       "ecoin_balance": 0,
       "team_id": "team-rxrssi",
       "team_name": "TEAM 1",
-      "created_at": "2026-11-19T18:46:00.449Z"
+      "created_at": "2026-11-19T18:46:00.449Z",
+      "assigned_admin_id": "usr-8ryunba",
+      "assigned_admin_name": "Soumil Saini (Desk Lead)",
+      "group_name": "Group Alpha - Desk 1"
     },
     {
       "id": "usr-p909cr",
@@ -134,7 +143,10 @@
       "ecoin_balance": 0,
       "team_id": "team-apvy4z",
       "team_name": "TEAM 3",
-      "created_at": "2026-11-19T18:46:24.546Z"
+      "created_at": "2026-11-19T18:46:24.546Z",
+      "assigned_admin_id": "admin-ipr7h",
+      "assigned_admin_name": "Vanshaj Jhuntra",
+      "group_name": "Group Beta - Desk 2"
     },
     {
       "id": "usr-tpkzpq",
@@ -145,7 +157,10 @@
       "ecoin_balance": 0,
       "team_id": "team-u98tgc",
       "team_name": "TEAM 6",
-      "created_at": "2026-11-19T18:47:08.450Z"
+      "created_at": "2026-11-19T18:47:08.450Z",
+      "assigned_admin_id": "usr-8ryunba",
+      "assigned_admin_name": "Soumil Saini (Desk Lead)",
+      "group_name": "Group Alpha - Desk 1"
     },
     {
       "id": "usr-5oesys",
@@ -156,7 +171,10 @@
       "ecoin_balance": 0,
       "team_id": "team-fqmwdm",
       "team_name": "TEAM 5",
-      "created_at": "2026-11-19T18:48:22.487Z"
+      "created_at": "2026-11-19T18:48:22.487Z",
+      "assigned_admin_id": "admin-ipr7h",
+      "assigned_admin_name": "Vanshaj Jhuntra",
+      "group_name": "Group Beta - Desk 2"
     }
   ],
   "stocks": [
@@ -2928,7 +2946,7 @@
       "stock_id": "s-dixon",
       "shares_count": 9,
       "avg_buy_price": 11000,
-      "updated_at": "2026-11-19T19:22:26.900Z"
+      "updated_at": "2026-11-20T07:17:14.019Z"
     },
     {
       "id": "port-9t9eug3",
@@ -2944,7 +2962,7 @@
       "stock_id": "s-asianpaint",
       "shares_count": 15,
       "avg_buy_price": 2320,
-      "updated_at": "2026-11-19T19:22:26.905Z"
+      "updated_at": "2026-11-20T07:17:14.023Z"
     },
     {
       "id": "port-dqqwg85",
@@ -2960,7 +2978,7 @@
       "stock_id": "s-adaniports",
       "shares_count": 20,
       "avg_buy_price": 1850,
-      "updated_at": "2026-11-19T19:22:26.905Z"
+      "updated_at": "2026-11-20T07:17:14.023Z"
     },
     {
       "id": "port-uac20jq",
@@ -2976,7 +2994,7 @@
       "stock_id": "s-infy",
       "shares_count": 100,
       "avg_buy_price": 1185,
-      "updated_at": "2026-11-19T19:22:26.900Z"
+      "updated_at": "2026-11-20T07:17:14.019Z"
     },
     {
       "id": "port-jaaj66y",
@@ -2984,7 +3002,7 @@
       "stock_id": "s-adaniports",
       "shares_count": 100,
       "avg_buy_price": 1850,
-      "updated_at": "2026-11-19T19:22:26.910Z"
+      "updated_at": "2026-11-20T07:17:14.028Z"
     },
     {
       "id": "port-e5lnhfp",
@@ -3000,7 +3018,7 @@
       "stock_id": "s-jswsteel",
       "shares_count": 100,
       "avg_buy_price": 1246,
-      "updated_at": "2026-11-19T19:22:26.900Z"
+      "updated_at": "2026-11-20T07:17:14.019Z"
     },
     {
       "id": "port-wwkwsg2",
@@ -3016,7 +3034,7 @@
       "stock_id": "s-bluedart",
       "shares_count": 70,
       "avg_buy_price": 4170.8,
-      "updated_at": "2026-11-19T19:22:26.905Z"
+      "updated_at": "2026-11-20T07:17:14.023Z"
     },
     {
       "id": "port-stckyo3",
@@ -3032,7 +3050,7 @@
       "stock_id": "s-paytm",
       "shares_count": 100,
       "avg_buy_price": 1634.3,
-      "updated_at": "2026-11-19T19:22:26.900Z"
+      "updated_at": "2026-11-20T07:17:14.019Z"
     },
     {
       "id": "port-jrxtvps",
@@ -3048,7 +3066,7 @@
       "stock_id": "s-airtel",
       "shares_count": 50,
       "avg_buy_price": 1973.7,
-      "updated_at": "2026-11-19T19:22:26.910Z"
+      "updated_at": "2026-11-20T07:17:14.028Z"
     },
     {
       "id": "port-0pp4hsx",
@@ -3064,7 +3082,7 @@
       "stock_id": "s-cipla",
       "shares_count": 50,
       "avg_buy_price": 1378.9,
-      "updated_at": "2026-11-19T19:22:26.905Z"
+      "updated_at": "2026-11-20T07:17:14.023Z"
     },
     {
       "id": "port-nylv752",
@@ -3080,7 +3098,7 @@
       "stock_id": "s-reliance",
       "shares_count": 100,
       "avg_buy_price": 1164.9,
-      "updated_at": "2026-11-19T19:22:26.900Z"
+      "updated_at": "2026-11-20T07:17:14.019Z"
     },
     {
       "id": "port-xv0ihoz",
@@ -3104,7 +3122,7 @@
       "stock_id": "s-dixon",
       "shares_count": 20,
       "avg_buy_price": 11000,
-      "updated_at": "2026-11-19T19:22:26.905Z"
+      "updated_at": "2026-11-20T07:17:14.023Z"
     },
     {
       "id": "port-sj7ny4l",
@@ -3120,7 +3138,7 @@
       "stock_id": "s-bel",
       "shares_count": 100,
       "avg_buy_price": 370,
-      "updated_at": "2026-11-19T19:22:26.915Z"
+      "updated_at": "2026-11-20T07:17:14.033Z"
     },
     {
       "id": "port-gvcqxwk",
@@ -3136,7 +3154,7 @@
       "stock_id": "s-titan",
       "shares_count": 20,
       "avg_buy_price": 4436,
-      "updated_at": "2026-11-19T19:22:26.910Z"
+      "updated_at": "2026-11-20T07:17:14.028Z"
     },
     {
       "id": "port-vmtrb9l",
@@ -3152,7 +3170,7 @@
       "stock_id": "s-apollohosp",
       "shares_count": 10,
       "avg_buy_price": 8448,
-      "updated_at": "2026-11-19T19:22:26.915Z"
+      "updated_at": "2026-11-20T07:17:14.033Z"
     },
     {
       "id": "port-7ick2pa",
@@ -3168,7 +3186,7 @@
       "stock_id": "s-hal",
       "shares_count": 15,
       "avg_buy_price": 4853.7,
-      "updated_at": "2026-11-19T19:22:26.910Z"
+      "updated_at": "2026-11-20T07:17:14.028Z"
     },
     {
       "id": "port-5w056sf",
@@ -3184,7 +3202,7 @@
       "stock_id": "s-sbin",
       "shares_count": 100,
       "avg_buy_price": 962,
-      "updated_at": "2026-11-19T19:22:26.910Z"
+      "updated_at": "2026-11-20T07:17:14.028Z"
     },
     {
       "id": "port-h08ye0a",
@@ -3192,7 +3210,7 @@
       "stock_id": "s-dixon",
       "shares_count": 10,
       "avg_buy_price": 11000,
-      "updated_at": "2026-11-19T19:22:26.915Z"
+      "updated_at": "2026-11-20T07:17:14.033Z"
     },
     {
       "id": "port-p0n81g9",
@@ -3200,7 +3218,7 @@
       "stock_id": "s-bluedart",
       "shares_count": 60,
       "avg_buy_price": 4170.8,
-      "updated_at": "2026-11-19T19:22:26.920Z"
+      "updated_at": "2026-11-20T07:17:14.039Z"
     },
     {
       "id": "port-hdkxsyn",
@@ -3208,7 +3226,7 @@
       "stock_id": "s-cipla",
       "shares_count": 10,
       "avg_buy_price": 1378.9,
-      "updated_at": "2026-11-19T19:22:26.920Z"
+      "updated_at": "2026-11-20T07:17:14.039Z"
     },
     {
       "id": "port-ddqjl2j",
@@ -3224,7 +3242,7 @@
       "stock_id": "s-hdfclife",
       "shares_count": 10,
       "avg_buy_price": 524.9,
-      "updated_at": "2026-11-19T19:22:26.920Z"
+      "updated_at": "2026-11-20T07:17:14.039Z"
     },
     {
       "id": "port-aofvz2b",
@@ -3240,7 +3258,7 @@
       "stock_id": "s-lic",
       "shares_count": 10,
       "avg_buy_price": 383.25,
-      "updated_at": "2026-11-19T19:22:26.920Z"
+      "updated_at": "2026-11-20T07:17:14.039Z"
     },
     {
       "id": "port-nhe8upe",
@@ -3256,7 +3274,7 @@
       "stock_id": "s-maruti",
       "shares_count": 1,
       "avg_buy_price": 11413,
-      "updated_at": "2026-11-19T19:22:26.920Z"
+      "updated_at": "2026-11-20T07:17:14.039Z"
     },
     {
       "id": "port-1358um4",
@@ -3264,7 +3282,7 @@
       "stock_id": "s-tcs",
       "shares_count": 0,
       "avg_buy_price": 2502.6,
-      "updated_at": "2026-11-19T18:52:56.209Z"
+      "updated_at": "2026-11-19T18:52:56.209+00:00"
     },
     {
       "id": "port-if90lvp",
@@ -3272,7 +3290,7 @@
       "stock_id": "s-tcs",
       "shares_count": 100,
       "avg_buy_price": 2502.6,
-      "updated_at": "2026-11-19T19:22:26.920Z"
+      "updated_at": "2026-11-20T07:17:14.039Z"
     },
     {
       "id": "port-z7c8sux",
@@ -3280,15 +3298,15 @@
       "stock_id": "s-titan",
       "shares_count": 30,
       "avg_buy_price": 4436,
-      "updated_at": "2026-11-19T19:22:26.920Z"
+      "updated_at": "2026-11-20T07:17:14.039Z"
     },
     {
       "id": "port-1nn001g",
       "user_id": "usr-9ukdfl",
       "stock_id": "s-zomato",
-      "shares_count": 0,
+      "shares_count": 55,
       "avg_buy_price": 343.65,
-      "updated_at": "2026-11-19T18:53:20.222Z"
+      "updated_at": "2026-11-20T07:15:41.337289+00:00"
     },
     {
       "id": "port-9748blc",
@@ -3296,7 +3314,7 @@
       "stock_id": "s-zomato",
       "shares_count": 100,
       "avg_buy_price": 343.65,
-      "updated_at": "2026-11-19T19:22:26.920Z"
+      "updated_at": "2026-11-20T07:17:14.039Z"
     },
     {
       "id": "port-rzee1ni",
@@ -3304,7 +3322,7 @@
       "stock_id": "s-bluedart",
       "shares_count": 50,
       "avg_buy_price": 4170.8,
-      "updated_at": "2026-11-19T19:22:26.926Z"
+      "updated_at": "2026-11-20T07:17:14.044Z"
     },
     {
       "id": "port-mmkxajq",
@@ -3320,7 +3338,7 @@
       "stock_id": "s-bpcl",
       "shares_count": 1000,
       "avg_buy_price": 284.9,
-      "updated_at": "2026-11-19T19:22:26.926Z"
+      "updated_at": "2026-11-20T07:17:14.044Z"
     },
     {
       "id": "port-7fecdky",
@@ -3336,7 +3354,7 @@
       "stock_id": "s-ather",
       "shares_count": 40,
       "avg_buy_price": 1756,
-      "updated_at": "2026-11-19T19:22:26.905Z"
+      "updated_at": "2026-11-20T07:17:14.023Z"
     },
     {
       "id": "port-kkykfqk",
@@ -3344,7 +3362,7 @@
       "stock_id": "s-adaniports",
       "shares_count": 130,
       "avg_buy_price": 1855.31,
-      "updated_at": "2026-11-19T19:22:26.915Z"
+      "updated_at": "2026-11-20T07:17:14.033Z"
     },
     {
       "id": "port-nvecslp",
@@ -3360,7 +3378,7 @@
       "stock_id": "s-coalindia",
       "shares_count": 470,
       "avg_buy_price": 389,
-      "updated_at": "2026-11-19T19:22:26.915Z"
+      "updated_at": "2026-11-20T07:17:14.033Z"
     },
     {
       "id": "port-xn1qj83",
@@ -3368,7 +3386,7 @@
       "stock_id": "s-adaniports",
       "shares_count": 70,
       "avg_buy_price": 1850,
-      "updated_at": "2026-11-19T19:22:26.926Z"
+      "updated_at": "2026-11-20T07:17:14.044Z"
     },
     {
       "id": "port-28nz5yu",
@@ -3384,7 +3402,7 @@
       "stock_id": "s-airtel",
       "shares_count": 30,
       "avg_buy_price": 2020,
-      "updated_at": "2026-11-19T19:22:26.905Z"
+      "updated_at": "2026-11-20T07:17:14.023Z"
     },
     {
       "id": "port-xxiqc6b",
@@ -3392,7 +3410,7 @@
       "stock_id": "s-coalindia",
       "shares_count": 50,
       "avg_buy_price": 412.08,
-      "updated_at": "2026-11-19T19:22:26.926Z"
+      "updated_at": "2026-11-20T07:17:14.044Z"
     },
     {
       "id": "port-r3nqdtb",
@@ -3400,7 +3418,7 @@
       "stock_id": "s-lenskart",
       "shares_count": 100,
       "avg_buy_price": 707,
-      "updated_at": "2026-11-19T19:22:26.926Z"
+      "updated_at": "2026-11-20T07:17:14.044Z"
     },
     {
       "id": "port-ubd8e2f",
@@ -3408,7 +3426,7 @@
       "stock_id": "s-ather",
       "shares_count": 10,
       "avg_buy_price": 1771.54,
-      "updated_at": "2026-11-19T19:22:26.900Z"
+      "updated_at": "2026-11-20T07:17:14.019Z"
     },
     {
       "id": "port-zzezwnk",
@@ -3416,7 +3434,7 @@
       "stock_id": "s-novatech",
       "shares_count": 120,
       "avg_buy_price": 300,
-      "updated_at": "2026-11-19T19:22:26.910Z"
+      "updated_at": "2026-11-20T07:17:14.028Z"
     },
     {
       "id": "port-iao85n6",
@@ -3424,7 +3442,7 @@
       "stock_id": "s-novatech",
       "shares_count": 120,
       "avg_buy_price": 300,
-      "updated_at": "2026-11-19T19:22:26.905Z"
+      "updated_at": "2026-11-20T07:17:14.023Z"
     },
     {
       "id": "port-d4oiefe",
@@ -3432,7 +3450,7 @@
       "stock_id": "s-novatech",
       "shares_count": 24,
       "avg_buy_price": 300,
-      "updated_at": "2026-11-19T19:22:26.926Z"
+      "updated_at": "2026-11-20T07:17:14.044Z"
     },
     {
       "id": "port-pjtytk8",
@@ -3440,7 +3458,7 @@
       "stock_id": "s-novatech",
       "shares_count": 180,
       "avg_buy_price": 300,
-      "updated_at": "2026-11-19T19:22:26.900Z"
+      "updated_at": "2026-11-20T07:17:14.019Z"
     },
     {
       "id": "port-s6i8udb",
@@ -3448,7 +3466,7 @@
       "stock_id": "s-novatech",
       "shares_count": 48,
       "avg_buy_price": 300,
-      "updated_at": "2026-11-19T19:22:26.920Z"
+      "updated_at": "2026-11-20T07:17:14.039Z"
     },
     {
       "id": "port-y31z1v5",
@@ -3456,7 +3474,31 @@
       "stock_id": "s-novatech",
       "shares_count": 60,
       "avg_buy_price": 300,
-      "updated_at": "2026-11-19T19:22:26.915Z"
+      "updated_at": "2026-11-20T07:17:14.033Z"
+    },
+    {
+      "id": "port-temp-to-delete",
+      "user_id": "usr-superadmin-soumil",
+      "stock_id": "s-zomato",
+      "shares_count": 55,
+      "avg_buy_price": 343.65,
+      "updated_at": "2026-11-20T07:15:15.678324+00:00"
+    },
+    {
+      "id": "port-abywski",
+      "user_id": "test-leader-1",
+      "stock_id": "s-zomato",
+      "shares_count": 0,
+      "avg_buy_price": 343.65,
+      "updated_at": "2026-11-20T07:17:15.239Z"
+    },
+    {
+      "id": "port-wh4khj9",
+      "user_id": "test-leader-1",
+      "stock_id": "s-tcs",
+      "shares_count": 0,
+      "avg_buy_price": 2502.6,
+      "updated_at": "2026-11-20T07:17:13.181Z"
     }
   ],
   "transactions": [
@@ -5102,7 +5144,15 @@
       "leader_id": "usr-vbaw9r",
       "leader_name": "TEAM 4",
       "leader_email": "team4@thapar.edu",
-      "members": [],
+      "members": [
+        {
+          "id": "usr-vbaw9r",
+          "name": "TEAM 4",
+          "email": "team4@thapar.edu",
+          "roll": "team4",
+          "is_leader": true
+        }
+      ],
       "created_at": "2026-11-19T18:45:27.182Z"
     },
     {
@@ -5113,7 +5163,15 @@
       "leader_id": "usr-5l443u",
       "leader_name": "TEAM 2",
       "leader_email": "team2@thapar.edu",
-      "members": [],
+      "members": [
+        {
+          "id": "usr-5l443u",
+          "name": "TEAM 2",
+          "email": "team2@thapar.edu",
+          "roll": "team2",
+          "is_leader": true
+        }
+      ],
       "created_at": "2026-11-19T18:45:41.254Z"
     },
     {
@@ -5124,7 +5182,15 @@
       "leader_id": "usr-sd5cis",
       "leader_name": "TEAM 1",
       "leader_email": "team1@thapar.edu",
-      "members": [],
+      "members": [
+        {
+          "id": "usr-sd5cis",
+          "name": "TEAM 1",
+          "email": "team1@thapar.edu",
+          "roll": "team1",
+          "is_leader": true
+        }
+      ],
       "created_at": "2026-11-19T18:46:00.449Z"
     },
     {
@@ -5135,7 +5201,15 @@
       "leader_id": "usr-p909cr",
       "leader_name": "TEAM 3",
       "leader_email": "team3@thapar.edu",
-      "members": [],
+      "members": [
+        {
+          "id": "usr-p909cr",
+          "name": "TEAM 3",
+          "email": "team3@thapar.edu",
+          "roll": "team3",
+          "is_leader": true
+        }
+      ],
       "created_at": "2026-11-19T18:46:24.546Z"
     },
     {
@@ -5146,7 +5220,15 @@
       "leader_id": "usr-tpkzpq",
       "leader_name": "TEAM 6",
       "leader_email": "team6@thapar.edu",
-      "members": [],
+      "members": [
+        {
+          "id": "usr-tpkzpq",
+          "name": "TEAM 6",
+          "email": "team6@thapar.edu",
+          "roll": "team6",
+          "is_leader": true
+        }
+      ],
       "created_at": "2026-11-19T18:47:08.449Z"
     },
     {
@@ -5157,8 +5239,38 @@
       "leader_id": "usr-5oesys",
       "leader_name": "TEAM 5",
       "leader_email": "team5@thapar.edu",
-      "members": [],
+      "members": [
+        {
+          "id": "usr-5oesys",
+          "name": "TEAM 5",
+          "email": "team5@thapar.edu",
+          "roll": "team5",
+          "is_leader": true
+        }
+      ],
       "created_at": "2026-11-19T18:48:22.487Z"
+    },
+    {
+      "id": "team-apex-01",
+      "name": "Apex Alpha Syndicate",
+      "code": "APEX-01",
+      "leader_id": "usr-9np9imt",
+      "leader_name": "Aaryan Verma",
+      "leader_email": "1025150050@thapar.edu",
+      "balance": 985245,
+      "members": [],
+      "created_at": "2026-11-09T17:13:57.67328+00:00"
+    },
+    {
+      "id": "team-bull-02",
+      "name": "Dalal Street Titans",
+      "code": "TITAN-02",
+      "leader_id": "usr-40rj0tq",
+      "leader_name": "Trader_102203001",
+      "leader_email": "102203001@thapar.edu",
+      "balance": 951045,
+      "members": [],
+      "created_at": "2026-11-09T17:13:57.67328+00:00"
     }
   ],
   "order_slips": [],
@@ -5226,10 +5338,10 @@
   ],
   "current_round_id": "round-3",
   "round_clock": {
-    "remaining_seconds": 550,
+    "remaining_seconds": 0,
     "is_paused": false,
     "is_orders_locked": false,
-    "last_tick": 1795116192941
+    "last_tick": 1795158915765
   },
   "ipo_listings": [
     {

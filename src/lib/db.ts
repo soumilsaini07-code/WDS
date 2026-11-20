@@ -1364,10 +1364,264 @@ export function saveLocalDB(data: LocalDBState) {
   }
 }
 
+// ==============================================================================
+// SUPABASE BIDIRECTIONAL RECONCILIATION ENGINE
+// Automatically reflects any external deletions or edits made in Supabase
+// ==============================================================================
+
+export function syncPortfolioToSupabase(portfolio: Portfolio) {
+  if (!supabase) return;
+  Promise.resolve(
+    (async () => {
+      try {
+        const payload = {
+          id: portfolio.id,
+          user_id: portfolio.user_id,
+          stock_id: portfolio.stock_id,
+          shares_count: portfolio.shares_count,
+          avg_buy_price: portfolio.avg_buy_price,
+          updated_at: new Date().toISOString(),
+        };
+        const { error } = await supabase.from('portfolios').upsert(payload, { onConflict: 'id' });
+        if (error) {
+          console.warn('[Supabase Sync] Portfolio upsert warning:', error.message);
+        }
+      } catch (err: any) {
+        console.warn('[Supabase Sync] Exception syncing portfolio to Supabase:', err?.message || err);
+      }
+    })()
+  ).catch(() => {});
+}
+
+let _lastTeamReconcileTime = 0;
+export async function reconcileTeamsFromSupabase(force = false): Promise<Team[]> {
+  const db = getLocalDB();
+  if (!supabase) return db.teams || [];
+
+  const now = Date.now();
+  if (!force && now - _lastTeamReconcileTime < 1500) {
+    return db.teams || [];
+  }
+  _lastTeamReconcileTime = now;
+
+  try {
+    const { data: suTeams, error } = await supabase
+      .from('teams')
+      .select('id, name, code, leader_id, leader_name, leader_email, balance, created_at, updated_at');
+
+    if (error || !suTeams) return db.teams || [];
+
+    if (!db.teams) db.teams = [];
+    const suTeamIds = new Set(suTeams.map((t) => t.id));
+    const suTeamNames = new Set(suTeams.map((t) => (t.name || '').trim().toLowerCase()));
+
+    // 1. Check for DELETED teams in Supabase
+    const removedTeams = db.teams.filter(
+      (t) => !suTeamIds.has(t.id) && !suTeamNames.has(t.name.trim().toLowerCase())
+    );
+
+    if (removedTeams.length > 0) {
+      const removedIds = new Set(removedTeams.map((t) => t.id));
+      const removedNames = new Set(removedTeams.map((t) => t.name.trim().toLowerCase()));
+
+      db.teams = db.teams.filter((t) => !removedIds.has(t.id) && !removedNames.has(t.name.trim().toLowerCase()));
+
+      // Clean up users referencing removed teams
+      db.users.forEach((u) => {
+        if ((u.team_id && removedIds.has(u.team_id)) || (u.team_name && removedNames.has((u.team_name || '').trim().toLowerCase()))) {
+          delete u.team_id;
+          delete u.team_name;
+          u.is_team_leader = false;
+        }
+      });
+
+      // Remove portfolios belonging to leaders of removed teams
+      const removedLeaderIds = new Set(removedTeams.map((t) => t.leader_id));
+      db.portfolios = db.portfolios.filter((p) => !removedLeaderIds.has(p.user_id));
+
+      saveLocalDB(db);
+      broadcastRealtimeEvent('TEAMS_SYNCED', { teams: db.teams });
+    }
+
+    // 2. Check for UPDATED or NEW teams from Supabase
+    let updated = false;
+    for (const st of suTeams) {
+      let localTeam = db.teams.find((t) => t.id === st.id || t.name.toLowerCase() === (st.name || '').toLowerCase());
+      if (localTeam) {
+        if (st.balance !== undefined && localTeam.balance !== st.balance) {
+          localTeam.balance = st.balance;
+          updated = true;
+        }
+        if (st.name && localTeam.name !== st.name) {
+          localTeam.name = st.name;
+          updated = true;
+        }
+        if (st.code && localTeam.code !== st.code) {
+          localTeam.code = st.code;
+          updated = true;
+        }
+      } else {
+        const newTeam: Team = {
+          id: st.id,
+          name: st.name,
+          code: st.code || st.name.slice(0, 8).toUpperCase(),
+          leader_id: st.leader_id || st.id,
+          leader_name: st.leader_name || st.name,
+          leader_email: st.leader_email || `${(st.code || 'team').toLowerCase()}@thapar.edu`,
+          balance: st.balance ?? 1000000,
+          members: [],
+          created_at: st.created_at || new Date().toISOString(),
+        };
+        db.teams.push(newTeam);
+        updated = true;
+      }
+    }
+
+    if (updated) {
+      saveLocalDB(db);
+    }
+
+    return db.teams;
+  } catch (err: any) {
+    console.warn('[reconcileTeamsFromSupabase] Exception:', err?.message || err);
+    return db.teams || [];
+  }
+}
+
+let _lastPortReconcileTime = 0;
+export async function reconcilePortfoliosFromSupabase(force = false): Promise<Portfolio[]> {
+  const db = getLocalDB();
+  if (!supabase) return db.portfolios || [];
+
+  const now = Date.now();
+  if (!force && now - _lastPortReconcileTime < 1500) {
+    return db.portfolios || [];
+  }
+  _lastPortReconcileTime = now;
+
+  try {
+    const { data: suPorts, error } = await supabase
+      .from('portfolios')
+      .select('id, user_id, stock_id, shares_count, avg_buy_price, updated_at');
+
+    if (error || !suPorts) return db.portfolios || [];
+
+    if (!db.portfolios) db.portfolios = [];
+    const suPortMap = new Map(suPorts.map((p) => [p.id, p]));
+    const suPortUserStockKey = new Map(suPorts.map((p) => [`${p.user_id}_${p.stock_id}`, p]));
+
+    let modified = false;
+
+    // 1. Remove holdings that were deleted from Supabase
+    for (const lp of db.portfolios) {
+      if (lp.shares_count > 0) {
+        const suByExactId = suPortMap.get(lp.id);
+        const suByKey = suPortUserStockKey.get(`${lp.user_id}_${lp.stock_id}`);
+        if (!suByExactId && !suByKey) {
+          lp.shares_count = 0;
+          lp.updated_at = new Date().toISOString();
+          modified = true;
+        }
+      }
+    }
+
+    // 2. Update holdings that were edited or added in Supabase
+    for (const sp of suPorts) {
+      let localPort = db.portfolios.find(
+        (p) => p.id === sp.id || (p.user_id === sp.user_id && p.stock_id === sp.stock_id)
+      );
+      if (localPort) {
+        if (localPort.shares_count !== sp.shares_count || localPort.avg_buy_price !== sp.avg_buy_price) {
+          localPort.shares_count = sp.shares_count;
+          localPort.avg_buy_price = sp.avg_buy_price;
+          localPort.updated_at = sp.updated_at || new Date().toISOString();
+          modified = true;
+        }
+      } else if (sp.shares_count > 0) {
+        db.portfolios.push({
+          id: sp.id,
+          user_id: sp.user_id,
+          stock_id: sp.stock_id,
+          shares_count: sp.shares_count,
+          avg_buy_price: sp.avg_buy_price,
+          updated_at: sp.updated_at || new Date().toISOString(),
+        });
+        modified = true;
+      }
+    }
+
+    if (modified) {
+      saveLocalDB(db);
+      broadcastRealtimeEvent('PORTFOLIO_UPDATED', { timestamp: Date.now() });
+    }
+
+    return db.portfolios;
+  } catch (err: any) {
+    console.warn('[reconcilePortfoliosFromSupabase] Exception:', err?.message || err);
+    return db.portfolios || [];
+  }
+}
+
+let _lastStockReconcileTime = 0;
+export async function reconcileStocksFromSupabase(force = false): Promise<Stock[]> {
+  const db = getLocalDB();
+  if (!supabase) return db.stocks || [];
+
+  const now = Date.now();
+  if (!force && now - _lastStockReconcileTime < 2000) {
+    return db.stocks || [];
+  }
+  _lastStockReconcileTime = now;
+
+  try {
+    const { data: suStocks, error } = await supabase
+      .from('stocks')
+      .select('id, ticker, current_price, is_frozen');
+
+    if (error || !suStocks) return db.stocks || [];
+
+    let modified = false;
+    for (const ss of suStocks) {
+      const localStock = db.stocks.find((s) => s.id === ss.id || s.ticker.toUpperCase() === ss.ticker.toUpperCase());
+      if (localStock) {
+        if (ss.current_price !== undefined && Math.abs(localStock.current_price - ss.current_price) > 0.001) {
+          localStock.current_price = ss.current_price;
+          modified = true;
+        }
+        if (ss.is_frozen !== undefined && localStock.is_frozen !== ss.is_frozen) {
+          localStock.is_frozen = ss.is_frozen;
+          modified = true;
+        }
+      }
+    }
+
+    if (modified) {
+      saveLocalDB(db);
+    }
+
+    return db.stocks;
+  } catch {
+    return db.stocks || [];
+  }
+}
+
+// Background auto-reconciliation loop (runs every 2 seconds)
+if (typeof globalThis !== 'undefined' && !(globalThis as any)._wdsSupabaseSyncStarted) {
+  (globalThis as any)._wdsSupabaseSyncStarted = true;
+  setInterval(async () => {
+    try {
+      await reconcileTeamsFromSupabase();
+      await reconcilePortfoliosFromSupabase();
+      await reconcileStocksFromSupabase();
+    } catch {}
+  }, 2000);
+}
+
 // -----------------------------------------------------------------------------
 // STOCKS
 // -----------------------------------------------------------------------------
 export async function getStocks(): Promise<Stock[]> {
+  await reconcileStocksFromSupabase();
   const db = getLocalDB();
   return db.stocks;
 }
@@ -1875,6 +2129,7 @@ export function syncTeamPortfolioAndBalance(teamId: string) {
 }
 
 export async function getUserPortfolios(userId: string): Promise<Portfolio[]> {
+  await reconcilePortfoliosFromSupabase();
   const db = getLocalDB();
   const stocksMap = new Map(db.stocks.map((s) => [s.id, s]));
   const user = db.users.find((u) => u.id === userId || (u.email && u.email.toLowerCase() === userId.toLowerCase()));
@@ -2823,6 +3078,7 @@ export function getLiveTradesCSVContent(): string {
 }
 
 export async function getTeams(): Promise<Team[]> {
+  await reconcileTeamsFromSupabase();
   const db = getLocalDB();
   return db.teams || [];
 }
@@ -3836,6 +4092,8 @@ export async function executeInterTeamTrade(
   syncTransactionToSupabase(buyTx, sellerTeam.name, buyerTeam.name);
   syncTeamToSupabase(sellerTeam, sellerLeader);
   syncTeamToSupabase(buyerTeam, buyerLeader);
+  syncPortfolioToSupabase(sellerPort);
+  syncPortfolioToSupabase(buyerPort);
 
   logger.audit('P2P_TRADE_EXECUTED', adminEmail || 'AdminDesk', {
     sellerTeam: sellerTeam.name,

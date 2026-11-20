@@ -1,10 +1,13 @@
 import { NextResponse } from 'next/server';
 import { computeBrokerLedgerSnapshot } from '@/lib/broker-ledger';
+import { reconcileTeamsFromSupabase, reconcilePortfoliosFromSupabase } from '@/lib/db';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
+    await reconcileTeamsFromSupabase();
+    await reconcilePortfoliosFromSupabase();
     const snapshot = computeBrokerLedgerSnapshot();
     return NextResponse.json({
       success: true,
