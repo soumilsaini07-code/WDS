@@ -1233,8 +1233,9 @@ export default function ParticipantMarketTerminal() {
                 )}
 
                 <p className={`text-xs max-w-3xl leading-relaxed ${isDark ? 'text-zinc-300' : 'text-zinc-600'}`}>
-                  {activeIPO.description ||
-                    'Enterprise offering on Dalal Street. Smooth S-Curve Pricing applies upon closing: P_listing = P0 × (1 + N%) × (0.7 + 0.6S/(1+S)).'}
+                  {(activeIPO.description || 'Enterprise offering on Dalal Street. Primary market offering open for offline book-building.')
+                    .replace(/\.?\s*(Smooth\s*(pricing|S-Curve\s*Pricing)?:?\s*)?P_?listing\s*=\s*P0.*$/i, '')
+                    .trim() || 'Enterprise offering on Dalal Street. Primary market offering open for offline book-building.'}
                 </p>
               </div>
 

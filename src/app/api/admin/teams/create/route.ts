@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getCurrentSession } from '@/lib/auth';
-import { getLocalDB, saveLocalDB, syncTeamPortfolioAndBalance, getTeams } from '@/lib/db';
+import { getLocalDB, saveLocalDB, syncTeamPortfolioAndBalance, getTeams, syncTeamToSupabase } from '@/lib/db';
 import { Team } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
@@ -54,6 +54,7 @@ export async function POST(request: Request) {
     db.teams.push(newTeam);
     saveLocalDB(db);
     syncTeamPortfolioAndBalance(newTeam.id);
+    syncTeamToSupabase(newTeam);
 
     const allTeams = await getTeams();
     return NextResponse.json({

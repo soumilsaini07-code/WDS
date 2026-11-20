@@ -120,6 +120,57 @@ export function syncClockToSupabase(clock: { remaining_seconds: number; is_pause
   ).catch(() => {});
 }
 
+export function syncTeamToSupabase(team: Team, user?: User) {
+  if (!supabase) return;
+  Promise.resolve(
+    (async () => {
+      try {
+        const teamPayload = {
+          id: team.id,
+          name: team.name,
+          code: team.code || team.name.replace(/[^A-Za-z0-9]/g, '').slice(0, 8).toUpperCase() || 'TEAM',
+          leader_id: team.leader_id || team.id,
+          leader_name: team.leader_name || team.name,
+          leader_email: team.leader_email || `${(team.code || 'team').toLowerCase()}@thapar.edu`,
+          balance: team.balance ?? 1000000,
+          updated_at: new Date().toISOString(),
+        };
+
+        const { error: teamErr } = await supabase.from('teams').upsert(teamPayload, { onConflict: 'id' });
+        if (teamErr) {
+          console.warn('[Supabase Sync] Team upsert error:', teamErr.message);
+        } else {
+          broadcastRealtimeEvent('TEAM_UPDATED', teamPayload);
+        }
+
+        // Also sync leader user in users table
+        const leaderEmail = team.leader_email || `${(team.code || 'team').toLowerCase()}@thapar.edu`;
+        const userPayload: any = {
+          id: user?.id || team.leader_id || ('usr-' + team.id.replace(/^team-/, '')),
+          email: user?.email || leaderEmail,
+          username: user?.username || team.leader_name || team.name,
+          role: user?.role || 'participant',
+          balance: team.balance ?? 1000000,
+          team_id: team.id,
+          team_name: team.name,
+          is_team_leader: true,
+          updated_at: new Date().toISOString(),
+        };
+        if (user?.password_hash) {
+          userPayload.password_hash = user.password_hash;
+        }
+
+        const { error: userErr } = await supabase.from('users').upsert(userPayload, { onConflict: 'id' });
+        if (userErr) {
+          console.warn('[Supabase Sync] Team User upsert error:', userErr.message);
+        }
+      } catch (err: any) {
+        console.warn('[Supabase Sync] Exception syncing team to Supabase:', err?.message || err);
+      }
+    })()
+  ).catch(() => {});
+}
+
 // Local JSON Store Path & Live CSV Ledger
 const DATA_DIR = path.join(process.cwd(), 'data');
 const DB_FILE = path.join(DATA_DIR, 'db.json');
@@ -453,8 +504,8 @@ export const DEFAULT_COMPETITION_ROUNDS: CompetitionRound[] = [
     type: 'IPO',
     status: 'UPCOMING',
     duration_minutes: 10, // ~10 minutes as per brief
-    description: 'Primary market offering. Teams submit lot demand; smooth listing formula determines post-IPO price.',
-    rules_note: 'Smooth Listing Formula: P_listing = P0 × (0.7 + 0.6S/(1+S)). Undersubscribed IPO gives every requesting team 1 lot.',
+    description: 'Primary market offering. Teams submit lot demand; book-building demand determines post-IPO price.',
+    rules_note: 'Primary market offering open for offline book-building. Undersubscribed IPO gives every requesting team 1 lot.',
   },
   {
     id: 'round-3',
@@ -495,7 +546,7 @@ export const DEFAULT_IPO_LISTINGS: IPOListing[] = [
     subscription_ratio: 0,
     allotted_lots: 0,
     status: 'UPCOMING',
-    description: 'Enterprise AI & Cloud Infrastructure provider. Smooth pricing: P_listing = P0 × (0.7 + 0.6S/(1+S)).',
+    description: 'Enterprise AI & Cloud Infrastructure provider. Primary market offering open for offline book-building.',
   },
 ];
 
@@ -1820,6 +1871,7 @@ export function syncTeamPortfolioAndBalance(teamId: string) {
   }
 
   saveLocalDB(db);
+  syncTeamToSupabase(team, leaderUser);
 }
 
 export async function getUserPortfolios(userId: string): Promise<Portfolio[]> {
@@ -2940,6 +2992,7 @@ export async function createTeam(
 
   syncTeamPortfolioAndBalance(newTeam.id);
   saveLocalDB(db);
+  syncTeamToSupabase(newTeam, user);
 
   return { success: true, team: newTeam };
 }
@@ -3062,6 +3115,7 @@ export async function superadminManageTeam(
   }
 
   saveLocalDB(db);
+  syncTeamToSupabase(team);
   return { success: true, team };
 }
 
@@ -3494,6 +3548,7 @@ export async function executeInterTeamTrade(
       };
       if (!db.teams) db.teams = [];
       db.teams.push(createdTeam);
+      syncTeamToSupabase(createdTeam);
       return createdTeam;
     }
     return team;
@@ -3779,6 +3834,8 @@ export async function executeInterTeamTrade(
   }
   syncTransactionToSupabase(sellTx, sellerTeam.name, buyerTeam.name);
   syncTransactionToSupabase(buyTx, sellerTeam.name, buyerTeam.name);
+  syncTeamToSupabase(sellerTeam, sellerLeader);
+  syncTeamToSupabase(buyerTeam, buyerLeader);
 
   logger.audit('P2P_TRADE_EXECUTED', adminEmail || 'AdminDesk', {
     sellerTeam: sellerTeam.name,
@@ -4433,6 +4490,7 @@ export function subscribeToIPO(params: {
     if (!db.teams) db.teams = [];
     db.teams.push(createdTeam);
     team = createdTeam;
+    syncTeamToSupabase(createdTeam);
   }
   if (!team) return { success: false, error: 'Team record not found. Please specify a valid team.' };
 
