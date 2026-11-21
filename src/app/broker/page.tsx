@@ -117,7 +117,10 @@ export default function EditorialBrokerDeskPage() {
 
   useEffect(() => {
     fetchLedger();
-    const interval = setInterval(fetchLedger, 4000);
+    const interval = setInterval(() => {
+      if (typeof document !== 'undefined' && document.hidden) return;
+      fetchLedger();
+    }, 6000);
     return () => clearInterval(interval);
   }, []);
 

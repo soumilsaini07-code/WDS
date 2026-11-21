@@ -9,8 +9,15 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const teamId = searchParams.get('teamId');
 
-    await reconcileClockFromSupabase();
-    await reconcileIPOFromSupabase();
+    try {
+      await Promise.race([
+        Promise.allSettled([
+          reconcileClockFromSupabase(),
+          reconcileIPOFromSupabase(),
+        ]),
+        new Promise((r) => setTimeout(r, 2000)),
+      ]);
+    } catch {}
     const { rounds, currentRound, clock } = getCompetitionRounds();
     const ipos = getIPOListings();
     const activeIPO = ipos.find((i) => i.round_id === currentRound.id && i.status === 'SUBSCRIPTION_OPEN') || null;

@@ -12,13 +12,16 @@ export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
-    // Non-blocking parallel sync with Supabase so ledger snapshot is resilient
-    await Promise.allSettled([
-      reconcileTeamsFromSupabase(),
-      reconcilePortfoliosFromSupabase(),
-      reconcileTransactionsFromSupabase(),
-      reconcileClockFromSupabase(),
-      reconcileIPOFromSupabase(),
+    // Non-blocking parallel sync with Supabase with a strict 2s ceiling
+    await Promise.race([
+      Promise.allSettled([
+        reconcileTeamsFromSupabase(),
+        reconcilePortfoliosFromSupabase(),
+        reconcileTransactionsFromSupabase(),
+        reconcileClockFromSupabase(),
+        reconcileIPOFromSupabase(),
+      ]),
+      new Promise((r) => setTimeout(r, 2000)),
     ]);
   } catch {}
 

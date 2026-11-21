@@ -520,7 +520,10 @@ export default function ParticipantMarketTerminal() {
     };
 
     pollMarketData();
-    const interval = setInterval(pollMarketData, 1500);
+    const interval = setInterval(() => {
+      if (typeof document !== 'undefined' && document.hidden) return;
+      pollMarketData();
+    }, 6000);
     return () => {
       isMounted = false;
       clearInterval(interval);

@@ -108,7 +108,10 @@ export function TradeBroadcastBanner({ enableSound = false }: { enableSound?: bo
     };
 
     checkLatestTrade();
-    const interval = setInterval(checkLatestTrade, 2000);
+    const interval = setInterval(() => {
+      if (typeof document !== 'undefined' && document.hidden) return;
+      checkLatestTrade();
+    }, 10000);
     return () => {
       isMounted = false;
       clearInterval(interval);

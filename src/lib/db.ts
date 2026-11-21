@@ -1522,27 +1522,47 @@ export function syncPortfolioToSupabase(portfolio: Portfolio) {
   ).catch(() => { });
 }
 
+async function withTimeout(promise: PromiseLike<any>, ms: number, fallback: any): Promise<any> {
+  let timer: NodeJS.Timeout | undefined;
+  const timeoutPromise = new Promise<any>((resolve) => {
+    timer = setTimeout(() => resolve(fallback), ms);
+  });
+  try {
+    const result = await Promise.race([promise, timeoutPromise]);
+    if (timer) clearTimeout(timer);
+    return result;
+  } catch {
+    if (timer) clearTimeout(timer);
+    return fallback;
+  }
+}
+
 let _lastTeamReconcileTime = 0;
 export async function reconcileTeamsFromSupabase(force = false): Promise<Team[]> {
   const db = getLocalDB();
   if (!supabase) return db.teams || [];
 
   const now = Date.now();
-  if (!force && now - _lastTeamReconcileTime < 1500) {
+  if (!force && now - _lastTeamReconcileTime < 3000) {
     return db.teams || [];
   }
   _lastTeamReconcileTime = now;
 
   try {
-    const { data: suTeams, error } = await supabase
-      .from('teams')
-      .select('id, name, code, leader_id, leader_name, leader_email, balance, created_at, updated_at');
+    const res: any = await withTimeout(
+      supabase
+        .from('teams')
+        .select('id, name, code, leader_id, leader_name, leader_email, balance, created_at, updated_at'),
+      2000,
+      { data: null, error: null }
+    );
+    const { data: suTeams, error } = res;
 
-    if (error || !suTeams) return db.teams || [];
+    if (error || !suTeams || !Array.isArray(suTeams)) return db.teams || [];
 
     if (!db.teams) db.teams = [];
-    const suTeamIds = new Set(suTeams.map((t) => t.id));
-    const suTeamNames = new Set(suTeams.map((t) => (t.name || '').trim().toLowerCase()));
+    const suTeamIds = new Set(suTeams.map((t: any) => t.id));
+    const suTeamNames = new Set(suTeams.map((t: any) => (t.name || '').trim().toLowerCase()));
 
     // 1. Check for DELETED teams in Supabase
     const removedTeams = db.teams.filter(
@@ -1623,22 +1643,27 @@ export async function reconcilePortfoliosFromSupabase(force = false): Promise<Po
   if (!supabase) return db.portfolios || [];
 
   const now = Date.now();
-  if (!force && now - _lastPortReconcileTime < 1500) {
+  if (!force && now - _lastPortReconcileTime < 3000) {
     return db.portfolios || [];
   }
   _lastPortReconcileTime = now;
 
   try {
-    const { data: suPorts, error } = await supabase
-      .from('portfolios')
-      .select('id, user_id, team_id, stock_id, shares_count, avg_buy_price, updated_at');
+    const res: any = await withTimeout(
+      supabase
+        .from('portfolios')
+        .select('id, user_id, team_id, stock_id, shares_count, avg_buy_price, updated_at'),
+      2000,
+      { data: null, error: null }
+    );
+    const { data: suPorts, error } = res;
 
-    if (error || !suPorts) return db.portfolios || [];
+    if (error || !suPorts || !Array.isArray(suPorts)) return db.portfolios || [];
 
     if (!db.portfolios) db.portfolios = [];
-    const suPortMap = new Map(suPorts.map((p) => [p.id, p]));
-    const suPortUserStockKey = new Map(suPorts.map((p) => [`${p.user_id}_${p.stock_id}`, p]));
-    const suPortTeamStockKey = new Map(suPorts.filter((p) => p.team_id).map((p) => [`${p.team_id}_${p.stock_id}`, p]));
+    const suPortMap = new Map(suPorts.map((p: any) => [p.id, p]));
+    const suPortUserStockKey = new Map(suPorts.map((p: any) => [`${p.user_id}_${p.stock_id}`, p]));
+    const suPortTeamStockKey = new Map(suPorts.filter((p: any) => p.team_id).map((p: any) => [`${p.team_id}_${p.stock_id}`, p]));
 
     let modified = false;
 
@@ -1707,17 +1732,22 @@ export async function reconcileStocksFromSupabase(force = false): Promise<Stock[
   if (!supabase) return db.stocks || [];
 
   const now = Date.now();
-  if (!force && now - _lastStockReconcileTime < 2000) {
+  if (!force && now - _lastStockReconcileTime < 3000) {
     return db.stocks || [];
   }
   _lastStockReconcileTime = now;
 
   try {
-    const { data: suStocks, error } = await supabase
-      .from('stocks')
-      .select('id, ticker, current_price, is_frozen');
+    const res: any = await withTimeout(
+      supabase
+        .from('stocks')
+        .select('id, ticker, current_price, is_frozen'),
+      2000,
+      { data: null, error: null }
+    );
+    const { data: suStocks, error } = res;
 
-    if (error || !suStocks) return db.stocks || [];
+    if (error || !suStocks || !Array.isArray(suStocks)) return db.stocks || [];
 
     let modified = false;
     for (const ss of suStocks) {
@@ -1750,20 +1780,25 @@ export async function reconcileTransactionsFromSupabase(force = false): Promise<
   if (!supabase) return db.transactions || [];
 
   const now = Date.now();
-  if (!force && now - _lastTxReconcileTime < 1500) {
+  if (!force && now - _lastTxReconcileTime < 3000) {
     return db.transactions || [];
   }
   _lastTxReconcileTime = now;
 
   try {
-    const { data: suTxs, error } = await supabase
-      .from('transactions')
-      .select('id, user_id, team_id, counterparty_team_id, stock_id, ticker, type, quantity, price, brokerage, total_amount, round_id, timestamp');
+    const res: any = await withTimeout(
+      supabase
+        .from('transactions')
+        .select('id, user_id, team_id, counterparty_team_id, stock_id, ticker, type, quantity, price, brokerage, total_amount, round_id, timestamp'),
+      2000,
+      { data: null, error: null }
+    );
+    const { data: suTxs, error } = res;
 
-    if (error || !suTxs) return db.transactions || [];
+    if (error || !suTxs || !Array.isArray(suTxs)) return db.transactions || [];
     if (!db.transactions) db.transactions = [];
 
-    const suTxMap = new Map(suTxs.map((t) => [t.id, t]));
+    const suTxMap = new Map(suTxs.map((t: any) => [t.id, t]));
     let modified = false;
 
     // 1. Remove local transactions that were deleted from Supabase
@@ -1836,17 +1871,22 @@ export async function reconcileClockFromSupabase(force = false): Promise<{ remai
   if (!supabase) return db.round_clock || { remaining_seconds: 1800, is_paused: false, is_orders_locked: false };
 
   const now = Date.now();
-  if (!force && now - _lastClockReconcileTime < 1000) {
+  if (!force && now - _lastClockReconcileTime < 2500) {
     return db.round_clock || { remaining_seconds: 1800, is_paused: false, is_orders_locked: false };
   }
   _lastClockReconcileTime = now;
 
   try {
-    const { data, error } = await supabase
-      .from('round_clock')
-      .select('id, remaining_seconds, is_paused, is_orders_locked, last_tick, current_round_id')
-      .eq('id', 1)
-      .maybeSingle();
+    const res: any = await withTimeout(
+      supabase
+        .from('round_clock')
+        .select('id, remaining_seconds, is_paused, is_orders_locked, last_tick, current_round_id')
+        .eq('id', 1)
+        .maybeSingle(),
+      1500,
+      { data: null, error: null }
+    );
+    const { data, error } = res;
 
     if (error || !data) {
       return db.round_clock || { remaining_seconds: 1800, is_paused: false, is_orders_locked: false };
@@ -1903,16 +1943,20 @@ export async function reconcileIPOFromSupabase(force = false): Promise<{ listing
   if (!supabase) return { listings: db.ipo_listings || [], subscriptions: db.ipo_subscriptions || [] };
 
   const now = Date.now();
-  if (!force && now - _lastIPOReconcileTime < 1500) {
+  if (!force && now - _lastIPOReconcileTime < 3000) {
     return { listings: db.ipo_listings || [], subscriptions: db.ipo_subscriptions || [] };
   }
   _lastIPOReconcileTime = now;
 
   try {
-    const [listingsRes, subsRes] = await Promise.all([
-      supabase.from('ipo_listings').select('*'),
-      supabase.from('ipo_subscriptions').select('*'),
-    ]);
+    const [listingsRes, subsRes] = await withTimeout(
+      Promise.all([
+        supabase.from('ipo_listings').select('*'),
+        supabase.from('ipo_subscriptions').select('*'),
+      ]),
+      2000,
+      [{ data: null, error: new Error('Timeout') }, { data: null, error: new Error('Timeout') }] as any
+    );
 
     let modified = false;
 
@@ -2120,21 +2164,9 @@ export async function reconcileOrderSlipsFromSupabase(force = false): Promise<Or
   }
 }
 
-// Background auto-reconciliation loop (runs every 2 seconds)
-if (typeof globalThis !== 'undefined' && !(globalThis as any)._wdsSupabaseSyncStarted) {
-  (globalThis as any)._wdsSupabaseSyncStarted = true;
-  setInterval(async () => {
-    try {
-      await reconcileTeamsFromSupabase();
-      await reconcilePortfoliosFromSupabase();
-      await reconcileStocksFromSupabase();
-      await reconcileTransactionsFromSupabase();
-      await reconcileClockFromSupabase();
-      await reconcileIPOFromSupabase();
-      await reconcileOrderSlipsFromSupabase();
-    } catch { }
-  }, 2000);
-}
+// Background serverless resilience:
+// In Next.js / Vercel serverless functions, background setInterval loops cause connection exhaustion.
+// Event-driven Realtime and on-demand reconciliation handle synchronization cleanly.
 
 // -----------------------------------------------------------------------------
 // STOCKS

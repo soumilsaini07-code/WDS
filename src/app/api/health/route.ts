@@ -1,15 +1,19 @@
 import { NextResponse } from 'next/server';
-import { getStocks, getTeams, getCompetitionRounds, listDBSnapshots } from '@/lib/db';
+import { getLocalDB, getCompetitionRounds, listDBSnapshots } from '@/lib/db';
 import { logger } from '@/lib/logger';
 import fs from 'fs';
 import path from 'path';
+
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 export async function GET() {
   try {
     const memory = process.memoryUsage();
     const roundsData = getCompetitionRounds();
-    const stocks = await getStocks();
-    const teams = await getTeams();
+    const db = getLocalDB();
+    const stocks = db.stocks || [];
+    const teams = db.teams || [];
     const snapshots = listDBSnapshots();
     const recentAudits = logger.getRecentAuditLogs(5);
 
