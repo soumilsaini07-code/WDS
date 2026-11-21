@@ -26,26 +26,42 @@ export async function GET() {
     const snapshot = computeBrokerLedgerSnapshot();
 
     // 1. Sheet 1: Team Purses & Elimination Audit
-    const teamRows = snapshot.teamsPurse.map((tp) => ({
-      'Team ID': tp.teamId,
-      'Team Code': tp.teamCode,
-      'Team Name': tp.teamName,
-      'Leader Name': tp.leaderName,
-      'Leader Email': tp.leaderEmail,
-      'Total Budget (INR)': tp.initialPurse,
-      'Round 0 Spent (INR)': tp.round0Spent,
-      'R0 Deployed %': `${tp.round0DeployedPercent}%`,
-      'R0 60% Rule (Target >= 6L)': tp.round0Met60Percent ? 'QUALIFIED' : 'ELIMINATED',
-      'R0 Shortfall to 60% (INR)': tp.round0Shortfall,
-      'In-Hand Cash Balance (INR)': tp.currentCash,
-      'In-Hand Cash Reserve %': `${tp.cashReservePercent}%`,
-      '10% In-Hand Cash Rule (Floor >= 1L)': tp.cashMet10PercentFloor ? 'QUALIFIED' : 'ELIMINATED',
-      'Stock Holdings Value (INR)': tp.totalHoldingsValue,
-      'Total Net Worth (INR)': tp.totalNetWorth,
-      'Total Trades': tp.tradesCount,
-      'Elimination Details': (tp.eliminationReasons || []).join(' | ') || 'None (Compliant)',
-      'Overall Status': tp.status,
-    }));
+    const teamRows = snapshot.teamsPurse.map((tp) => {
+      const teamIpoWins = (snapshot.ipoSubscriptions || []).filter(
+        (s) =>
+          (s.team_id === tp.teamId || s.team_name === tp.teamName) &&
+          (s.status === 'ALLOTTED' || (s.lots_allotted && s.lots_allotted > 0))
+      );
+      const ipoSummary =
+        teamIpoWins
+          .map((w) => {
+            const l = (snapshot.ipoListings || []).find((x) => x.id === w.ipo_id);
+            return `${l?.ticker || 'IPO'}: ${w.lots_allotted || w.lots_requested} Lots (${w.share_quantity} shares)`;
+          })
+          .join(' | ') || 'None';
+
+      return {
+        'Team ID': tp.teamId,
+        'Team Code': tp.teamCode,
+        'Team Name': tp.teamName,
+        'Leader Name': tp.leaderName,
+        'Leader Email': tp.leaderEmail,
+        'Total Budget (INR)': tp.initialPurse,
+        'Round 0 Spent (INR)': tp.round0Spent,
+        'R0 Deployed %': `${tp.round0DeployedPercent}%`,
+        'R0 60% Rule (Target >= 6L)': tp.round0Met60Percent ? 'QUALIFIED' : 'ELIMINATED',
+        'R0 Shortfall to 60% (INR)': tp.round0Shortfall,
+        'In-Hand Cash Balance (INR)': tp.currentCash,
+        'In-Hand Cash Reserve %': `${tp.cashReservePercent}%`,
+        '10% In-Hand Cash Rule (Floor >= 1L)': tp.cashMet10PercentFloor ? 'QUALIFIED' : 'ELIMINATED',
+        'Stock Holdings Value (INR)': tp.totalHoldingsValue,
+        'Total Net Worth (INR)': tp.totalNetWorth,
+        'IPO Allotments Won': ipoSummary,
+        'Total Trades': tp.tradesCount,
+        'Elimination Details': (tp.eliminationReasons || []).join(' | ') || 'None (Compliant)',
+        'Overall Status': tp.status,
+      };
+    });
 
     // 2. Sheet 2: Trades Master Ledger
     const tradeRows = snapshot.tradesLedger.map((row) => ({
@@ -94,24 +110,71 @@ export async function GET() {
     const wsMatrix = XLSX.utils.json_to_sheet(matrixRows);
     XLSX.utils.book_append_sheet(wb, wsMatrix, 'Stock_Holdings_Matrix');
 
-    // 4. Sheet 4: IPO Subscriptions & Applications
+    // 4. Sheet 4: IPO Subscriptions & Applications Ledger
     const ipoRows = (snapshot.ipoSubscriptions || []).map((sub) => {
       const listing = (snapshot.ipoListings || []).find((l) => l.id === sub.ipo_id);
+      const isAllotted = sub.status === 'ALLOTTED' || (sub.lots_allotted && sub.lots_allotted > 0);
+      const lotsWon = sub.lots_allotted ?? (isAllotted ? sub.lots_requested : 0);
+      const sharesWon = isAllotted ? (sub.share_quantity || lotsWon * (listing?.lot_size || 1)) : 0;
+      const considerationDeducted = isAllotted ? sub.total_amount : 0;
+
       return {
         'Subscription ID': sub.id,
         'IPO Ticker': listing?.ticker || sub.ipo_id,
         'Company Name': listing?.company_name || 'Primary Issue',
         'Team Name': sub.team_name,
         'Lots Applied': sub.lots_requested,
-        'Shares Applied': sub.share_quantity,
+        'Lots Allotted': lotsWon,
+        'Shares Allotted': sharesWon,
         'Issue Price (INR)': sub.issue_price,
-        'Bid Amount (INR)': sub.total_amount,
+        'Bid Total (INR)': sub.total_amount,
+        'Cash Deducted (INR)': considerationDeducted,
+        'Allotment Outcome': isAllotted ? `ALLOTTED (${lotsWon} Lots)` : sub.status === 'NOT_ALLOTTED' ? 'NOT ALLOTTED (REFUNDED)' : 'PENDING ALLOTMENT',
         'Timestamp': sub.created_at,
         'Status': sub.status,
       };
     });
     const wsIPO = XLSX.utils.json_to_sheet(ipoRows.length > 0 ? ipoRows : [{ 'Message': 'No IPO subscriptions placed yet.' }]);
     XLSX.utils.book_append_sheet(wb, wsIPO, 'IPO_Applications_Ledger');
+
+    // 5. Sheet 5: Dedicated IPO Allotted Teams & Portfolio Crediting
+    const allottedSubs = (snapshot.ipoSubscriptions || []).filter(
+      (sub) => sub.status === 'ALLOTTED' || (sub.lots_allotted && sub.lots_allotted > 0)
+    );
+    const allottedRows = allottedSubs.map((sub) => {
+      const listing = (snapshot.ipoListings || []).find((l) => l.id === sub.ipo_id);
+      const matchingStock = snapshot.stocks.find((s) => s.ticker === listing?.ticker);
+      const lotsWon = sub.lots_allotted ?? sub.lots_requested;
+      const sharesCredited = sub.share_quantity || (lotsWon * (listing?.lot_size || 1));
+      const costDeducted = sub.total_amount;
+      const currentMarketPrice = matchingStock?.current_price || listing?.issue_price || sub.issue_price;
+      const currentVal = Number((sharesCredited * currentMarketPrice).toFixed(2));
+      const pnl = Number((currentVal - costDeducted).toFixed(2));
+
+      return {
+        'IPO Ticker': listing?.ticker || sub.ipo_id,
+        'Company Name': listing?.company_name || 'Primary Equity',
+        'Allotted Team': sub.team_name,
+        'Lots Won': lotsWon,
+        'Shares Credited': sharesCredited,
+        'Issue Price (INR)': sub.issue_price,
+        'Total Outflow Deducted (INR)': costDeducted,
+        'Market / Listing Price (INR)': matchingStock?.current_price
+          ? matchingStock.current_price
+          : listing?.status === 'LISTED'
+          ? listing.issue_price
+          : 'Awaiting Secondary Listing',
+        'Current Market Value (INR)': currentVal,
+        'Unrealized Gain / Loss (INR)': pnl,
+        'Ledger Status': 'CONFIRMED ALLOTMENT (CREDITED TO PORTFOLIO)',
+        'Allotment Timestamp': sub.created_at,
+      };
+    });
+
+    const wsAllotted = XLSX.utils.json_to_sheet(
+      allottedRows.length > 0 ? allottedRows : [{ 'Message': 'No IPO allotments confirmed yet. Allotments take place once the bidding window closes.' }]
+    );
+    XLSX.utils.book_append_sheet(wb, wsAllotted, 'IPO_Allotted_Teams');
 
     // Generate binary buffer
     const buf = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
