@@ -275,8 +275,8 @@ export function syncTeamToSupabase(team: Team, user?: User) {
           name: team.name,
           code: team.code || team.name.replace(/[^A-Za-z0-9]/g, '').slice(0, 8).toUpperCase() || 'TEAM',
           leader_id: team.leader_id || team.id,
-          leader_name: team.leader_name || team.name,
-          leader_email: team.leader_email || `${(team.code || 'team').toLowerCase()}@thapar.edu`,
+          leader_name: team.name,
+          leader_email: null,
           balance: team.balance ?? 1000000,
           updated_at: new Date().toISOString(),
         };
@@ -286,28 +286,6 @@ export function syncTeamToSupabase(team: Team, user?: User) {
           console.warn('[Supabase Sync] Team upsert error:', teamErr.message);
         } else {
           broadcastRealtimeEvent('TEAM_UPDATED', teamPayload);
-        }
-
-        // Also sync leader user in users table
-        const leaderEmail = team.leader_email || `${(team.code || 'team').toLowerCase()}@thapar.edu`;
-        const userPayload: any = {
-          id: user?.id || team.leader_id || ('usr-' + team.id.replace(/^team-/, '')),
-          email: user?.email || leaderEmail,
-          username: user?.username || team.leader_name || team.name,
-          role: user?.role || 'participant',
-          balance: team.balance ?? 1000000,
-          team_id: team.id,
-          team_name: team.name,
-          is_team_leader: true,
-          updated_at: new Date().toISOString(),
-        };
-        if (user?.password_hash) {
-          userPayload.password_hash = user.password_hash;
-        }
-
-        const { error: userErr } = await supabase.from('users').upsert(userPayload, { onConflict: 'id' });
-        if (userErr) {
-          console.warn('[Supabase Sync] Team User upsert error:', userErr.message);
         }
       } catch (err: any) {
         console.warn('[Supabase Sync] Exception syncing team to Supabase:', err?.message || err);
@@ -4263,6 +4241,25 @@ export async function modifyTeamBudget(
       });
     });
     saveLocalDB(db);
+
+    // Direct Supabase synchronization for all teams
+    if (supabase) {
+      try {
+        for (const t of db.teams) {
+          await supabase
+            .from('teams')
+            .update({ balance: 1000000, updated_at: new Date().toISOString() })
+            .eq('id', t.id);
+        }
+      } catch (syncErr: any) {
+        console.error('[Supabase Sync] Failed to sync reset balances to Supabase:', syncErr?.message || syncErr);
+      }
+    }
+
+    broadcastRealtimeEvent('TEAMS_SYNCED', { teams: db.teams });
+    broadcastRealtimeEvent('PORTFOLIO_UPDATED', {});
+    broadcastRealtimeEvent('BROKER_LEDGER_UPDATED', {});
+
     return { success: true, teams: db.teams, message: 'All teams successfully reset to initial ₹10,00,000 purse.' };
   }
 
@@ -4313,7 +4310,7 @@ export async function modifyTeamBudget(
   if (delta !== 0) {
     const tx: Transaction = {
       id: 'budget-' + Math.random().toString(36).substring(2, 9),
-      user_id: team.leader_id || (teamUsers[0] ? teamUsers[0].id : 'admin'),
+      user_id: team.leader_id || (teamUsers[0] ? teamUsers[0].id : team.id || 'admin'),
       stock_id: 's-budget-adjustment',
       type: delta > 0 ? 'BUY' : 'SELL',
       quantity: 1,
@@ -4328,6 +4325,22 @@ export async function modifyTeamBudget(
   }
 
   saveLocalDB(db);
+
+  // Direct Supabase synchronization for team balance
+  if (supabase) {
+    try {
+      await supabase
+        .from('teams')
+        .update({ balance: newBalance, updated_at: new Date().toISOString() })
+        .eq('id', team.id);
+    } catch (syncErr: any) {
+      console.error('[Supabase Sync] Failed to sync team balance to Supabase:', syncErr?.message || syncErr);
+    }
+  }
+
+  broadcastRealtimeEvent('TEAMS_SYNCED', { teamId: team.id, balance: newBalance });
+  broadcastRealtimeEvent('PORTFOLIO_UPDATED', { teamId: team.id });
+  broadcastRealtimeEvent('BROKER_LEDGER_UPDATED', { teamId: team.id });
 
   return {
     success: true,
