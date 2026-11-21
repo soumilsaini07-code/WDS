@@ -517,7 +517,7 @@ export default function EditorialBrokerDeskPage() {
               : 'border-black/10 bg-[#F8F9FA] text-[#000000]'
           }`}>
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-            <span className="text-[11px] tracking-[0.1em] uppercase text-[#000000]">
+            <span className={`text-[11px] tracking-[0.1em] uppercase ${isDark ? 'text-zinc-200' : 'text-[#000000]'}`}>
               TELEMETRY LIVE
             </span>
           </div>
@@ -707,10 +707,10 @@ export default function EditorialBrokerDeskPage() {
                   isDark ? 'bg-[#0d1410] border-[#1e2c21]' : 'bg-[#F8F9FA] border-black/10'
                 }`}>
                   <div className="flex items-center justify-between">
-                    <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#737373]">
+                    <span className={`font-mono text-[11px] uppercase tracking-[0.2em] ${isDark ? 'text-zinc-400' : 'text-[#737373]'}`}>
                       01 // IPO LISTING
                     </span>
-                    <span className="font-mono text-[11px] text-[#0052CC] font-bold">
+                    <span className={`font-mono text-[11px] font-bold ${isDark ? 'text-blue-400' : 'text-[#0052CC]'}`}>
                       {activeIpoListing?.lot_size || 12} SHARES/LOT
                     </span>
                   </div>
@@ -718,29 +718,37 @@ export default function EditorialBrokerDeskPage() {
                   <select
                     value={ipoSelectedId}
                     onChange={(e) => { ipoSelectedIdRef.current = e.target.value; setIpoSelectedId(e.target.value); }}
-                    className="w-full text-base sm:text-lg font-bold text-[#000000] bg-transparent border-b border-black/10 pb-1 outline-none cursor-pointer"
+                    className={`w-full text-base sm:text-lg font-bold pb-1 outline-none cursor-pointer border-b ${
+                      isDark
+                        ? 'text-white bg-[#0d1410] border-zinc-700 focus:border-emerald-500'
+                        : 'text-[#000000] bg-transparent border-black/10'
+                    }`}
                   >
                     {(snapshot?.ipoListings || []).map((ipo) => (
-                      <option key={ipo.id} value={ipo.id}>
+                      <option key={ipo.id} value={ipo.id} className={isDark ? 'bg-[#101712] text-white' : 'bg-white text-black'}>
                         {ipo.ticker} — {ipo.company_name} (₹{ipo.issue_price.toFixed(2)}/sh)
                       </option>
                     ))}
                   </select>
 
-                  <div className="pt-2 border-t border-black/5 text-[11px] font-mono text-[#737373] flex justify-between">
+                  <div className={`pt-2 border-t text-[11px] font-mono flex justify-between ${
+                    isDark ? 'border-[#1b271e] text-zinc-400' : 'border-black/5 text-[#737373]'
+                  }`}>
                     <span>ISSUE PRICE: ₹{activeIpoListing?.issue_price?.toFixed(2) || '0.00'}</span>
-                    <span className="text-emerald-600 font-bold">0% BROKERAGE ON PRIMARY</span>
+                    <span className={`font-bold ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`}>0% BROKERAGE ON PRIMARY</span>
                   </div>
                 </div>
 
                 {/* CARD 02: SUBSCRIBING TEAM */}
-                <div className="p-6 rounded-[24px] bg-[#F8F9FA] border border-black/10 flex flex-col justify-between space-y-4">
+                <div className={`p-6 rounded-[24px] border flex flex-col justify-between space-y-4 ${
+                  isDark ? 'bg-[#0d1410] border-[#1e2c21]' : 'bg-[#F8F9FA] border-black/10'
+                }`}>
                   <div className="flex items-center justify-between">
-                    <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#737373]">
+                    <span className={`font-mono text-[11px] uppercase tracking-[0.2em] ${isDark ? 'text-zinc-400' : 'text-[#737373]'}`}>
                       02 // SUBSCRIBING TEAM
                     </span>
                     {ipoApplyingTeamRecord && (
-                      <span className="font-mono text-[11px] text-[#000000] font-bold">
+                      <span className={`font-mono text-[11px] font-bold ${isDark ? 'text-white' : 'text-[#000000]'}`}>
                         CASH: ₹{(ipoApplyingTeamRecord.currentCash).toLocaleString('en-IN', { maximumFractionDigits: 0 })}
                       </span>
                     )}
@@ -753,14 +761,18 @@ export default function EditorialBrokerDeskPage() {
                       value={ipoTeamName}
                       onChange={(e) => setIpoTeamName(e.target.value)}
                       placeholder="ENTER APPLYING TEAM..."
-                      className="w-full text-2xl font-bold text-[#000000] bg-transparent border-none outline-none placeholder:text-black/20 focus:ring-0"
+                      className={`w-full text-2xl font-bold bg-transparent border-none outline-none focus:ring-0 ${
+                        isDark ? 'text-white placeholder:text-zinc-600' : 'text-[#000000] placeholder:text-black/20'
+                      }`}
                       required
                     />
                   </div>
 
-                  <div className="pt-2 border-t border-black/5 text-[11px] font-mono text-[#737373]">
+                  <div className={`pt-2 border-t text-[11px] font-mono ${
+                    isDark ? 'border-[#1b271e] text-zinc-400' : 'border-black/5 text-[#737373]'
+                  }`}>
                     {ipoApplyingTeamRecord ? (
-                      <span className="text-emerald-600 font-bold">
+                      <span className={`font-bold ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`}>
                         ✓ REGISTERED TEAM — STATUS: {ipoApplyingTeamRecord.status}
                       </span>
                     ) : (
@@ -770,12 +782,14 @@ export default function EditorialBrokerDeskPage() {
                 </div>
 
                 {/* CARD 03: LOTS APPLIED */}
-                <div className="p-6 rounded-[24px] bg-[#F8F9FA] border border-black/10 flex flex-col justify-between space-y-4">
+                <div className={`p-6 rounded-[24px] border flex flex-col justify-between space-y-4 ${
+                  isDark ? 'bg-[#0d1410] border-[#1e2c21]' : 'bg-[#F8F9FA] border-black/10'
+                }`}>
                   <div className="flex items-center justify-between">
-                    <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#737373]">
+                    <span className={`font-mono text-[11px] uppercase tracking-[0.2em] ${isDark ? 'text-zinc-400' : 'text-[#737373]'}`}>
                       03 // LOT QUANTITY
                     </span>
-                    <span className="font-mono text-[11px] text-[#737373]">
+                    <span className={`font-mono text-[11px] ${isDark ? 'text-zinc-500' : 'text-[#737373]'}`}>
                       PHYSICAL RUNNER SLIP
                     </span>
                   </div>
@@ -787,75 +801,91 @@ export default function EditorialBrokerDeskPage() {
                       step="1"
                       value={ipoLots}
                       onChange={(e) => setIpoLots(e.target.value)}
-                      className="w-full text-2xl font-bold text-[#000000] bg-transparent border-none outline-none focus:ring-0"
+                      className={`w-full text-2xl font-bold bg-transparent border-none outline-none focus:ring-0 ${
+                        isDark ? 'text-white' : 'text-[#000000]'
+                      }`}
                       required
                     />
-                    <span className="font-mono text-xs text-[#737373]">LOTS</span>
+                    <span className={`font-mono text-xs ${isDark ? 'text-zinc-400' : 'text-[#737373]'}`}>LOTS</span>
                   </div>
 
-                  <div className="pt-2 border-t border-black/5 text-[11px] font-mono text-[#737373] flex justify-between">
+                  <div className={`pt-2 border-t text-[11px] font-mono flex justify-between ${
+                    isDark ? 'border-[#1b271e] text-zinc-400' : 'border-black/5 text-[#737373]'
+                  }`}>
                     <span>TOTAL SHARES: {ipoTotalShares.toLocaleString('en-IN')}</span>
                     <span>1 LOT = {activeIpoListing?.lot_size || 12} SHARES</span>
                   </div>
                 </div>
 
                 {/* CARD 04: TOTAL APPLICATION OUTFLOW */}
-                <div className="p-6 rounded-[24px] bg-[#F8F9FA] border border-black/10 flex flex-col justify-between space-y-4">
+                <div className={`p-6 rounded-[24px] border flex flex-col justify-between space-y-4 ${
+                  isDark ? 'bg-[#0d1410] border-[#1e2c21]' : 'bg-[#F8F9FA] border-black/10'
+                }`}>
                   <div className="flex items-center justify-between">
-                    <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#737373]">
+                    <span className={`font-mono text-[11px] uppercase tracking-[0.2em] ${isDark ? 'text-zinc-400' : 'text-[#737373]'}`}>
                       04 // GROSS BID OUTFLOW
                     </span>
-                    <span className="font-mono text-[11px] text-emerald-600 font-bold">
+                    <span className={`font-mono text-[11px] font-bold ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`}>
                       FIXED ISSUE PRICE
                     </span>
                   </div>
 
                   <div className="flex items-baseline gap-2">
-                    <span className="text-2xl font-bold text-[#000000]">
+                    <span className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-[#000000]'}`}>
                       ₹{ipoGrossOutflow.toLocaleString('en-IN', { maximumFractionDigits: 2 })}
                     </span>
                   </div>
 
-                  <div className="pt-2 border-t border-black/5 text-[11px] font-mono text-[#737373] flex justify-between">
+                  <div className={`pt-2 border-t text-[11px] font-mono flex justify-between ${
+                    isDark ? 'border-[#1b271e] text-zinc-400' : 'border-black/5 text-[#737373]'
+                  }`}>
                     <span>{ipoTotalShares} SH × ₹{activeIpoListing?.issue_price?.toFixed(2) || '0.00'}</span>
-                    <span className="text-emerald-600 font-bold">0% BROKERAGE</span>
+                    <span className={`font-bold ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`}>0% BROKERAGE</span>
                   </div>
                 </div>
               </div>
 
               {/* LIVE IPO AUDIT VOUCHER */}
-              <div className="p-6 rounded-[24px] bg-white border border-black/10 shadow-sm space-y-4">
-                <div className="flex items-center justify-between border-b border-black/10 pb-3">
-                  <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#737373]">
+              <div className={`p-6 rounded-[24px] border space-y-4 ${
+                isDark ? 'bg-[#0d1410] border-[#1e2c21]' : 'bg-white border-black/10 shadow-sm'
+              }`}>
+                <div className={`flex items-center justify-between border-b pb-3 ${
+                  isDark ? 'border-[#1b271e]' : 'border-black/10'
+                }`}>
+                  <span className={`font-mono text-[11px] uppercase tracking-[0.2em] ${isDark ? 'text-zinc-400' : 'text-[#737373]'}`}>
                     FINANCIAL AUDIT // IPO BID SLIP
                   </span>
-                  <span className="font-mono text-[11px] font-bold text-[#0052CC]">
+                  <span className={`font-mono text-[11px] font-bold ${isDark ? 'text-blue-400' : 'text-[#0052CC]'}`}>
                     PRIMARY SUBSCRIPTION
                   </span>
                 </div>
 
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 font-mono text-xs">
                   <div>
-                    <span className="text-[10px] text-[#737373] block">TOTAL OUTFLOW</span>
-                    <span className="text-base font-bold text-[#000000]">
+                    <span className={`text-[10px] block ${isDark ? 'text-zinc-400' : 'text-[#737373]'}`}>TOTAL OUTFLOW</span>
+                    <span className={`text-base font-bold ${isDark ? 'text-white' : 'text-[#000000]'}`}>
                       ₹{ipoGrossOutflow.toLocaleString('en-IN', { maximumFractionDigits: 0 })}
                     </span>
                   </div>
                   <div>
-                    <span className="text-[10px] text-[#737373] block">CURRENT CASH</span>
-                    <span className="text-base font-bold text-[#000000]">
+                    <span className={`text-[10px] block ${isDark ? 'text-zinc-400' : 'text-[#737373]'}`}>CURRENT CASH</span>
+                    <span className={`text-base font-bold ${isDark ? 'text-white' : 'text-[#000000]'}`}>
                       ₹{ipoCurrentCash.toLocaleString('en-IN', { maximumFractionDigits: 0 })}
                     </span>
                   </div>
                   <div>
-                    <span className="text-[10px] text-[#737373] block">POST-BID CASH</span>
-                    <span className={`text-base font-bold ${ipoPostCash < 0 ? 'text-rose-600' : 'text-[#000000]'}`}>
+                    <span className={`text-[10px] block ${isDark ? 'text-zinc-400' : 'text-[#737373]'}`}>POST-BID CASH</span>
+                    <span className={`text-base font-bold ${ipoPostCash < 0 ? 'text-rose-500' : isDark ? 'text-white' : 'text-[#000000]'}`}>
                       ₹{ipoPostCash.toLocaleString('en-IN', { maximumFractionDigits: 0 })}
                     </span>
                   </div>
                   <div>
-                    <span className="text-[10px] text-[#737373] block">10% CASH FLOOR (₹1.0L)</span>
-                    <span className={`text-base font-bold ${ipoMeetsReserveFloor ? 'text-emerald-600' : 'text-amber-600'}`}>
+                    <span className={`text-[10px] block ${isDark ? 'text-zinc-400' : 'text-[#737373]'}`}>10% CASH FLOOR (₹1.0L)</span>
+                    <span className={`text-base font-bold ${
+                      ipoMeetsReserveFloor
+                        ? isDark ? 'text-emerald-400' : 'text-emerald-600'
+                        : isDark ? 'text-amber-400' : 'text-amber-600'
+                    }`}>
                       {ipoMeetsReserveFloor ? '✓ COMPLIANT' : '⚠️ BELOW FLOOR'}
                     </span>
                   </div>
@@ -1051,16 +1081,20 @@ export default function EditorialBrokerDeskPage() {
 
                     {/* SELECTED STOCK BADGE */}
                     {selectedStock && (
-                      <div className="mt-1.5 flex items-center justify-between text-xs font-mono bg-white px-2.5 py-1.5 rounded-xl border border-black/10 shadow-xs">
+                      <div className={`mt-1.5 flex items-center justify-between text-xs font-mono px-2.5 py-1.5 rounded-xl border shadow-xs ${
+                        isDark ? 'bg-[#152219] border-[#1e2c21] text-white' : 'bg-white border-black/10 text-black'
+                      }`}>
                         <div className="flex items-center gap-2 overflow-hidden">
-                          <span className="font-bold text-black bg-black/5 px-2 py-0.5 rounded text-[11px] shrink-0">
+                          <span className={`font-bold px-2 py-0.5 rounded text-[11px] shrink-0 ${
+                            isDark ? 'bg-zinc-800 text-white' : 'bg-black/5 text-black'
+                          }`}>
                             {selectedStock.ticker}
                           </span>
-                          <span className="truncate text-gray-800 font-medium">
+                          <span className={`truncate font-medium ${isDark ? 'text-zinc-200' : 'text-gray-800'}`}>
                             {selectedStock.name}
                           </span>
                         </div>
-                        <span className="font-bold text-emerald-700 shrink-0 ml-2">
+                        <span className={`font-bold shrink-0 ml-2 ${isDark ? 'text-emerald-400' : 'text-emerald-700'}`}>
                           LTP: ₹{selectedStock.current_price.toFixed(2)}
                         </span>
                       </div>
@@ -1146,7 +1180,9 @@ export default function EditorialBrokerDeskPage() {
                   </div>
                 </div>
 
-                <div className="pt-2 border-t border-black/5 text-[11px] font-mono text-[#737373] flex items-center justify-between">
+                <div className={`pt-2 border-t text-[11px] font-mono flex items-center justify-between ${
+                  isDark ? 'border-[#1b271e] text-zinc-400' : 'border-black/5 text-[#737373]'
+                }`}>
                   <span>COLLAR: LC ₹{selectedStock?.lower_circuit?.toFixed(1)} / UC ₹{selectedStock?.upper_circuit?.toFixed(1)}</span>
                   {isCircuitBreached && (
                     <label className="text-red-600 font-bold flex items-center gap-1.5 cursor-pointer">
@@ -1166,7 +1202,7 @@ export default function EditorialBrokerDeskPage() {
                 isDark ? 'bg-[#0d1410] border-[#1e2c21]' : 'bg-[#F8F9FA] border-black/10'
               }`}>
                 <div className="flex items-center justify-between">
-                  <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#737373]">
+                  <span className={`font-mono text-[11px] uppercase tracking-[0.2em] ${isDark ? 'text-zinc-400' : 'text-[#737373]'}`}>
                     04 // SHARE QUANTITY (VOLUME)
                   </span>
                   <span className={`font-mono text-[11px] font-bold ${isDark ? 'text-white' : 'text-[#000000]'}`}>
@@ -1196,7 +1232,9 @@ export default function EditorialBrokerDeskPage() {
                   </span>
                 </div>
 
-                <div className="pt-2 border-t border-black/5 text-[11px] font-mono text-[#737373] flex items-center justify-between">
+                <div className={`pt-2 border-t text-[11px] font-mono flex items-center justify-between ${
+                  isDark ? 'border-[#1b271e] text-zinc-400' : 'border-black/5 text-[#737373]'
+                }`}>
                   <span>DEAL CONSIDERATION</span>
                   <span className={`font-bold ${isDark ? 'text-white' : 'text-[#000000]'}`}>
                     {parsedQty} × ₹{parsedPrice.toFixed(2)}
@@ -1225,7 +1263,7 @@ export default function EditorialBrokerDeskPage() {
                 isDark ? 'border-[#1b271e]' : 'border-black/10'
               }`}>
                 <div>
-                  <span className="text-[#737373] uppercase tracking-[0.15em] block text-[10px]">
+                  <span className={`uppercase tracking-[0.15em] block text-[10px] ${isDark ? 'text-zinc-400' : 'text-[#737373]'}`}>
                     GROSS DEAL VALUE
                   </span>
                   <span className={`text-xl font-bold ${isDark ? 'text-white' : 'text-[#000000]'}`}>
@@ -1233,7 +1271,7 @@ export default function EditorialBrokerDeskPage() {
                   </span>
                 </div>
                 <div>
-                  <span className="text-[#737373] uppercase tracking-[0.15em] block text-[10px]">
+                  <span className={`uppercase tracking-[0.15em] block text-[10px] ${isDark ? 'text-zinc-400' : 'text-[#737373]'}`}>
                     BROKERAGE (1%)
                   </span>
                   <span className={`text-xl font-bold ${isDark ? 'text-emerald-400' : 'text-[#000000]'}`}>
@@ -1241,23 +1279,23 @@ export default function EditorialBrokerDeskPage() {
                   </span>
                 </div>
                 <div>
-                  <span className="text-[#737373] uppercase tracking-[0.15em] block text-[10px]">
+                  <span className={`uppercase tracking-[0.15em] block text-[10px] ${isDark ? 'text-zinc-400' : 'text-[#737373]'}`}>
                     BUYER OUTFLOW (DEBIT)
                   </span>
-                  <span className="text-xl font-bold text-emerald-600">
+                  <span className="text-xl font-bold text-emerald-500">
                     ₹{totalBuyerDebit.toLocaleString('en-IN', { maximumFractionDigits: 2 })}
                   </span>
                 </div>
                 <div>
-                  <span className="text-[#737373] uppercase tracking-[0.15em] block text-[10px]">
+                  <span className={`uppercase tracking-[0.15em] block text-[10px] ${isDark ? 'text-zinc-400' : 'text-[#737373]'}`}>
                     SELLER INFLOW (CREDIT)
                   </span>
-                  <span className="text-xl font-bold text-rose-600">
+                  <span className="text-xl font-bold text-rose-500">
                     ₹{totalSellerCredit.toLocaleString('en-IN', { maximumFractionDigits: 2 })}
                   </span>
                 </div>
                 <div>
-                  <span className="text-[#737373] uppercase tracking-[0.15em] block text-[10px]">
+                  <span className={`uppercase tracking-[0.15em] block text-[10px] ${isDark ? 'text-zinc-400' : 'text-[#737373]'}`}>
                     DESK COMMISSION
                   </span>
                   <span className={`text-xl font-bold ${isDark ? 'text-blue-400' : 'text-[#0052CC]'}`}>
@@ -1269,12 +1307,14 @@ export default function EditorialBrokerDeskPage() {
               {/* Compliance Pre-Flight Status */}
               <div className="flex flex-wrap items-center justify-between gap-4 font-mono text-xs pt-1">
                 <div className="flex items-center gap-3">
-                  <span className="text-[#737373] uppercase tracking-[0.1em]">BUYER IN-HAND CASH:</span>
-                  <span className={`font-bold ${isCashFloorBreached ? 'text-red-600' : 'text-[#000000]'}`}>
+                  <span className={`uppercase tracking-[0.1em] ${isDark ? 'text-zinc-400' : 'text-[#737373]'}`}>BUYER IN-HAND CASH:</span>
+                  <span className={`font-bold ${isCashFloorBreached ? 'text-rose-500' : isDark ? 'text-white' : 'text-[#000000]'}`}>
                     ₹{buyerPostTradeCash.toLocaleString('en-IN', { maximumFractionDigits: 0 })}
                   </span>
                   {isCashFloorBreached && (
-                    <span className="px-2 py-0.5 rounded-full bg-red-100 text-red-800 text-[10px] font-bold">
+                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                      isDark ? 'bg-rose-950 text-rose-300 border border-rose-800' : 'bg-red-100 text-red-800'
+                    }`}>
                       [VIOLATION: &lt;₹1L FLOOR]
                     </span>
                   )}
@@ -1467,25 +1507,29 @@ export default function EditorialBrokerDeskPage() {
                             <div className="text-[10px] text-[#737373] font-mono">{tp.teamCode}</div>
                           </td>
 
-                          <td className={`py-3 px-4 font-bold ${tp.cashMet10PercentFloor ? 'text-emerald-600' : 'text-red-600'}`}>
+                          <td className={`py-3 px-4 font-bold ${tp.cashMet10PercentFloor ? (isDark ? 'text-emerald-400' : 'text-emerald-600') : (isDark ? 'text-rose-400' : 'text-red-600')}`}>
                             ₹{(tp.currentCash / 100000).toFixed(2)}L
                           </td>
 
-                          <td className="py-3 px-4 text-[#000000]">
+                          <td className={`py-3 px-4 ${isDark ? 'text-zinc-300' : 'text-[#000000]'}`}>
                             ₹{(tp.round0Spent / 100000).toFixed(2)}L
                           </td>
 
-                          <td className="py-3 px-4 font-bold">
+                          <td className={`py-3 px-4 font-bold ${isDark ? 'text-white' : 'text-[#000000]'}`}>
                             {tp.round0DeployedPercent}%
                           </td>
 
                           <td className="py-3 px-4">
                             {tp.round0Met60Percent ? (
-                              <span className="px-2 py-0.5 rounded-full text-[10px] bg-emerald-100 text-emerald-800 font-bold">
+                              <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                                isDark ? 'bg-emerald-950 text-emerald-300 border border-emerald-800' : 'bg-emerald-100 text-emerald-800'
+                              }`}>
                                 PASS
                               </span>
                             ) : (
-                              <span className="px-2 py-0.5 rounded-full text-[10px] bg-red-100 text-red-800 font-bold" title={`Shortfall: ₹${(tp.round0Shortfall / 100000).toFixed(2)}L`}>
+                              <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                                isDark ? 'bg-rose-950 text-rose-300 border border-rose-800' : 'bg-red-100 text-red-800'
+                              }`} title={`Shortfall: ₹${(tp.round0Shortfall / 100000).toFixed(2)}L`}>
                                 FAIL
                               </span>
                             )}
@@ -1493,11 +1537,15 @@ export default function EditorialBrokerDeskPage() {
 
                           <td className="py-3 px-4">
                             {tp.cashMet10PercentFloor ? (
-                              <span className="px-2 py-0.5 rounded-full text-[10px] bg-emerald-100 text-emerald-800 font-semibold">
+                              <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${
+                                isDark ? 'bg-emerald-950 text-emerald-300 border border-emerald-800' : 'bg-emerald-100 text-emerald-800'
+                              }`}>
                                 PASS
                               </span>
                             ) : (
-                              <span className="px-2 py-0.5 rounded-full text-[10px] bg-red-100 text-red-800 font-bold">
+                              <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                                isDark ? 'bg-rose-950 text-rose-300 border border-rose-800' : 'bg-red-100 text-red-800'
+                              }`}>
                                 FAIL
                               </span>
                             )}
@@ -1505,17 +1553,19 @@ export default function EditorialBrokerDeskPage() {
 
                           <td className="py-3 px-4">
                             {isEliminated ? (
-                              <span className="px-2.5 py-0.5 rounded-full text-[10px] bg-red-600 text-white font-black tracking-wide">
+                              <span className="px-2.5 py-0.5 rounded-full text-[10px] bg-rose-600 text-white font-black tracking-wide">
                                 ELIMINATED
                               </span>
                             ) : (
-                              <span className="px-2.5 py-0.5 rounded-full text-[10px] bg-black text-white font-black tracking-wide">
+                              <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black tracking-wide ${
+                                isDark ? 'bg-zinc-800 text-zinc-100 border border-zinc-700' : 'bg-black text-white'
+                              }`}>
                                 QUALIFIED
                               </span>
                             )}
                           </td>
 
-                          <td className="py-3 px-4 font-bold text-[#000000]">
+                          <td className={`py-3 px-4 font-bold ${isDark ? 'text-white' : 'text-[#000000]'}`}>
                             ₹{(tp.totalNetWorth / 100000).toFixed(2)}L
                           </td>
 
@@ -1524,14 +1574,18 @@ export default function EditorialBrokerDeskPage() {
                               <button
                                 type="button"
                                 onClick={() => selectTeamAsBuyer(tp.teamName)}
-                                className="px-2.5 py-0.5 rounded-full text-[10px] font-bold border border-black/20 hover:border-black transition"
+                                className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border transition ${
+                                  isDark ? 'border-zinc-700 text-zinc-300 hover:text-white hover:border-zinc-500' : 'border-black/20 hover:border-black'
+                                }`}
                               >
                                 +BUY
                               </button>
                               <button
                                 type="button"
                                 onClick={() => selectTeamAsSeller(tp.teamName)}
-                                className="px-2.5 py-0.5 rounded-full text-[10px] font-bold border border-black/20 hover:border-black transition"
+                                className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border transition ${
+                                  isDark ? 'border-zinc-700 text-zinc-300 hover:text-white hover:border-zinc-500' : 'border-black/20 hover:border-black'
+                                }`}
                               >
                                 +SELL
                               </button>
@@ -1582,29 +1636,31 @@ export default function EditorialBrokerDeskPage() {
                       <th className="py-3 px-4">SETTLEMENT STATUS</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-black/5 text-[#000000]">
+                  <tbody className={`divide-y ${isDark ? 'divide-[#1e2c21] text-zinc-200' : 'divide-black/5 text-[#000000]'}`}>
                     {filteredTrades.map((t) => (
                       <tr key={t.slipId} className={`transition ${isDark ? 'hover:bg-[#121c15]' : 'hover:bg-[#F8F9FA]'}`}>
                         <td className={`py-3 px-4 font-bold ${isDark ? 'text-blue-400' : 'text-[#0052CC]'}`}>{t.slipId}</td>
-                        <td className="py-3 px-4 text-[#737373] text-[10px]">
+                        <td className={`py-3 px-4 text-[10px] ${isDark ? 'text-zinc-400' : 'text-[#737373]'}`}>
                           {new Date(t.timestamp).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
                         </td>
-                        <td className="py-3 px-4 font-bold font-sans text-emerald-700">{t.buyerTeam}</td>
-                        <td className="py-3 px-4 font-bold font-sans text-rose-700">{t.sellerTeam}</td>
-                        <td className="py-3 px-4 font-bold text-[#000000]">{t.ticker}</td>
-                        <td className="py-3 px-4">{t.quantity}</td>
-                        <td className="py-3 px-4">₹{t.price.toFixed(2)}</td>
-                        <td className="py-3 px-4 font-bold text-[#000000]">
+                        <td className={`py-3 px-4 font-bold font-sans ${isDark ? 'text-emerald-400' : 'text-emerald-700'}`}>{t.buyerTeam}</td>
+                        <td className={`py-3 px-4 font-bold font-sans ${isDark ? 'text-rose-400' : 'text-rose-700'}`}>{t.sellerTeam}</td>
+                        <td className={`py-3 px-4 font-bold ${isDark ? 'text-white' : 'text-[#000000]'}`}>{t.ticker}</td>
+                        <td className={`py-3 px-4 ${isDark ? 'text-zinc-300' : ''}`}>{t.quantity}</td>
+                        <td className={`py-3 px-4 ${isDark ? 'text-zinc-300' : ''}`}>₹{t.price.toFixed(2)}</td>
+                        <td className={`py-3 px-4 font-bold ${isDark ? 'text-white' : 'text-[#000000]'}`}>
                           ₹{t.grossAmount.toLocaleString('en-IN', { maximumFractionDigits: 0 })}
                         </td>
-                        <td className="py-3 px-4 text-[#737373]">
+                        <td className={`py-3 px-4 ${isDark ? 'text-zinc-400' : 'text-[#737373]'}`}>
                           {t.isRound0Exempt ? '₹0' : `₹${t.buyerBrokerage.toFixed(0)}`}
                         </td>
-                        <td className="py-3 px-4 font-bold text-emerald-600">
+                        <td className={`py-3 px-4 font-bold ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`}>
                           ₹{t.buyerTotalDebit.toLocaleString('en-IN', { maximumFractionDigits: 0 })}
                         </td>
                         <td className="py-3 px-4">
-                          <span className="px-2 py-0.5 rounded-full text-[10px] bg-black text-white font-bold">
+                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                            isDark ? 'bg-zinc-800 text-zinc-100 border border-zinc-700' : 'bg-black text-white'
+                          }`}>
                             {t.status}
                           </span>
                         </td>
@@ -1630,15 +1686,15 @@ export default function EditorialBrokerDeskPage() {
                     {(snapshot?.holdingsMatrix.stocks || []).map((s) => (
                       <th key={s.id} className="py-3 px-4 text-center">
                         <div>{s.ticker}</div>
-                        <div className="text-[10px] text-[#737373]">₹{s.current_price.toFixed(1)}</div>
+                        <div className={`text-[10px] ${isDark ? 'text-zinc-400' : 'text-[#737373]'}`}>₹{s.current_price.toFixed(1)}</div>
                       </th>
                     ))}
                     <th className="py-3 px-4 text-right">TOTAL PORTFOLIO VALUE (₹)</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-black/5 text-[#000000]">
+                <tbody className={`divide-y ${isDark ? 'divide-[#1e2c21] text-zinc-200' : 'divide-black/5 text-[#000000]'}`}>
                   {(snapshot?.holdingsMatrix.teams || []).map((team) => (
-                    <tr key={team.teamId} className="hover:bg-[#F8F9FA] transition">
+                    <tr key={team.teamId} className={`transition ${isDark ? 'hover:bg-[#121c15]' : 'hover:bg-[#F8F9FA]'}`}>
                       <td className={`py-3 px-4 font-sans font-bold sticky left-0 z-10 border-r ${
                         isDark ? 'bg-[#0d1410] text-white border-[#1e2c21]' : 'bg-white text-[#000000] border-black/10'
                       }`}>
@@ -1650,14 +1706,14 @@ export default function EditorialBrokerDeskPage() {
                           <td
                             key={s.id}
                             className={`py-3 px-4 text-center ${
-                              count > 0 ? 'text-[#0052CC] font-bold' : 'text-slate-300'
+                              count > 0 ? (isDark ? 'text-blue-400 font-bold' : 'text-[#0052CC] font-bold') : (isDark ? 'text-zinc-700' : 'text-slate-300')
                             }`}
                           >
                             {count > 0 ? count : '—'}
                           </td>
                         );
                       })}
-                      <td className="py-3 px-4 font-bold text-[#000000] text-right">
+                      <td className={`py-3 px-4 font-bold ${isDark ? 'text-white' : 'text-[#000000]'} text-right`}>
                         ₹{(team.totalValue / 100000).toFixed(2)}L
                       </td>
                     </tr>
@@ -1671,10 +1727,10 @@ export default function EditorialBrokerDeskPage() {
           {activeTab === 'ipo' && (
             <div className="space-y-4">
               <div className="flex flex-wrap items-center justify-between gap-4 font-mono text-xs">
-                <span className="text-[#737373]">
+                <span className={isDark ? 'text-zinc-400' : 'text-[#737373]'}>
                   PRIMARY ISSUE AUDIT // TOTAL APPLICATIONS: {snapshot?.ipoSubscriptions?.length ?? 0}
                 </span>
-                <span className="text-[#0052CC] font-bold">
+                <span className={`font-bold ${isDark ? 'text-blue-400' : 'text-[#0052CC]'}`}>
                   AUTONOMOUS FIFO DESK // ALLOTMENT VIA ADMIN
                 </span>
               </div>
@@ -1697,30 +1753,30 @@ export default function EditorialBrokerDeskPage() {
                       <th className="py-3 px-4">ALLOTMENT STATUS</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-black/5 text-[#000000]">
+                  <tbody className={`divide-y ${isDark ? 'divide-[#1e2c21] text-zinc-200' : 'divide-black/5 text-[#000000]'}`}>
                     {(snapshot?.ipoSubscriptions || []).map((sub) => {
                       const listing = (snapshot?.ipoListings || []).find((l) => l.id === sub.ipo_id);
                       return (
                         <tr key={sub.id} className={`transition ${isDark ? 'hover:bg-[#121c15]' : 'hover:bg-[#F8F9FA]'}`}>
-                          <td className="py-3 px-4 font-bold text-[#0052CC]">{sub.id.slice(-8).toUpperCase()}</td>
-                          <td className="py-3 px-4 text-[#737373]">
+                          <td className={`py-3 px-4 font-bold ${isDark ? 'text-blue-400' : 'text-[#0052CC]'}`}>{sub.id.slice(-8).toUpperCase()}</td>
+                          <td className={`py-3 px-4 ${isDark ? 'text-zinc-400' : 'text-[#737373]'}`}>
                             {new Date(sub.created_at).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
                           </td>
-                          <td className="py-3 px-4 font-sans font-bold">{sub.team_name}</td>
+                          <td className={`py-3 px-4 font-sans font-bold ${isDark ? 'text-white' : 'text-[#000000]'}`}>{sub.team_name}</td>
                           <td className="py-3 px-4">
-                            <span className="font-bold">{listing?.ticker || sub.ipo_id}</span>
-                            <span className="text-[10px] text-[#737373] block">{listing?.company_name || 'Primary Offering'}</span>
+                            <span className={`font-bold ${isDark ? 'text-white' : 'text-[#000000]'}`}>{listing?.ticker || sub.ipo_id}</span>
+                            <span className={`text-[10px] block ${isDark ? 'text-zinc-400' : 'text-[#737373]'}`}>{listing?.company_name || 'Primary Offering'}</span>
                           </td>
-                          <td className="py-3 px-4 text-center font-bold">{sub.lots_requested}</td>
-                          <td className="py-3 px-4 text-center">{sub.share_quantity}</td>
-                          <td className="py-3 px-4 text-right font-bold text-emerald-600">
+                          <td className={`py-3 px-4 text-center font-bold ${isDark ? 'text-white' : 'text-[#000000]'}`}>{sub.lots_requested}</td>
+                          <td className={`py-3 px-4 text-center ${isDark ? 'text-zinc-300' : 'text-[#000000]'}`}>{sub.share_quantity}</td>
+                          <td className={`py-3 px-4 text-right font-bold ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`}>
                             ₹{sub.total_amount.toLocaleString('en-IN', { maximumFractionDigits: 0 })}
                           </td>
                           <td className="py-3 px-4">
                             <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
                               sub.status === 'ALLOTTED'
-                                ? 'bg-emerald-100 text-emerald-800'
-                                : 'bg-amber-100 text-amber-900'
+                                ? isDark ? 'bg-emerald-950 text-emerald-300 border border-emerald-800' : 'bg-emerald-100 text-emerald-800'
+                                : isDark ? 'bg-amber-950 text-amber-300 border border-amber-800' : 'bg-amber-100 text-amber-900'
                             }`}>
                               {sub.status}
                             </span>
