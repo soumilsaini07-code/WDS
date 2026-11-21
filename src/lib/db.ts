@@ -1543,7 +1543,7 @@ export async function reconcileTeamsFromSupabase(force = false): Promise<Team[]>
   if (!supabase) return db.teams || [];
 
   const now = Date.now();
-  if (!force && now - _lastTeamReconcileTime < 3000) {
+  if (!force && now - _lastTeamReconcileTime < 30000) {
     return db.teams || [];
   }
   _lastTeamReconcileTime = now;
@@ -1643,7 +1643,7 @@ export async function reconcilePortfoliosFromSupabase(force = false): Promise<Po
   if (!supabase) return db.portfolios || [];
 
   const now = Date.now();
-  if (!force && now - _lastPortReconcileTime < 3000) {
+  if (!force && now - _lastPortReconcileTime < 30000) {
     return db.portfolios || [];
   }
   _lastPortReconcileTime = now;
@@ -1732,7 +1732,7 @@ export async function reconcileStocksFromSupabase(force = false): Promise<Stock[
   if (!supabase) return db.stocks || [];
 
   const now = Date.now();
-  if (!force && now - _lastStockReconcileTime < 3000) {
+  if (!force && now - _lastStockReconcileTime < 30000) {
     return db.stocks || [];
   }
   _lastStockReconcileTime = now;
@@ -1780,7 +1780,7 @@ export async function reconcileTransactionsFromSupabase(force = false): Promise<
   if (!supabase) return db.transactions || [];
 
   const now = Date.now();
-  if (!force && now - _lastTxReconcileTime < 3000) {
+  if (!force && now - _lastTxReconcileTime < 30000) {
     return db.transactions || [];
   }
   _lastTxReconcileTime = now;
@@ -1871,7 +1871,7 @@ export async function reconcileClockFromSupabase(force = false): Promise<{ remai
   if (!supabase) return db.round_clock || { remaining_seconds: 1800, is_paused: false, is_orders_locked: false };
 
   const now = Date.now();
-  if (!force && now - _lastClockReconcileTime < 2500) {
+  if (!force && now - _lastClockReconcileTime < 15000) {
     return db.round_clock || { remaining_seconds: 1800, is_paused: false, is_orders_locked: false };
   }
   _lastClockReconcileTime = now;
@@ -1943,7 +1943,7 @@ export async function reconcileIPOFromSupabase(force = false): Promise<{ listing
   if (!supabase) return { listings: db.ipo_listings || [], subscriptions: db.ipo_subscriptions || [] };
 
   const now = Date.now();
-  if (!force && now - _lastIPOReconcileTime < 3000) {
+  if (!force && now - _lastIPOReconcileTime < 30000) {
     return { listings: db.ipo_listings || [], subscriptions: db.ipo_subscriptions || [] };
   }
   _lastIPOReconcileTime = now;
@@ -2089,7 +2089,7 @@ export async function reconcileOrderSlipsFromSupabase(force = false): Promise<Or
   if (!supabase) return db.order_slips || [];
 
   const now = Date.now();
-  if (!force && now - _lastSlipsReconcileTime < 1000) {
+  if (!force && now - _lastSlipsReconcileTime < 15000) {
     return db.order_slips || [];
   }
   _lastSlipsReconcileTime = now;
@@ -2172,7 +2172,7 @@ export async function reconcileOrderSlipsFromSupabase(force = false): Promise<Or
 // STOCKS
 // -----------------------------------------------------------------------------
 export async function getStocks(): Promise<Stock[]> {
-  await reconcileStocksFromSupabase();
+  reconcileStocksFromSupabase().catch(() => {});
   const db = getLocalDB();
   return db.stocks;
 }
@@ -2680,7 +2680,7 @@ export function syncTeamPortfolioAndBalance(teamId: string) {
 }
 
 export async function getUserPortfolios(userId: string): Promise<Portfolio[]> {
-  await reconcilePortfoliosFromSupabase();
+  reconcilePortfoliosFromSupabase().catch(() => {});
   const db = getLocalDB();
   const stocksMap = new Map(db.stocks.map((s) => [s.id, s]));
   const user = db.users.find((u) => u.id === userId || (u.email && u.email.toLowerCase() === userId.toLowerCase()));
@@ -3660,7 +3660,7 @@ export function getLiveTradesCSVContent(): string {
 }
 
 export async function getTeams(): Promise<Team[]> {
-  await reconcileTeamsFromSupabase();
+  reconcileTeamsFromSupabase().catch(() => {});
   const db = getLocalDB();
   return db.teams || [];
 }
@@ -4052,7 +4052,7 @@ export async function createOrderSlip(
 }
 
 export async function getOrderSlips(teamId?: string): Promise<OrderSlip[]> {
-  await reconcileOrderSlipsFromSupabase();
+  reconcileOrderSlipsFromSupabase().catch(() => {});
   const db = getLocalDB();
   let list = db.order_slips || [];
   if (teamId) {
@@ -4062,7 +4062,7 @@ export async function getOrderSlips(teamId?: string): Promise<OrderSlip[]> {
 }
 
 export async function getOrderSlipBySlipId(slipIdOrId: string): Promise<OrderSlip | undefined> {
-  await reconcileOrderSlipsFromSupabase();
+  reconcileOrderSlipsFromSupabase().catch(() => {});
   const db = getLocalDB();
   const norm = slipIdOrId.trim().toUpperCase();
   return db.order_slips?.find(

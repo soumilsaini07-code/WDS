@@ -94,6 +94,14 @@ export default function EditorialBrokerDeskPage() {
       if (res.ok) {
         const data = await res.json();
         if (data.snapshot) {
+          if (!data.snapshot.stocks || data.snapshot.stocks.length === 0) {
+            try {
+              const stocksRes = await fetch('/api/stocks').then((r) => (r.ok ? r.json() : null));
+              if (stocksRes?.stocks && Array.isArray(stocksRes.stocks) && stocksRes.stocks.length > 0) {
+                data.snapshot.stocks = stocksRes.stocks;
+              }
+            } catch {}
+          }
           setSnapshot(data.snapshot);
           if (!selectedStockIdRef.current && data.snapshot.stocks && data.snapshot.stocks.length > 0) {
             const firstStock = data.snapshot.stocks[0];
@@ -114,6 +122,45 @@ export default function EditorialBrokerDeskPage() {
       setIsLoading(false);
     }
   };
+
+  // Immediate stocks hydration fallback on mount
+  useEffect(() => {
+    let isMounted = true;
+    fetch('/api/stocks')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (isMounted && data?.stocks && Array.isArray(data.stocks) && data.stocks.length > 0) {
+          setSnapshot((prev) => {
+            if (!prev) {
+              return {
+                stocks: data.stocks,
+                teamsPurse: [],
+                tradesLedger: [],
+                ipoListings: [],
+                ipoSubscriptions: [],
+                totalDealsSettled: 0,
+                totalSharesCleared: 0,
+                totalGrossValue: 0,
+                totalCommissionEarned: 0,
+              } as any;
+            }
+            if (!prev.stocks || prev.stocks.length === 0) {
+              return { ...prev, stocks: data.stocks };
+            }
+            return prev;
+          });
+          if (!selectedStockIdRef.current && data.stocks[0]) {
+            selectedStockIdRef.current = data.stocks[0].id;
+            setSelectedStockId(data.stocks[0].id);
+            setAgreedPrice(String(data.stocks[0].current_price));
+          }
+        }
+      })
+      .catch(() => {});
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   useEffect(() => {
     fetchLedger();
@@ -632,6 +679,17 @@ export default function EditorialBrokerDeskPage() {
       {/* 4. MAIN WORKSPACE: 7-COLUMN CONTAINER WITH 2X2 INPUT CARDS GRID */}
       {/* ========================================================================= */}
       <main className="px-6 sm:px-12 py-8 max-w-[1400px] mx-auto space-y-12">
+        {/* Universal Datalist for both Trade and IPO slip entry */}
+        <datalist id="editorial-team-list">
+          <option value="Central Primary Pool">🏛️ Central Primary Pool (Round 0 Unlimited Issuance)</option>
+          {(snapshot?.teamsPurse || [])
+            .filter((t) => t.teamName !== 'Central Primary Pool')
+            .map((t) => (
+              <option key={t.teamId} value={t.teamName}>
+                {t.teamName} [{t.teamCode}] — CASH: ₹{(t.currentCash).toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+              </option>
+            ))}
+        </datalist>
         {feedback && (
           <div
             className={`p-5 rounded-[24px] border font-mono text-xs uppercase tracking-[0.1em] flex items-center justify-between gap-4 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${
@@ -1246,17 +1304,6 @@ export default function EditorialBrokerDeskPage() {
               </div>
             </div>
 
-            {/* Datalist */}
-            <datalist id="editorial-team-list">
-              <option value="Central Primary Pool">🏛️ Central Primary Pool (Round 0 Unlimited Issuance)</option>
-              {(snapshot?.teamsPurse || [])
-                .filter((t) => t.teamName !== 'Central Primary Pool')
-                .map((t) => (
-                  <option key={t.teamId} value={t.teamName}>
-                    {t.teamCode} — Cash: ₹{t.currentCash.toLocaleString('en-IN', { maximumFractionDigits: 0 })}
-                  </option>
-                ))}
-            </datalist>
 
             {/* EDITORIAL VOUCHER BREAKDOWN STRIP */}
             <div className={`p-6 rounded-[24px] border space-y-4 ${

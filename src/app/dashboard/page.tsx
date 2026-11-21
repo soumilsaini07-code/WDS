@@ -421,13 +421,36 @@ export default function ParticipantMarketTerminal() {
     };
   }, [soundEnabled]);
 
+  // 2.9 Immediate Initial Stocks Hydration Engine (Zero Wait / Non-blocking)
+  useEffect(() => {
+    let isMounted = true;
+    const fetchImmediateStocks = async () => {
+      try {
+        const res = await fetch('/api/stocks');
+        if (res.ok) {
+          const data = await res.json();
+          if (isMounted && data?.stocks && Array.isArray(data.stocks) && data.stocks.length > 0) {
+            setStocks(data.stocks);
+            setSelectedStock((curr) => curr || data.stocks[0]);
+          }
+        }
+      } catch (e) {
+        console.warn('Initial stocks fetch failed:', e);
+      }
+    };
+    fetchImmediateStocks();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   // 3. Real-Time Floor Polling Engine (Polls stocks, rounds, trades, and news every 1.5 seconds)
   useEffect(() => {
     let isMounted = true;
 
     const pollMarketData = async () => {
       try {
-        const [stocksRes, roundsRes, tradeRes, newsRes] = await Promise.all([
+        const [stocksResult, roundsResult, tradeResult, newsResult] = await Promise.allSettled([
           fetch('/api/stocks').then((r) => (r.ok ? r.json() : null)),
           fetch('/api/rounds').then((r) => (r.ok ? r.json() : null)),
           fetch('/api/trades/latest?t=' + Date.now(), { cache: 'no-store' }).then((r) => (r.ok ? r.json() : null)),
@@ -436,8 +459,13 @@ export default function ParticipantMarketTerminal() {
 
         if (!isMounted) return;
 
+        const stocksRes = stocksResult.status === 'fulfilled' ? stocksResult.value : null;
+        const roundsRes = roundsResult.status === 'fulfilled' ? roundsResult.value : null;
+        const tradeRes = tradeResult.status === 'fulfilled' ? tradeResult.value : null;
+        const newsRes = newsResult.status === 'fulfilled' ? newsResult.value : null;
+
         // A. Update Stocks
-        if (stocksRes?.stocks) {
+        if (stocksRes?.stocks && Array.isArray(stocksRes.stocks) && stocksRes.stocks.length > 0) {
           setStocks(stocksRes.stocks);
           setSelectedStock((current) => {
             if (!current && stocksRes.stocks.length > 0) return stocksRes.stocks[0];

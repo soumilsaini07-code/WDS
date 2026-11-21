@@ -6,6 +6,10 @@ import { RealtimeChannel } from '@supabase/supabase-js';
 type BroadcastCallback = (payload: any) => void;
 type PostgresCallback = (payload: any) => void;
 
+declare global {
+  var __realtimeHubInstance: RealtimeHub | undefined;
+}
+
 class RealtimeHub {
   private broadcastListeners = new Map<string, Set<BroadcastCallback>>();
   private postgresListeners = new Map<string, Set<PostgresCallback>>();
@@ -18,78 +22,104 @@ class RealtimeHub {
     this.isInitialized = true;
 
     try {
-      // 1. Clean up any existing channels in client state
-      try {
-        const existingChannels = supabaseClient.getChannels();
-        for (const ch of existingChannels) {
-          if (ch.topic.includes('trading-floor') || ch.topic.includes('db-cdc-telemetry')) {
-            supabaseClient.removeChannel(ch);
+      // 1. Inspect existing client channels
+      const existingChannels = supabaseClient.getChannels ? supabaseClient.getChannels() : [];
+      let existingBChannel = existingChannels.find((ch: any) => ch.topic === 'realtime:trading-floor');
+      let existingPChannel = existingChannels.find((ch: any) => ch.topic === 'realtime:db-cdc-telemetry');
+
+      // 2. Setup broadcast channel for 'trading-floor'
+      let bChannel = existingBChannel || this.broadcastChannel;
+      if (!bChannel) {
+        bChannel = supabaseClient.channel('trading-floor');
+        this.broadcastChannel = bChannel;
+
+        const knownEvents = [
+          'TRADE_EXECUTED',
+          'TRADE_SAVED_TO_CLOUD',
+          'BROKER_LEDGER_UPDATED',
+          'TEAMS_SYNCED',
+          'PORTFOLIO_UPDATED',
+          'SLIP_SUBMITTED',
+          'SLIP_EXECUTED',
+          'SLIP_STATUS_UPDATED',
+          'STOCK_PRICE_UPDATED',
+          'ROUND_ADVANCED',
+          'CLOCK_UPDATED',
+          'IPO_ALLOTTED',
+          'IPO_STATUS_UPDATED',
+          'IPO_SUBSCRIPTION_UPDATED',
+          'NEWS_PUBLISHED',
+        ];
+
+        for (const ev of knownEvents) {
+          try {
+            bChannel.on('broadcast', { event: ev }, (msg: any) => {
+              const listeners = this.broadcastListeners.get(ev);
+              if (listeners) {
+                const data = msg?.payload !== undefined ? msg.payload : msg;
+                listeners.forEach((cb) => {
+                  try { cb(data); } catch (e) { console.error('Broadcast listener error:', e); }
+                });
+              }
+            });
+          } catch (e) {
+            // Already subscribed or cannot attach
           }
         }
-      } catch { }
 
-      // 2. Dedicated broadcast channel for 'trading-floor'
-      const bChannel = supabaseClient.channel('trading-floor');
-      
-      const knownEvents = [
-        'TRADE_EXECUTED',
-        'TRADE_SAVED_TO_CLOUD',
-        'BROKER_LEDGER_UPDATED',
-        'TEAMS_SYNCED',
-        'PORTFOLIO_UPDATED',
-        'SLIP_SUBMITTED',
-        'SLIP_EXECUTED',
-        'SLIP_STATUS_UPDATED',
-        'STOCK_PRICE_UPDATED',
-        'ROUND_ADVANCED',
-        'CLOCK_UPDATED',
-        'IPO_ALLOTTED',
-        'IPO_STATUS_UPDATED',
-        'IPO_SUBSCRIPTION_UPDATED',
-        'NEWS_PUBLISHED',
-      ];
-
-      for (const ev of knownEvents) {
-        bChannel.on('broadcast', { event: ev }, (msg: any) => {
-          const listeners = this.broadcastListeners.get(ev);
-          if (listeners) {
-            const data = msg?.payload !== undefined ? msg.payload : msg;
-            listeners.forEach((cb) => {
-              try { cb(data); } catch (e) { console.error('Broadcast listener error:', e); }
-            });
-          }
-        });
+        try {
+          bChannel.subscribe((status: string) => {
+            if (status === 'SUBSCRIBED') {
+              // Successfully connected to floor broadcast
+            }
+          });
+        } catch (e) {
+          // Non-blocking
+        }
       }
 
-      bChannel.subscribe();
-      this.broadcastChannel = bChannel;
+      // 3. Setup CDC channel for postgres_changes
+      let pChannel = existingPChannel || this.postgresChannel;
+      if (!pChannel) {
+        pChannel = supabaseClient.channel('db-cdc-telemetry');
+        this.postgresChannel = pChannel;
 
-      // 3. Dedicated CDC channel for postgres_changes (distinct topic prevents subscribe collisions)
-      const pChannel = supabaseClient.channel('db-cdc-telemetry');
-      const knownTables = [
-        'ipo_listings',
-        'ipo_subscriptions',
-        'order_slips',
-        'round_clock',
-        'transactions',
-        'stocks',
-      ];
+        const knownTables = [
+          'ipo_listings',
+          'ipo_subscriptions',
+          'order_slips',
+          'round_clock',
+          'transactions',
+          'stocks',
+        ];
 
-      for (const table of knownTables) {
-        pChannel.on('postgres_changes', { event: '*', schema: 'public', table }, (payload: any) => {
-          const listeners = this.postgresListeners.get(table);
-          if (listeners) {
-            listeners.forEach((cb) => {
-              try { cb(payload); } catch (e) { console.error('Postgres listener error:', e); }
+        for (const table of knownTables) {
+          try {
+            pChannel.on('postgres_changes', { event: '*', schema: 'public', table }, (payload: any) => {
+              const listeners = this.postgresListeners.get(table);
+              if (listeners) {
+                listeners.forEach((cb) => {
+                  try { cb(payload); } catch (e) { console.error('Postgres listener error:', e); }
+                });
+              }
             });
+          } catch (e) {
+            // Channel may already be subscribed; fail gracefully
           }
-        });
-      }
+        }
 
-      pChannel.subscribe();
-      this.postgresChannel = pChannel;
+        try {
+          pChannel.subscribe((status: string) => {
+            if (status === 'SUBSCRIBED') {
+              // Successfully connected to CDC telemetry
+            }
+          });
+        } catch (e) {
+          // Non-blocking
+        }
+      }
     } catch (err) {
-      console.warn('RealtimeHub initialization error:', err);
+      console.warn('RealtimeHub initialization notice:', err);
     }
   }
 
@@ -118,4 +148,4 @@ class RealtimeHub {
   }
 }
 
-export const realtimeHub = new RealtimeHub();
+export const realtimeHub = globalThis.__realtimeHubInstance || (globalThis.__realtimeHubInstance = new RealtimeHub());
