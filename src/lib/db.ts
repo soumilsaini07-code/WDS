@@ -3007,6 +3007,18 @@ export async function injectMarketEvent(
   };
   db.news_articles.unshift(newsItem);
 
+  if (supabase) {
+    Promise.resolve(
+      supabase.from('news_articles').upsert({
+        id: newsItem.id,
+        headline: newsItem.headline,
+        body: newsItem.body,
+        sentiment: newsItem.sentiment,
+        published_at: newsItem.published_at,
+      }, { onConflict: 'id' })
+    ).catch(() => {});
+  }
+
   saveLocalDB(db);
 
   // Broadcast real-time news alert across all connected terminals
@@ -3096,7 +3108,20 @@ export async function triggerCrisisScenario(presetId: string): Promise<MarketEve
 // -----------------------------------------------------------------------------
 export async function getNewsArticles(): Promise<NewsArticle[]> {
   const db = getLocalDB();
-  return db.news_articles.sort(
+  if (supabase) {
+    try {
+      const { data, error } = await supabase
+        .from('news_articles')
+        .select('*')
+        .order('published_at', { ascending: false })
+        .limit(50);
+      if (!error && data && data.length > 0) {
+        db.news_articles = data;
+        return data;
+      }
+    } catch { }
+  }
+  return (db.news_articles || []).sort(
     (a, b) => new Date(b.published_at).getTime() - new Date(a.published_at).getTime()
   );
 }
